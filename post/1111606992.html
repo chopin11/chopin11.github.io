@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<!-- Head tag -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  <meta name="baidu-site-verification" content="" />
+  <meta name="google-site-verification" content="" />
+  <meta name="msvalidate.01" content="" />
+  <meta name="360-site-verification" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- if page has tags, then add tags to keyword -->
+  
+  
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,linux,linux,入门教程">
+  <!-- page.description has higher priority -->
+  <meta name="description" content="这篇文章是写给 Linux 初学者的，我会分享一些作为初学者应该知道的一些东西，这些内容都是作者从事 Linux 开发工作多年的心得体会，相信会对初学者有所帮助。">
+  <link rel="shortcut icon" href="/img/favicon.ico">
+  <title>
+    
+    写给 Linux 初学者的一封信 | 肖邦Linux
+    
+  </title>
+
+  <link rel="canonical" href="https://www.tcpdump.cn/post/1111606992.html">
+  
+<link rel="stylesheet" href="/css/geektutu.css">
+
+  <!-- global function -->
+  <script>
+    window.globalAddScript = function (url, onload, onerror) {
+      var s = document.createElement('script');
+      s.src = url;
+      onload && (s.onload = onload);
+      onerror && (s.onerror = onerror);
+      document.body.appendChild(s);
+    }
+    window.globalAddCss = function (url) {
+      var s = document.createElement('link');
+      s.rel = 'stylesheet';
+      s.href = url;
+      document.body.appendChild(s);
+    }
+    window.getPosition = function (ele) {
+      var x = 0, y = 0;
+      while (ele) {
+        x += (ele.offsetLeft - ele.scrollLeft + ele.clientLeft);
+        y += (ele.offsetTop - ele.scrollTop + ele.clientTop);
+        ele = ele.offsetParent;
+      }
+      return { x: x, y: y };
+    }
+    window.getDom = function (str) { return document.querySelector(str) }
+  </script>
+  <!-- google ad -->
+  
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/feed.xml" title="肖邦Linux" type="application/rss+xml">
+</head>
+
+<body>
+    
+<header class="gkt-header col-xs-12 padding-0">
+    <div id="gkt-nav" class="gkt-header-container">
+        <a href="/" class="gkt-header-title float-left">
+            <img class="float-left" src="/img/favicon.ico" alt="">
+            <span>肖邦Linux</span>
+        </a>
+        <nav class="gkt-header-nav text-right">
+            <ul>
+                <li><a class="hidden-xs" href="/feed.xml">订阅</a></li>
+                <li><a href="/series/">专题</a></li>
+                <li><a href="/archives/">归档</a></li>
+                <li><a href="/post/link.html">友链</a></li>
+                <li><a href="/post/about.html">关于</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div id="gkt-cate-nav" class="gkt-header-container hidden-xs">
+        
+        <nav class="gkt-header-nav float-left">
+            <ul>
+                
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/325553977.html">负载均衡</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left active">
+                    <a class="float-left" href="/post/1111606992.html">Linux基础</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/78358564.html">HTTPS</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1335797944.html">网络协议</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/55249683.html">工具效率</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+<div class="gkt-header-placeholder" style="height: 44px"></div>
+<div class="gkt-header-placeholder hidden-xs" style="height: 44px"></div>
+<script>
+    (function () {
+        window.addEventListener('scroll', function () {
+            if (window.innerWidth < 768) {
+                return;
+            }
+            var nav = document.querySelector('#gkt-nav');
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            scrollTop > 50 && (nav.classList.add('hide'));
+            scrollTop <= 50 && (nav.classList.remove('hide'));
+        });
+        var cateNavs = document.querySelectorAll('#gkt-cate-nav>nav>ul>li');
+        [].slice.call(cateNavs).forEach(function (item) {
+            var sub = item.querySelector('.gkt-sub-cate');
+            if (!sub) return;
+            item.addEventListener('mouseenter', function (e) { sub.style.display = 'block'; }, false);
+            item.addEventListener('mouseleave', function (e) { sub.style.display = 'none'; }, false);
+        })
+    })();
+</script>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Main Content -->
+<main class="col-xs-12 padding-0 markdown-it">
+    <!-- Post Container -->
+    
+    
+    <!-- Post Content -->
+<div class="float-left post-container box-shadow">
+    <div class="u-arrow-wrapper hidden-xs">
+        
+        <a class="float-left" href="/post/4205823097.html"><i class="u-arrow-left"></i></a>
+        
+        
+        <a class="float-right" href="/post/78358564.html"><i class="u-arrow-right"></i></a>
+        
+    </div>
+    <article class="col-xs-12">
+        <h1> 写给 Linux 初学者的一封信 </h1>
+        
+        
+        <div class="hidden-lg hidden-md series_links">
+            <p> <strong> Linux基础系列文章链接：</strong></p>
+            <ul>
+                
+                <li>
+                    <a href="/post/1111606992.html">写给 Linux 初学者的一封信</a>
+                    <span class="post-item-date">(Jan 3, 2022)</span>
+                </li>
+                
+            </ul>
+        </div>
+        
+        
+        <div class="gkt-article-start"></div>
+        <blockquote>
+<p>这篇文章是写给 Linux 初学者的，我会分享一些作为初学者应该知道的一些东西，这些内容都是作者从事 Linux 开发工作多年的心得体会，相信会对初学者有所帮助。如果你是 Linux 老鸟，那可能就不需要再往下看了</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/linux-001.jpg" alt="linux"></p>
+<h2 id="为啥要学Linux"><a href="#为啥要学Linux" class="headerlink" title="为啥要学Linux"></a>为啥要学Linux</h2><p>作为从事 IT 工作的同学，对 Linux 系统一定不陌生。如今我们在各种领域都能看得到它的身影，比如，手机、服务器、嵌入式、电信设备、大型计算机，以及各种电子类产品都离不开 Linux，它已经渗透到互联网世界的方方面面了。</p>
+<p>包括那些火热的技术，比如云计算、虚拟化、容器、大数据、人工智能，几乎都是基于 Linux 技术的，那些平台系统，电商、团购、社交、新闻、快递，都是部署在服务器端，也几乎都是基于 Linux 技术的。</p>
+<p>在编程的世界中，Linux 就是主流，不会 Linux 你就可能会格格不入。如果你想进大公司，想学新技术，Linux 一定是一道绕不过去的砍，只有进入了 Linux 系统这扇大门，你才可能成为合格的软件工程师。</p>
+<p>企业服务器环境绝大部分都是 Linux 系统，所以不管你是从事前端、后端、运维、测试中的哪一类工作，Linux 都是你必须掌握的基础知识，只是不同类型工作需要学习 Linux 的方向不同而已。</p>
+<h2 id="经验与建议"><a href="#经验与建议" class="headerlink" title="经验与建议"></a>经验与建议</h2><p>下边分享的内容是本人从事 Linux 开发多年的一些经验总结，相信对 Linux 初学者会有所帮助，当然如果有不准确的地方，还请指正。</p>
+<p><strong>（一）一定要自己搭建Linux环境</strong></p>
+<p>Linux 系统学习是很重实践的，只学习理论知识是不能真正掌握 Linux 的。</p>
+<p>我推荐在个人电脑上安装虚拟机，虚拟机的方式非常灵活，既可以提供 Linux 环境，也不会影响宿主机的正常使用。对于<strong>虚拟机软件的选择</strong>，可以考虑使用 <code>VMware</code> 或 <code>VirtualBox</code> 。</p>
+<p>虚拟机的<strong>快照</strong>功能一定要用好，尤其是对新手来说，它可以将你不小心搞坏的环境恢复到初始化状态，就像是重新安装了操作系统一样，从此妈妈再也不用担心我 <code>rm -rf /*</code> 了。</p>
+<p><strong>（二）Linux发行版的选择</strong></p>
+<p>由于 Linux 的强大，目前存在太多的发行版本了，有些同学在选择上可能会有些纠结。这里我推荐选择使用 CentOS 就行，由于免费且稳定，国内企业服务器使用最多的就是 CentOS 了，使用上和 RedHat 几乎没有什么区别。</p>
+<p>当然你可以选择 Ubuntu 系统，国内服务器使用份额仅次于 CentOS。</p>
+<p>其实所有发行版都是基于 Linux 内核的，只是扩展了相关的系统组件和软件库，本质上都是 Linux 系统，学会了 CentOS 后就很容易上手其它版本的系统了，所以无需太关注和纠结这个问题。</p>
+<p><strong>（三）一定要使用命令行</strong></p>
+<p>大部分初学者经常喜欢安装图形桌面，因为我们之前都习惯了 win 或 mac 的图形操作。但我强烈建议，安装系统时不要安装桌面，平时的操作和学习都坚持使用命令行。</p>
+<p>学习前期可能会比较痛苦，但熬过了阵痛期，熟练使用之后，就能享受到命令行带来的强大功能。命令行不仅功能强大，而且可以极大的提高效率，因为命令行就意味着能够自动化，自动化能为你释放很多重复性的工作，让你有充足的时间去学习更有价值的知识。</p>
+<p>另外，图形界面在 linux 系统上作为一个独立软件存在，会额外消耗服务器的资源，企业的服务器一定是不会安装图形的，所以需要你一定要在 Linux 世界中<strong>忘掉 windows 的思维方式</strong>。</p>
+<p><strong>（四）Linux 是开源的</strong></p>
+<p>开源意味着你能够查看 Linux 源码，可以从代码层面理解系统实现的原理，这些可以让你达到一通百通、醍醐灌顶的效果，而不是简单的使用它。</p>
+<p><strong>（五）养成安全严谨的良好习惯</strong></p>
+<p>对于初学者来说，虽然大部分时间是在虚拟机上操作，有快照的加持，可以毫无顾忌的进行各种实验性的操作。但我还是强烈建议初学者一定要养成良好的操作习惯：<br><em>1.</em> 经常备份重要的数据；<br><em>2.</em> 少用 root 用户进行各种操作；<br><em>3.</em> 敲命令不是越快越好；<br><em>4.</em> 服务器密码尽可能的复杂些，不要使用 <code>123456</code> 这类弱密码，服务器很可能被侵入当肉鸡；<br><em>5.</em> 服务器密码不要简单记录在文档上或 U 盘之类的移动设备上；<br><em>6.</em> 对生产环境一定要有<strong>敬畏心</strong>。</p>
+<h2 id="如何学习？"><a href="#如何学习？" class="headerlink" title="如何学习？"></a>如何学习？</h2><p>高效的学习方法往往能够帮助你事半功倍，下边是我分享的一些自己的学习心得和方法，希望对大家有帮助。</p>
+<p><strong>（一）一定要多实践</strong></p>
+<p>Linux 是一门实操性非常强的学科，初学者需要多敲命令，多实践和练习。与学习其它东西是一样的，大多时候我们不需要非得先将理论知识学的通透后才来实践动手，而是从实践中发现问题后再深度学习，这样效果可能会更好。</p>
+<p><strong>（二）有效的学习方式</strong></p>
+<p>说到学习方式，每个人学习的方式可能不太一样。我推荐 <strong>视频</strong> + <strong>看书</strong> 的方式，视频教程可以让你快速上手，快速了解相关的概念，而看书可以更加全面的学习具体的细节，会让你有更多的思考，看书可以作为视频的补充和扩展。</p>
+<p><strong>（三）思考，总结与归纳</strong></p>
+<p>不管以什么形式来学习，我们都需要对学习中的每个问题和概念认真思考，需要从 <em>what</em>、<em>how</em>、<em>why</em> 三个角度进行学习，作为学习的问题模板。</p>
+<p>学习任何新技术，我们都需要知道这个技术知识点的<em>应用场景</em>，以及能够<em>解决什么问题</em>，是否有类似的<em>解决方案</em>，此技术点有什么<em>优势</em>。</p>
+<p><strong>（四）输出是一种高效学习方法</strong></p>
+<p>在学习过程中，必不可少的一个环节就是归纳和总结，总结就要输出，可以是文档形式的笔记或者其它。我比较推荐<em>写博客</em>，有条件的话一定要写，因为写博客可以帮助你更有效地、更系统的总结和学习。写博客是一种 <em>教</em> 的形式，如果能够将自己学到的知识在博客上清晰的讲清楚，教会别人，那才说明你是真正的掌握了它。</p>
+<p>如果博客写的不错的话也能为自己够<em>积累影响力</em>，对自己将来的求职也会有帮助。另外如果别人从你博客学习到了东西而且觉着不错的话，会给你点赞、留言、赞赏，这都是对你写博客和学习的<em>正反馈</em>，同时也能够刺激你保持学习的兴奋和激情，呵呵。</p>
+<p><strong>（五）制定明确的学习目标</strong></p>
+<p>做任何事，有了目标才能够走的更远，少走弯路。我们学习 Linux 也一样，需要根据自己的实际情况，制定适合自己的学习目标。个人建议目标不要太大，时间周期也不要太长，要切合实际，比如制定<em>三个月</em>的学习目标。</p>
+<p>有了目标后，就要确定详细的学习计划，细化到每周需要完成的任务列表。注意，你需要为计划任务指定结果检验的方式，比如写一篇博客文章或是笔记，计划真实落地才是最困难的，因为<em>执行力</em>是一种稀缺资源。</p>
+<p><strong>（六）坚持与激情，获得正反馈</strong></p>
+<p>学习是一件逆人性的事情，大部分人在遇到诸多问题后就很容易会放弃。<br><em>1.</em> 合理的学习计划和结果输出，能够让你继续保持学习的激情；<br><em>2.</em> 写博客、讨论交流等方式也可以获得正向的反馈，从而激励着你继续向前；<br><em>3.</em> 坚持学习也能够帮你养成良好的习惯，无形中提高自己的执行力，个人认为这些收获可能远比具体的技术知识更加重要。</p>
+<p><strong>（七）如何解决问题</strong></p>
+<p>在学习 Linux 技术的时候，初学者肯定会遇到各种 <em>奇怪</em> 的问题，面对这些问题时，我们要学会分析错误信息，尝试以目前学习到的技术来思考找答案。</p>
+<p>如果解决不了，可以使用搜索引擎，对于初学者遇到的问题，百度一般都能够解决。如果实在解决不了，可以请教身边的高手，不过提问问题时，一定要描述清楚问题，带着谦虚请教的态度。</p>
+<h2 id="应该学习的基础知识"><a href="#应该学习的基础知识" class="headerlink" title="应该学习的基础知识"></a>应该学习的基础知识</h2><p>Linux 系统涉及的技术知识点非常广泛，学习者可以根据自己的实际情况，选择相应的主题方向进行学习，不可盲目的跟随他人的学习路线，有可能适得其反，学习效果事倍功半，得不偿失，所以选择适合自己的学习路线非常重要。</p>
+<p>因为每个人将来从事的工作和方向不同，需要重点学习的内容也不一样，而且本文目标也只是分享给 Linux 初学者一些实用的经验心得，所以后边内容中只简单罗列了最通用和实用的一些技术，这些是学习 Linux 技术的所有同学都应该知道的技术知识点。</p>
+<p><strong>（一）学习 vim</strong></p>
+<p>在 Linux 系统下，基本没有什么可以与之竞争的编辑器（不接受反驳），你只需要花费 <code>1-2</code> 天的时间来熟悉 vim 的基本使用操作即可，无需研究那些高大上的各种插件使用技巧。</p>
+<p>要知道 vim 的学习是有难度的，不过一旦熟练使用后，就会得心应手，能极大提高编辑效率。这里推荐陈皓的《<a target="_blank" rel="noopener" href="https://coolshell.cn/articles/5426.html">简明 vim 练级攻略</a>》。</p>
+<p><strong>（二）简单的文件管理</strong></p>
+<p>这些都是一些非常基础的操作与文件的管理命令，如：<code>ls</code>、<code>less</code>、<code>head</code>、<code>tail</code>、<code>du</code>、<code>df</code>、<code>ln</code> 等，当然 <code>find</code> 是查找文件的非常有用的命令，功能非常强大。</p>
+<p><strong>（三）基础的网络管理</strong></p>
+<p>常用的网络管理命令，一定要学会使用，这对平时工作或学习时的网络诊断和网络配置非常有用。比如 <code>ip</code> 或 <code>ifconfig</code> 等网络命令，还有网络诊断工具 <code>netstat</code>、<code>ping</code>、<code>traceroute</code> 等。</p>
+<p><strong>（四）学些 shell 脚本编程</strong></p>
+<p>我们知道 Linux 特点之一就是命令行，上边我们说过，命令行就意味着可以自动化，自动化后就能够规模化。shell 脚本就是我们实现自动化的最有效的方式，因为 shell 程序是最擅长与 Linux 内核打交道的。我们可以利用 shell 脚本帮我们做很多重复性的工作，来释放我们工程师的双手去创造更大的价值。</p>
+<p><strong>（五）熟悉作业管理</strong></p>
+<p>我们需要经常在命令行终端上管理应用程序，启动或关闭程序。你需要知道这些概念，如：进程、进程组、会话、终端，学会使用 <code>jobs</code>、<code>fg</code>、<code>bg</code>、<code>kill</code>、<code>Ctrl-C</code>、<code>Ctrl-Z</code>，以及信号的相关操作，需要知道 <code>kill -9</code> 到底是在干什么。</p>
+<p><strong>（六）学习使用软件包的管理</strong></p>
+<p>国内最常用的 Linux 发行版是 <code>ubuntu</code>、<code>centos</code>，需要学会使用 <code>apt-get</code>、<code>yum</code> 命令来查找和安装相关的软件包，当然也要学会试着从源码编译方式安装软件。</p>
+<p><strong>（七）学习简单的数据处理</strong></p>
+<p>我们在工作和学习中也会经常需要处理文本信息，Linux 在这方面提供了很多的工具，组合起来能够非常方便的实现强大的功能。常见的命令 <code>sort</code>、<code>uniq</code>、<code>cut</code>、<code>split</code>，还有 Linux 经典的三剑客 <code>sed</code>、<code>awk</code>、<code>grep</code>，这三个工具都是上古神器，功能非常强大，<em>awk</em> 还有专门的书籍来讲解它，可见功能之强大与复杂，我们初学者只需要熟练掌握一些常用的功能即可。</p>
+<p><strong>（八）学会看文档</strong></p>
+<p>虽然不是具体的技术知识，但它却非常重要，初学者在学习命令时总是希望能记住所有的参数和选项，其实这些参数我们不需要记忆（大脑是用来思考的而不是存储的），我们可以通过 Linux 手册来查看，通常使用 <code>man cmdx</code> 就能够查看该命令的官方文档说明，既准确又清晰。当然在遇到问题时，也可以查看手册来确认命令的使用方法是否正确。</p>
+<h2 id="写在后边"><a href="#写在后边" class="headerlink" title="写在后边"></a>写在后边</h2><p>Linux 系统涉及的技术知识点非常复杂，上述所分享的仅是一些必学基础知识，如果能够认真学习并够掌握好，基本上算是入门 Linux（存活的级别）。</p>
+<p>如果你是<strong>运维方向</strong>，至少需要更深入的学习：用户管理、磁盘管理、系统日常管理、常见服务的搭建、高可用集群、系统监控等运维知识。</p>
+<p>如果你是<strong>后台开发方向</strong>，至少需要更深入学些 Linux 操作系统、进程与线程、进程间通信、信号、网络编程、系统调用、Linux 内核等知识。</p>
+<p>如果你是<strong>嵌入式方向</strong>，你至少需要深入研究 Linux 内核源码、设备驱动程序了。</p>
+<p>本篇文章到此结束，后边还会更新 Linux 系列文章，文章内容风格会尽量保持通俗易懂、重实践和实用性，尽可能地帮助到有需要的同学，如果感兴趣的话，可以继续关注后续 Linux 系列文章。</p>
+
+        
+<script src="/js/qrious.min.js"></script>
+
+
+        <hr style="margin-top: 2rem;">
+        <div>
+            
+            <p>
+                <span>专题: </span>
+                
+                <a href="/series/#Linux基础">
+                    <code key="Linux基础" class="post-label">Linux基础</code>
+                </a>
+                
+            </p>
+            
+            <p>
+                <span>本文发表于 2022-01-03，最后修改于 2022-04-16。</span>
+            </p>
+            <!-- 文章末尾的提示 start -->
+            
+            <p>
+                本站永久域名「 <a
+                        href="/post/1111606992.html">www.tcpdump.cn</a>
+                    」，也可搜索「 肖邦Linux 」找到我。
+            </p>
+            
+            
+                
+            <!-- 文章末尾的提示 end -->
+        </div>
+        <hr />
+        <p name="pagination" style="font-size: 1.2em">
+    
+    <a class="float-left" href="/post/4205823097.html">上一篇 « 负载均衡 DPVS 邻居子系统的实现</a>
+    
+    
+    <a class="float-right" href="/post/78358564.html">下一篇 » 使用 openssl 创建自签名证书</a>
+    
+</p>
+    </article>
+    <!-- 赞赏 -->
+    <!--打赏-->
+
+<style>
+    #reward .reward-btn-wrapper {
+        width: 100px;
+        padding-top: 35px;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+
+    #reward .reward-btn {
+        padding: 2px 15px;
+        color: #fff;
+        background-color: #ea6f5a;
+        border-radius: 20px;
+    }
+
+    #reward .reward-code {
+        position: absolute;
+        top: -220px;
+        left: 50%;
+        display: none;
+        width: 360px;
+        height: 240px;
+        margin-left: -180px;
+        padding: 15px 20px;
+        border: 1px solid #e6e6e6;
+        background: #fff;
+        box-shadow: 0 1px 1px 1px #efefef;
+    }
+
+    #reward .reward-code:after,
+    #reward .reward-code:before {
+        position: absolute;
+        content: '';
+        border: 10px solid transparent
+    }
+
+    #reward .reward-code:after {
+        bottom: -19px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #fff
+    }
+
+    #reward .reward-code:before {
+        bottom: -20px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #e6e6e6
+    }
+
+    #reward .qr-code {
+        width: 50%;
+        float: left;
+        padding: 5px;
+    }
+
+    #reward .qr-code p {
+        margin-top: -6px;
+    }
+
+    #reward img {
+        transform: none;
+        -webkit-transform: none;
+        margin-left: 0;
+    }
+
+    #reward img[alt='i'] {
+        width: 20px;
+        height: 20px;
+        z-index: 2;
+        position: absolute;
+        margin: 65px 0 0 65px;
+    }
+
+    #reward img[alt="ali"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #0f9be0;
+    }
+
+    #reward img[alt="wechat"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #3db034;
+    }
+
+    #reward .reward-tip {
+        font-size: 1.2em;
+        margin-bottom: 0;
+        color: #ea6f5a;
+    }
+</style>
+<div id="reward" class="col-xs-12">
+    <div class="reward-btn-wrapper">
+        <div class="reward-btn text-center">赞赏支持</div>
+    </div>
+    <div class="reward-code text-center">
+        <p class="text-center reward-tip"><strong>请我吃胡萝卜 =^_^= </strong></p>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-ali" src="" alt="ali">
+            <p><small>支付宝</small></p>
+        </div>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-wechat" src="" alt="wechat">
+            <p><small>微信</small></p>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window, document) {
+        var aliQr = new QRious({ value: 'HTTPS://QR.ALIPAY.COM/FKX060337TUXBAX9LIFJE8' });
+        var wechatQr = new QRious({ value: 'wxp://f2f0qgGBlfD1nZXjvBjievxB0z0fc0W2sBq5' });
+        document.querySelector('#reward-ali').src = aliQr.toDataURL();
+        document.querySelector('#reward-wechat').src = wechatQr.toDataURL();
+
+        var rewardBtn = document.querySelector('#reward .reward-btn-wrapper');
+        var qrCode = document.querySelector('#reward .reward-code')
+        var activeFunc = function (e) {
+            qrCode.style.display = 'block';
+        }
+        var hideFunc = function (e) {
+            qrCode.style.display = 'none';
+        }
+
+        rewardBtn.addEventListener('mouseenter', activeFunc, false)
+        rewardBtn.addEventListener('mouseover', activeFunc, false)
+        rewardBtn.addEventListener('mouseleave', hideFunc, false)
+        qrCode.addEventListener('mouseenter', activeFunc, false)
+        qrCode.addEventListener('mouseover', activeFunc, false)
+        qrCode.addEventListener('mouseleave', hideFunc, false)
+    })(window, document);
+</script>
+
+    
+<div class="col-xs-12 text-center" style="margin-top: 30px;">
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://github.com/chopin11" title="Github"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/github.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://geektutu.com/feed.xml" title="RSS"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/rss.jpg" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie" title="知乎"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/zhihu.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://weibo.com/geektutu" title="微博"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/weibo.jpg" /></a>
+    
+</div>
+
+    <!-- 推荐阅读三篇文章 -->
+    <div class="col-xs-12">
+        <h3>推荐阅读</h3>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#toa"
+                    title="toa">toa</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/1229090889.html" class="title">
+                负载均衡 LVS TOA 实现原理
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-08-16，</span>
+                    <span class="hidden-xs">全文4389字，</span>
+                    <span>阅读约15分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/3360290171.html" class="title">
+                负载均衡 LVS 主流程代码分析
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-07-14，</span>
+                    <span class="hidden-xs">全文14415字，</span>
+                    <span>阅读约49分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#调度算法"
+                    title="调度算法">调度算法</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/522418658.html" class="title">
+                负载均衡 LVS 调度算法
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-06-12，</span>
+                    <span class="hidden-xs">全文9501字，</span>
+                    <span>阅读约32分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+    </div>
+    <div class="col-xs-12">
+        <!-- 标签列表 -->
+        <!-- Featured Tags -->
+<style>
+    #featured-tag .post-tag-item {
+        font-size: 12px;
+        line-height: 30px;
+        display: inline-block;
+        height: 30px;
+        margin: 5px 0px;
+        padding: 0 7px;
+        color: #333;
+        border-radius: 15px;
+        background: #f6f6f6;
+    }
+
+    #featured-tag .post-tag-item:hover {
+        color: #337ab7;
+    }
+</style>
+<div id="featured-tag">
+    
+    <a class="post-tag-item" href="/tags/#keepalived" title="keepalived"
+        rel="1">#keepalived (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#负载均衡" title="负载均衡"
+        rel="9">#负载均衡 (9) </a>
+    
+    <a class="post-tag-item" href="/tags/#高可用" title="高可用"
+        rel="1">#高可用 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#dpvs" title="dpvs"
+        rel="3">#dpvs (3) </a>
+    
+    <a class="post-tag-item" href="/tags/#邻居" title="邻居"
+        rel="1">#邻居 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#linux" title="linux"
+        rel="1">#linux (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#HTTPS" title="HTTPS"
+        rel="8">#HTTPS (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#OPENSSL" title="OPENSSL"
+        rel="8">#OPENSSL (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#签发证书" title="签发证书"
+        rel="8">#签发证书 (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#路由" title="路由"
+        rel="1">#路由 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#lvs" title="lvs"
+        rel="7">#lvs (7) </a>
+    
+    <a class="post-tag-item" href="/tags/#TCP" title="TCP"
+        rel="1">#TCP (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#网络协议" title="网络协议"
+        rel="1">#网络协议 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#工具效率" title="工具效率"
+        rel="1">#工具效率 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#调度算法" title="调度算法"
+        rel="1">#调度算法 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#toa" title="toa"
+        rel="1">#toa (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#snat" title="snat"
+        rel="1">#snat (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#关于我" title="关于我"
+        rel="1">#关于我 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#友链" title="友链"
+        rel="1">#友链 (1) </a>
+    
+</div>
+    </div>
+    <!-- 评论 -->
+    
+    <div class="col-xs-12">
+        
+<div class="col-xs-12 padding-0">
+    <div id="gitalk-container">
+        <div class="gt-container text-center" style="margin-top: 50px;">
+            <button class="gt-btn gt-btn-public"><span class="gt-btn-text">去 Github 评论</span></button>
+        </div>
+    </div>
+    <div id="gitalk-related"></div>
+</div>
+
+<link rel="stylesheet" href="/css/gitalk.css">
+
+
+<script src="/js/gitalk.min.js"></script>
+
+<script>
+    window.addEventListener('load', function () {
+        function renderCommentUrl(data) {
+            var url = (data[window.location.pathname] || {}).url
+            url && getDom('#gitalk-container button').addEventListener('click', function (e) { window.open(url)})
+            url || (getDom('#gitalk-container').style.display = 'none')
+        }
+        const gitalk = new Gitalk({
+            clientID: 'c1fdd456a4caae5f7df0',
+            clientSecret: 'b2674451e21feae50520f99337ec15d2aebe7879',
+            accessToken: '513dc2f1e6df8c07a12fbf1547874f54679d9712',
+            repo: 'blog',
+            owner: 'geektutu',
+            admin: ['geektutu'],
+            id: window.location.pathname,
+            distractionFreeMode: false
+        });
+        fetch("https://api.github.com/user").then(function(resp){
+            gitalk.render('gitalk-container');
+        }).catch(function(e){
+            fetch('/tool/issues.json').then(function (r) { return r.json() }).then(renderCommentUrl).catch(function (e) { })
+        })
+        getDom('#gitalk-container').addEventListener('click', function (e) {
+            e && e.stopPropagation && e.stopPropagation();
+        });
+    })
+</script>
+<script>
+    window.addEventListener('load', function () {
+        function render(comments) {
+            var template = '<a href="${comment.url}?utm_source=gitalk" class="dis-item-url"><h3 class="dis-item-title">${comment.title}</h3>' +
+                '<p class="dis-item-des">${comment.count} 评论 ● ${comment.date}</p>' +
+                '<div class="dis-item-content"><img class="dis-item-img" src="${comment.icon}" alt="icon"><p><b><span class="dis-item-user">${comment.user}</span></b>&nbsp;——&nbsp;${comment.body}</p></div>' +
+                '</a>'
+
+            var wrapper = getDom('#gitalk-related');
+            comments = shuffle(comments);
+            comments.slice(0, 4).forEach(function (c) {
+                var div = document.createElement('div');
+                div.classList.add('dis-item');
+                div.innerHTML = template.replace("${comment.url}", c.url)
+                    .replace("${comment.title}", c.title)
+                    .replace("${comment.count}", c.count)
+                    .replace("${comment.date}", c.date)
+                    .replace("${comment.icon}", c.icon)
+                    .replace("${comment.user}", c.user)
+                    .replace("${comment.body}", c.body)
+                wrapper.appendChild(div)
+            })
+            var p = document.createElement('p')
+            p.innerHTML = '<a target="_blank" rel="noopener" href="https://geektutu.com/post/blog-experience-7.html">Gitalk Plus</a>';
+            p.classList.add('dis-divide');
+            wrapper.appendChild(p);
+            wrapper.classList.add('dis-wrapper')
+        }
+        function shuffle(a) {
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+        fetch('/tool/comments.json').then(function (r) { return r.json() }).then(render).catch(function (e) { })
+    })
+</script>
+
+    </div>
+    
+</div>
+<aside class="float-left gkt-sidebar hidden-xs hidden-sm">
+    <div style="clear: both"></div>
+    <div class="gkt-sidebar-wrapper">
+        <section class="box-shadow"><style>
+    .gkt-summary {
+        border: 1px solid #DDDDDD;
+        border-radius: 3px;
+        padding: 5px;
+        width: 100%;
+    }
+
+
+    .gkt-summary nav {
+        overflow: hidden;
+    }
+
+    .gkt-summary nav a {
+        display: inline-block;
+        text-align: center;
+        color: #333;
+        font-size: 12px;
+    }
+
+    .gkt-summary nav span {
+        display: block;
+    }
+
+    .gkt-summary nav .middle {
+        border-left: 1px solid #eaecef;
+        border-right: 1px solid #eaecef;
+    }
+
+    .gkt-summary .number {
+        font-weight: bold;
+    }
+
+    .gkt-summary .link-list {
+        margin-top: 5px;
+        margin-bottom: -5px;
+        padding-top: 7px;
+        border-top: 1px dashed #999;
+        display: flex;
+    }
+
+    .gkt-summary .link-list a {
+        flex: 1;
+    }
+
+    .gkt-summary .link-list img {
+        width: 25px;
+        height: 25px;
+    }
+</style>
+
+<div class="gkt-summary">
+    <nav>
+        <a href="/" class="col-xs-4">
+            <span class="number">24</span><span>文章</span>
+        </a>
+        <a href="/series" class="col-xs-4 middle">
+            <span class="number">5</span><span>专题</span>
+        </a>
+        <a href="/tags" class="col-xs-4">
+            <span class="number">19</span><span>标签</span>
+        </a>
+    </nav>
+
+    
+    <div class="link-list">
+        
+        <a target="_blank" rel="noopener" href="https://github.com/chopin11"><img src="/img/related_links/github.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://geektutu.com/feed.xml"><img src="/img/related_links/rss.jpg" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie"><img src="/img/related_links/zhihu.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://weibo.com/geektutu"><img src="/img/related_links/weibo.jpg" /></a>
+        
+    </div>
+    
+</div></section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>Linux基础</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/1111606992.html"
+                        class="gkt-sidebar-active">写给 Linux 初学者的一封信</a>
+                    
+                    <!-- Table of Contents -->
+<div id="sidebar-toc">
+  <!-- TOC  -->
+  
+  
+  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%BA%E5%95%A5%E8%A6%81%E5%AD%A6Linux"><span class="toc-nav-text">为啥要学Linux</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%BB%8F%E9%AA%8C%E4%B8%8E%E5%BB%BA%E8%AE%AE"><span class="toc-nav-text">经验与建议</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%A6%82%E4%BD%95%E5%AD%A6%E4%B9%A0%EF%BC%9F"><span class="toc-nav-text">如何学习？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%BA%94%E8%AF%A5%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-nav-text">应该学习的基础知识</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%86%99%E5%9C%A8%E5%90%8E%E8%BE%B9"><span class="toc-nav-text">写在后边</span></a></li></ol>
+  
+</div>
+
+<script>
+  (function () {
+    var h2 = document.querySelectorAll('article h2');
+    var h3 = document.querySelectorAll('article h3');
+    var linkList = document.querySelectorAll('#sidebar-toc a');
+
+    function findLinkElement(name) {
+      for (var i = 0; i < linkList.length; i++) {
+        var items = linkList[i].href.split('#');
+        if (items && items[items.length - 1] === encodeURIComponent(name)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function activeLink(titleList) {
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      for (var i = titleList.length - 1; i >= 0; i--) {
+        if (scrollTop - titleList[i].offsetTop > 0) {
+          var index = findLinkElement(titleList[i].id);
+          index != -1 && linkList[index].classList.add('gkt-sidebar-active');
+          break;
+        }
+      }
+    }
+
+    window.addEventListener("scroll", function (e) {
+      [].slice.call(linkList).forEach(function (link) {
+        link.classList.remove('gkt-sidebar-active');
+      })
+      activeLink(h2);
+    })
+  })();
+</script>
+                    
+                </li>
+                
+            </ul>
+        </section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>最近的文章</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/55249683.html">让浏览器快如飞的插件 vimium</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1335797944.html">经典的 TCP 三次握手问题</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1717622242.html">使用 openssl 操作证书的常见用法</a>
+                </li>
+                
+            </ul>
+        </section>
+        
+    </div>
+</aside>
+
+<script>
+    (function () {
+        function resizeUArrow() {
+            var s = getDom('.u-arrow-wrapper').style
+            var pc = getDom('.post-container')
+            s.left = getPosition(pc).x + 'px';
+            s.width = pc.clientWidth + 'px';
+        }
+        resizeUArrow()
+        window.addEventListener('resize', resizeUArrow);
+    })();
+</script>
+
+    
+
+<script>
+    (function () {
+        var ele = getDom('.gkt-sidebar-content')
+        if(!ele) return;
+        var wrapper = getDom('.gkt-sidebar-wrapper')
+        var last = 0
+        ele.style.maxHeight = ((window.innerHeight || 798) - 200) + 'px'
+        var f = function (e) {
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            var isDown = scrollTop > last;
+            var pos = getPosition(ele).y - scrollTop;
+            var downLimit = 50;
+            var upLimit = -100;
+            // uarrow.style.marginTop = scrollTop + 'px';
+            isDown && pos <= downLimit && wrapper.classList.add("gkt-sidebar-fixed");
+            !isDown && pos > upLimit && wrapper.classList.remove("gkt-sidebar-fixed");
+            last = scrollTop
+        }
+        f()
+        window.addEventListener("scroll", f)
+    })();
+</script>
+
+</main>
+    </div>
+    <style>
+    img#go-top {
+        position: fixed;
+        bottom: 100px;
+        width: 50px;
+        cursor: pointer;
+        z-index: 9999;
+    }
+</style>
+<img id="go-top" src="/icon/top.png" class="hidden-xs" style="display: none" />
+<script>
+    (function () {
+        var goTop = document.getElementById('go-top');
+        var mainContainer = document.querySelector('.main-container');
+        
+        goTop.addEventListener('click', function () {
+            window.scroll(0, 0);
+        }, false);
+        window.addEventListener('scroll', function () {
+            var right = document.body.offsetWidth - mainContainer.getBoundingClientRect().right;
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            goTop.style.right = right + 10 + 'px'
+            scrollTop > 700 && (goTop.style.display = "block");
+            scrollTop <= 700 && (goTop.style.display = "none");
+        });
+    })();
+</script>
+    <style>
+    #geektutu-click-img-container {
+        position: fixed;
+        left: 0;
+        top: 0;
+        text-align: center;
+        width: 100%;
+        display: none;
+        z-index: 9999;
+    }
+
+    #geektutu-click-img-container img {
+        object-fit: contain;
+        background: #eaecef;
+        padding: 15px;
+        border-radius: 10px;
+        height: auto;
+        width: auto;
+        vertical-align: middle;
+    }
+</style>
+
+
+<div id="geektutu-click-img-container">
+    <img src="" alt="Big Image">
+</div>
+
+<script>
+    (function () {
+        var container = document.querySelector('#geektutu-click-img-container')
+        var targetImg = container.querySelector('img')
+        var imgs = document.querySelectorAll('article img');
+        targetImg.addEventListener('click', function (e) {
+            container.style.display = 'none';
+            e && e.stopPropagation && e.stopPropagation();
+        }, false);
+
+        for (var i = 0; i < imgs.length; ++i) {
+            var img = imgs[i];
+            img.addEventListener('click', (function (src, rate) {
+                return function (e) {
+                    e && e.stopPropagation && e.stopPropagation();
+                    if (window.innerWidth < 980) {
+                        return
+                    }
+                    targetImg.style.height = targetImg.style.width = 'auto';
+                    if (window.innerWidth / window.innerHeight > rate) {
+                        targetImg.style.height = (window.innerHeight - 20) + 'px';
+                    } else {
+                        targetImg.style.width = (window.innerWidth - 20) + 'px';
+                    }
+                    container.style.height = window.innerHeight + 'px'
+                    container.style.lineHeight = window.innerHeight + 'px'
+                    container.style.display = 'block';
+                    targetImg.src = src;
+                };
+            }(img.src, img.width / img.height)), false)
+        }
+    })();
+</script>
+    <!-- Footer -->
+    <!-- Footer -->
+<style>
+    footer {
+        width: 100%;
+        line-height: 1.5;
+        padding: 20px;
+    }
+
+    footer a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .footer-hexo img {
+        height: 20px;
+        margin-bottom: -5px;
+    }
+
+    .footer-hexo a {
+        color: #337ab7;
+    }
+</style>
+<footer class="text-center col-xs-12">
+    <p>
+        <small>©2019 - 2022 - 肖邦 - </small>
+        <small>
+            <a target="_blank" rel="nofollow noopener" href="http://beian.miit.gov.cn/">临渊羡鱼，不如退而结网</a>
+        </small>
+    </p>
+    <p class="footer-hexo">
+        <!-- 但若直接使用或修改主题，请务必保留这段声明 -->
+        <small>Powered by <a target="_blank" href="https://hexo.io">Hexo</a> | Theme
+            <a target="_blank" href="https://geektutu.com">Geektutu</a>
+            <a target="_blank" rel="noopener" href="https://github.com/chopin11">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYGBgYHBgcICAcKCwoLCg8ODAwODxYQERAREBYiFRkVFRkVIh4kHhweJB42KiYmKjY+NDI0PkxERExfWl98fKcBBgYGBgcGBwgIBwoLCgsKDw4MDA4PFhAREBEQFiIVGRUVGRUiHiQeHB4kHjYqJiYqNj40MjQ+TERETF9aX3x8p//CABEIACIAUAMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAAAAQQFBwIDBgj/2gAIAQEAAAAA9KrHSgAYL5/z6zZGuJd12uugbhq3uKtmuRtix20IS7lTLAfAAAn/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAAAB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAxAAAAAAAf/EADEQAAICAQIEBQEGBwAAAAAAAAECAwQFAAYREhORBxQhUlQxQVFic5KxJDJCYYGC0f/aAAgBAQABPwCFHnjWUzuvN6hV4cANSRLGjO9yRVUcSzMoA7jVXJYe5N0a2dhmk9kc0bN2GvLN8mbuNeWb5M3ca8s3yZu415Y/Jm7jXlm+TN3H/NeVPyZu40vOk3TZywK8wJ+v3EHVM/wsI/Dq2lrxN3Nnca16eti8chSAIoMbzByhMwP14kHVfwIiSaF5c96J6kwwCOTnHsYk8uvCrdmQy1TI4rJuz3cZLyGR/wCd4+YoOf8AEpUjXitubLYPG4paFsUxcuiGe7yc5gTW3LW44szXmobsi3Dhmic2+Z4+vCVH9CpraPiQ+QvbgTJrPFBWd5YpWrmNIIEXiRO32Pqt4p7cnfHk18lFBdmEVW1LVdIZGOrniTt6plrWKaO69yCykDRxwF+LMAewB0Txtr+Sf31VI8tEPw62fZt7N3Humtbpzz13ucX6CGSWMSuzpLyD1eNgeUka3PuvHbaxq3biTMHfkiSNCS78CwU+3Xg7Vu3MhuTcU6cq3Zemn3Eh2dv8Lzcut+29x1atKbHYqLJUhLwyNMwiZ3j9yDWOxUOV3tgb+3No5LDx1pi9+aeIwRlNY6bc+Jv+IFGrhLxtXJZ7VKcw81diiAAEn0JOrkWZyNfbEr0tz27UGQgkuGzXdIIvyowq99bRxk9ffO/L81SZBPZgEEroQroIxxMZOgeNsfkn99QypHGqO4Vl9CDrN4LDZkwyzyyQ2IgRHZrzGCZVP1XnQglT9oOtw4LC7iqV6uRkZoYpxKFSQpzFRw4EjVRMfSrQ1qqwxQxKFjjTgFUD7BoWYR6iVe+mtxt9Zwf9teaj4AdccPu5tedX5A/VrzUR+sy/q1CwksF19VEfDj/cnQRW+qg66cfsXtrpx+xe2unH7F7a6cfsXtrpx+xe2unH7F7a6cfsXtoxx+xe2gAAOA1//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAgEBPwB//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAwEBPwB//9k="
+                    alt="Github Star">
+            </a>
+        </small>
+    </p>
+    <!-- 
+    <p>
+        <small>
+            <span id="busuanzi_container_site_pv">👁<span id="busuanzi_value_site_pv"></span></span> &nbsp;
+            <span id="busuanzi_container_page_pv">📚<span id="busuanzi_value_page_pv"></span></span>
+        </small>
+    </p>
+    
+     -->
+
+</footer>
+
+
+<script>
+    window.addEventListener('load', function () {
+        globalAddScript('//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js');
+    })
+</script>
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+    <script>
+        // 非本站网址，新开tab页签
+        (function () {
+            var stopBubble = function (e) {
+                e && e.stopPropagation && e.stopPropagation();
+            }
+            var links = document.querySelectorAll('a');
+            [].slice.call(links).forEach(function (item) {
+                if (item.href && item.href.indexOf(window.location.host) === -1) {
+                    item.target = '_blank'
+                }
+                // 阻止冒泡，不触发彩蛋。
+                item.addEventListener('click', stopBubble, false);
+            });
+            var article = document.querySelector('article');
+            article && article.addEventListener('click', stopBubble, false)
+        })();
+    </script>
+    
+</body>
+
+</html>

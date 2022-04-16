@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<!-- Head tag -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  <meta name="baidu-site-verification" content="" />
+  <meta name="google-site-verification" content="" />
+  <meta name="msvalidate.01" content="" />
+  <meta name="360-site-verification" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- if page has tags, then add tags to keyword -->
+  
+  
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,负载均衡,lvs,lvs,lb,负载均衡,高性能">
+  <!-- page.description has higher priority -->
+  <meta name="description" content="通过之前的内容我们大概对 LVS 有了直观认识，理解了 LVS 的一些基本工作原理。这篇文章通过实践操作的方式，搭建实际测试环境，一步一步配置 LVS 的几种模式。">
+  <link rel="shortcut icon" href="/img/favicon.ico">
+  <title>
+    
+    负载均衡 LVS 操作实践 | 肖邦Linux
+    
+  </title>
+
+  <link rel="canonical" href="https://www.tcpdump.cn/post/3671532823.html">
+  
+<link rel="stylesheet" href="/css/geektutu.css">
+
+  <!-- global function -->
+  <script>
+    window.globalAddScript = function (url, onload, onerror) {
+      var s = document.createElement('script');
+      s.src = url;
+      onload && (s.onload = onload);
+      onerror && (s.onerror = onerror);
+      document.body.appendChild(s);
+    }
+    window.globalAddCss = function (url) {
+      var s = document.createElement('link');
+      s.rel = 'stylesheet';
+      s.href = url;
+      document.body.appendChild(s);
+    }
+    window.getPosition = function (ele) {
+      var x = 0, y = 0;
+      while (ele) {
+        x += (ele.offsetLeft - ele.scrollLeft + ele.clientLeft);
+        y += (ele.offsetTop - ele.scrollTop + ele.clientTop);
+        ele = ele.offsetParent;
+      }
+      return { x: x, y: y };
+    }
+    window.getDom = function (str) { return document.querySelector(str) }
+  </script>
+  <!-- google ad -->
+  
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/feed.xml" title="肖邦Linux" type="application/rss+xml">
+</head>
+
+<body>
+    
+<header class="gkt-header col-xs-12 padding-0">
+    <div id="gkt-nav" class="gkt-header-container">
+        <a href="/" class="gkt-header-title float-left">
+            <img class="float-left" src="/img/favicon.ico" alt="">
+            <span>肖邦Linux</span>
+        </a>
+        <nav class="gkt-header-nav text-right">
+            <ul>
+                <li><a class="hidden-xs" href="/feed.xml">订阅</a></li>
+                <li><a href="/series/">专题</a></li>
+                <li><a href="/archives/">归档</a></li>
+                <li><a href="/post/link.html">友链</a></li>
+                <li><a href="/post/about.html">关于</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div id="gkt-cate-nav" class="gkt-header-container hidden-xs">
+        
+        <nav class="gkt-header-nav float-left">
+            <ul>
+                
+                
+                <li class="gkt-cate-name float-left active">
+                    <a class="float-left" href="/post/325553977.html">负载均衡</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1111606992.html">Linux基础</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/78358564.html">HTTPS</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1335797944.html">网络协议</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/55249683.html">工具效率</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+<div class="gkt-header-placeholder" style="height: 44px"></div>
+<div class="gkt-header-placeholder hidden-xs" style="height: 44px"></div>
+<script>
+    (function () {
+        window.addEventListener('scroll', function () {
+            if (window.innerWidth < 768) {
+                return;
+            }
+            var nav = document.querySelector('#gkt-nav');
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            scrollTop > 50 && (nav.classList.add('hide'));
+            scrollTop <= 50 && (nav.classList.remove('hide'));
+        });
+        var cateNavs = document.querySelectorAll('#gkt-cate-nav>nav>ul>li');
+        [].slice.call(cateNavs).forEach(function (item) {
+            var sub = item.querySelector('.gkt-sub-cate');
+            if (!sub) return;
+            item.addEventListener('mouseenter', function (e) { sub.style.display = 'block'; }, false);
+            item.addEventListener('mouseleave', function (e) { sub.style.display = 'none'; }, false);
+        })
+    })();
+</script>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Main Content -->
+<main class="col-xs-12 padding-0 markdown-it">
+    <!-- Post Container -->
+    
+    
+    <!-- Post Content -->
+<div class="float-left post-container box-shadow">
+    <div class="u-arrow-wrapper hidden-xs">
+        
+        <a class="float-left" href="/post/1970613528.html"><i class="u-arrow-left"></i></a>
+        
+        
+        <a class="float-right" href="/post/2126991808.html"><i class="u-arrow-right"></i></a>
+        
+    </div>
+    <article class="col-xs-12">
+        <h1> 负载均衡 LVS 操作实践 </h1>
+        
+        
+        <div class="hidden-lg hidden-md series_links">
+            <p> <strong> 负载均衡系列文章链接：</strong></p>
+            <ul>
+                
+                <li>
+                    <a href="/post/325553977.html">keepalived 快速入门介绍</a>
+                    <span class="post-item-date">(Jan 2, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2589298645.html">负载均衡 LVS 基本介绍</a>
+                    <span class="post-item-date">(Feb 4, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/1970613528.html">负载均衡 LVS 基本原理</a>
+                    <span class="post-item-date">(Mar 6, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3671532823.html">负载均衡 LVS 操作实践</a>
+                    <span class="post-item-date">(Apr 8, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2126991808.html">负载均衡 LVS 连接表</a>
+                    <span class="post-item-date">(May 10, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/522418658.html">负载均衡 LVS 调度算法</a>
+                    <span class="post-item-date">(Jun 12, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3360290171.html">负载均衡 LVS 主流程代码分析</a>
+                    <span class="post-item-date">(Jul 14, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/1229090889.html">负载均衡 LVS TOA 实现原理</a>
+                    <span class="post-item-date">(Aug 16, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2778281555.html">负载均衡 DPVS SNAT 功能介绍</a>
+                    <span class="post-item-date">(Sep 18, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3989527185.html">负载均衡 DPVS 路由子系统的实现</a>
+                    <span class="post-item-date">(Oct 20, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/4205823097.html">负载均衡 DPVS 邻居子系统的实现</a>
+                    <span class="post-item-date">(Nov 22, 2021)</span>
+                </li>
+                
+            </ul>
+        </div>
+        
+        
+        <div class="gkt-article-start"></div>
+        <blockquote>
+<p>通过之前的内容我们大概对 LVS 有了直观认识，理解了 LVS 的一些基本工作原理。这篇文章通过实践操作的方式，搭建实际测试环境，一步一步配置 LVS 的几种模式。</p>
+</blockquote>
+<h2 id="一、实验环境说明"><a href="#一、实验环境说明" class="headerlink" title="一、实验环境说明"></a>一、实验环境说明</h2><p>我们知道 LVS 工作模式有 DR、NAT、Tunnel 模式，这篇文章中会针对每个模式进行实践操作，通过实验来更深入理解工作原理。我们需要至少 4 台服务器来进行模拟实验。</p>
+<ul>
+<li>操作系统<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CentOS release 6.5 (Final)</span><br></pre></td></tr></table></figure></li>
+<li>内核版本<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2.6.32-754.15.3.el6.x86_64</span><br></pre></td></tr></table></figure></li>
+<li>相关服务器<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1 台客户端服务器</span><br><span class="line">1 台负载均衡服务器</span><br><span class="line">2 台后端真实服务器（模拟负载均衡调度）</span><br><span class="line"></span><br><span class="line">注：为了简单，我的几台服务器都是在都一个二层网络，如果有条件的话可以模拟更逼真一些。</span><br></pre></td></tr></table></figure></li>
+</ul>
+<blockquote>
+<p>注：虚拟机也可以，另外如果资源紧张的话，三台服务器也可（RS一台）</p>
+</blockquote>
+<h2 id="二、LVS-相关组件"><a href="#二、LVS-相关组件" class="headerlink" title="二、LVS 相关组件"></a>二、LVS 相关组件</h2><p>在进行试验操作之前，有必要先简单</p>
+<ul>
+<li><strong>IPVS</strong>。LVS 是基于内核态的 netfilter 框架实现的 IPVS 功能，工作在内核态。那么用户是如何配置 VIP 等相关信息并传递到 IPVS 呢，就需要用到了 ipvsadm 工具。</li>
+<li><strong>ipvsadm 工具</strong>。ipvsadm 是 LVS 用户态的配套工具，可以实现 VIP 和 RS 的增删改查功能。它是基于 <code>netlink</code> 或 <code>raw socket</code> 方式与内核 LVS 进行通信的，如果 LVS 类比于 netfilter，那么 ipvsadm 就是类似 iptables 工具的地位。</li>
+<li><strong>keepalived</strong>。ipvsadm 是一个命令行工具，如果 LVS 需要配置的业务非常复杂，ipvadm 就很不方便了。keepalived 最早就是为了 LVS 而生的，非官方开发的，它提供了配置文件的形式配置管理（持久化），服务的增删改查，操作非常方便。另外，keepalived 支持配置虚拟的 VIP，能够实现 LVS 的高可用，实际生产环境中一般离不开它。</li>
+</ul>
+<p>虽然 keepalived 使用起来非常方便，不过在实验环境中为了简化步骤，也能够更清楚的理解操作步骤和原理，所有的操作都是用 ipvsadm 命令来进行的。后边也会简单介绍使用 keepalived 进行 LVS 服务的操作管理。</p>
+<h2 id="三、DR-模式操作实践"><a href="#三、DR-模式操作实践" class="headerlink" title="三、DR 模式操作实践"></a>三、DR 模式操作实践</h2><p><strong>（一）实验环境</strong></p>
+<ul>
+<li>客户端：<code>10.211.102.46</code></li>
+<li>负载均衡：VIP=<code>10.211.102.47</code>  DIP=<code>172.16.100.10</code></li>
+<li>后端1：<code>172.16.100.20</code></li>
+<li>后端2：<code>172.16.100.30</code></li>
+</ul>
+<p><strong>（二）负载均衡服务器配置</strong></p>
+<p>安装 ipvsadm 工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install ipvsadm</span><br></pre></td></tr></table></figure>
+
+<p>配置vip服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ vim lvs_dr.sh</span><br><span class="line"><span class="comment"># 内容如下：</span></span><br><span class="line">vip=10.211.102.47</span><br><span class="line">rs1=172.16.100.20</span><br><span class="line">rs2=172.16.100.30</span><br><span class="line">/sbin/ipvsadm -C                               <span class="comment"># 清除原有规则</span></span><br><span class="line">/sbin/ipvsadm -A -t <span class="variable">$vip</span>:8088 -s rr						 <span class="comment"># 添加vip:8088的tcp服务</span></span><br><span class="line">/sbin/ipvsadm -a -t <span class="variable">$vip</span>:8088 -r <span class="variable">$rs1</span>:8088 -g  <span class="comment"># 添加rs1服务器</span></span><br><span class="line">/sbin/ipvsadm -a -t <span class="variable">$vip</span>:8088 -r <span class="variable">$rs2</span>:8088 -g  <span class="comment"># 添加rs2服务器</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行脚本</span></span><br><span class="line">$ /bin/bash lvs_dr.sh</span><br></pre></td></tr></table></figure>
+
+<p>查看服务配置情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ ipvsadm -<span class="built_in">ln</span> -t 10.211.102.47:8088</span><br><span class="line">Prot LocalAddress:Port Scheduler Flags</span><br><span class="line">  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</span><br><span class="line">TCP  10.211.102.47:8088 rr</span><br><span class="line">  -&gt; 172.16.100.20:8088           Route   1      0          0</span><br><span class="line">  -&gt; 172.16.100.30:8088           Route   1      0          0</span><br></pre></td></tr></table></figure>
+
+<p><strong>（三）后端服务器配置</strong></p>
+<p>后端服务器需要安装 nginx 服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装 nginx 启动并侦听 8088 端口</span></span><br><span class="line">$ yum install nginx</span><br><span class="line"></span><br><span class="line"><span class="comment"># rs 配置 lo 和其它内核参数</span></span><br><span class="line">$ vim rs_dr.sh  <span class="comment"># 内容如下:</span></span><br><span class="line">vip=10.211.102.47</span><br><span class="line">ifconfig lo:0 <span class="variable">$vip</span> broadcast <span class="variable">$vip</span> netmask 255.255.255.255 up</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;1&quot;</span> &gt;/proc/sys/net/ipv4/conf/lo/arp_ignore</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;2&quot;</span> &gt;/proc/sys/net/ipv4/conf/lo/arp_announce</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;1&quot;</span> &gt;/proc/sys/net/ipv4/conf/all/arp_ignore</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;2&quot;</span> &gt;/proc/sys/net/ipv4/conf/all/arp_announce</span><br></pre></td></tr></table></figure>
+
+<p>执行脚本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ /bin/bash rs_dr.sh</span><br><span class="line">$ ifconfig lo:0                       <span class="comment"># 查看rs的lo:0接口配置信息</span></span><br><span class="line">lo:0      Link encap:Local Loopback</span><br><span class="line">          inet addr:10.211.102.47  Mask:255.255.255.255</span><br><span class="line">          UP LOOPBACK RUNNING  MTU:16436  Metric:1</span><br></pre></td></tr></table></figure>
+
+<p>注：这些步骤需要在两个 RS 上都进行相关操作。</p>
+<p><strong>（四）执行测试</strong></p>
+<p>上述所有步骤执行完毕后，如果一切都顺利的话，执行测试命令会出现如下结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ curl 10.211.102.47:8088</span><br><span class="line">hello from rs1...</span><br><span class="line">$ curl 10.211.102.47:8088</span><br><span class="line">hello from rs2...</span><br></pre></td></tr></table></figure>
+
+<p>实验成功！两次请求分别被调度到了两台的后端服务器上了。感兴趣的话，在后端服务器上抓包观测实际数据包的各个字段是否符合预期。</p>
+<h2 id="四、DR-配置信息的含义"><a href="#四、DR-配置信息的含义" class="headerlink" title="四、DR 配置信息的含义"></a>四、DR 配置信息的含义</h2><p>通过上述步骤，完成最简单的 DR 模式配置。在负载均衡服务器上配置的信息容易理解，而在后端服务器上配置了 lo 和内核参数，下边以问题的方式来解释清楚这些含义。</p>
+<ul>
+<li>为什么需要在 lo 接口配置 vip ？</li>
+</ul>
+<blockquote>
+<p>A：我们知道如果服务器收到的数据包 IP 地址不是本机地址（没开启转发模式），就会丢弃。后端服务器收到 DR 模式的数据包，此时目标 IP 是 VIP，服务器会认为此数据包不是发送给本机的，会丢弃。而我们在 lo 接口上配置 VIP 后，服务器就能够正常接收此数据包，发送给相应的应用程序了。因此，在 lo 上配置 vip 能够完成接收数据包并将结果返回给 client。</p>
+</blockquote>
+<ul>
+<li>为什么需要配置 arp_ignore 参数？</li>
+</ul>
+<blockquote>
+<p>A：我们在 lo 上配置了 vip，正常情况下，其它设备发送 vip 的 arp 请求时，除了负载均衡设备会响应 arp 请求之外，后端服务器也会响应 vip 的 arp 请求，这样请求设备不知道哪个是准确的了，反正就是乱了。我们在参数中配置 <code>arp_ignore=1</code> 之后，后端服务器只会响应目的 IP 地址为接收网卡上的本地地址的 arp 请求。由于 vip 配置了在 lo 上，所以其它接口收到相关的 arp 请求都会忽略掉，这样保证了 arp 请求正确性。这也说明了为什么 vip 必须配置在 lo 接口上而不是其它接口上了。</p>
+</blockquote>
+<ul>
+<li>为什么需要配置 arp_announce 参数？</li>
+</ul>
+<blockquote>
+<p>当后端服务器向客户端发送响应数据包时，源地址和目的地址确定，通过目标地址查找路由后，发送网卡也是确认的，也就是源 MAC 地址是确认的，目的 MAC 地址还不确定，需要获取下一跳 IP 对应的 MAC 地址，就需要发送 arp 请求了。发送的 arp 请求目的 IP 就是下一跳的地址，而源 IP 是什么呢？系统通常默认会取数据包的源 IP 作为 arp 的源 IP。我们认真想一下，源 IP 不就是 VIP 么，假设以 VIP 为源 IP 发送 arp 请求，那下一跳（路由器）学习到的 MAC 地址和 IP 地址对应关系就会错乱，因为负载均衡设备上的 VIP 对应的 MAC 地址肯定与这个不同，导致整个系统 arp 紊乱。</p>
+<p>而我们配置参数 <code>arp_announce=2</code> 后，操作系统在发送 arp 请求选择源 IP 时，就会忽略数据包的源地址，选择发送网卡上最合适的本地地址作为 arp 请求的源地址。 </p>
+</blockquote>
+<h2 id="五、NAT-模式操作实践"><a href="#五、NAT-模式操作实践" class="headerlink" title="五、NAT 模式操作实践"></a>五、NAT 模式操作实践</h2><p><strong>（一）实验环境</strong></p>
+<ul>
+<li>客户端：<code>10.211.102.46</code></li>
+<li>负载均衡：VIP=<code>10.211.102.47</code>  DIP=<code>172.16.100.10</code></li>
+<li>后端1：<code>172.16.100.20</code></li>
+<li>后端2：<code>172.16.100.30</code></li>
+</ul>
+<p><strong>（二）负载均衡服务器配置</strong></p>
+<p>安装 ipvsadm 并执行相关配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ yum install ipvsadm</span><br><span class="line">$ vim lvs_nat.sh    <span class="comment"># 内容如下</span></span><br><span class="line"><span class="built_in">echo</span> 1 &gt; /proc/sys/net/ipv4/ip_forward</span><br><span class="line">vip=10.211.102.47</span><br><span class="line">rs1=172.16.100.20</span><br><span class="line">rs2=172.16.100.30</span><br><span class="line">/sbin/ipvsadm -C</span><br><span class="line">/sbin/ipvsadm -A -t <span class="variable">$vip</span>:8088 -s rr</span><br><span class="line">/sbin/ipvsadm -a -t <span class="variable">$vip</span>:8088 -r <span class="variable">$rs1</span>:8088 -m</span><br><span class="line">/sbin/ipvsadm -a -t <span class="variable">$vip</span>:8088 -r <span class="variable">$rs2</span>:8088 -m</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行脚本</span></span><br><span class="line">$ /bin/bash lvs_nat.sh</span><br></pre></td></tr></table></figure>
+
+<p>查看服务配置信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ ipvsadm -<span class="built_in">ln</span></span><br><span class="line">IP Virtual Server version 1.2.1 (size=4096)</span><br><span class="line">Prot LocalAddress:Port Scheduler Flags</span><br><span class="line">  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</span><br><span class="line">TCP  10.211.102.47:8088 rr</span><br><span class="line">  -&gt; 172.16.100.20:8088           Masq    1      0          0</span><br><span class="line">  -&gt; 172.16.100.30:8088           Masq    1      0          0</span><br></pre></td></tr></table></figure>
+
+<p><strong>（三）后端服务器配置</strong></p>
+<p>后端服务器安装和配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ yum install nginx    <span class="comment"># 安装 nginx，启动并侦听 8088 端口</span></span><br><span class="line"><span class="comment"># vim rs_nat.sh        # 如下内容</span></span><br><span class="line">route add default gw 172.16.100.10 dev eth0    <span class="comment"># 默认网关配置为负载均衡的 DIP</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行脚本（两个rs都需要执行）</span></span><br><span class="line">$ /bin/bash rs_nat.sh</span><br></pre></td></tr></table></figure>
+
+<p><strong>（四）执行测试</strong></p>
+<p>上述所有步骤执行完毕后，如果一切都顺利的话，执行测试命令会出现如下结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ curl 10.211.102.47:8088</span><br><span class="line">hello from rs1...</span><br><span class="line">$ curl 10.211.102.47:8088</span><br><span class="line">hello from rs2...</span><br></pre></td></tr></table></figure>
+
+<p>实验成功！两次请求分别被调度到了两台的后端服务器上了。感兴趣的话，在后端服务器上抓包观测实际数据包的各个字段是否符合预期。</p>
+<p><strong>（五）关于后端服务器设置默认网关</strong></p>
+<p>在后端服务器为何要设置默认网关指向负载均衡设备？由于 NAT 模式是双向流量都经过 LVS 设备，所以后端服务器需要将响应报文发送给 LVS 设备，不过此时的数据包目的 IP 是客户端的 IP，可能是外网的任何一个网段，需要通过设置路由的方式，将数据包转发给 LVS ，因为不可能穷举所有的网段地址，所以必须要设置默认的网关来指向 LVS。最后也要强调一下，负载均衡设备需要开启 ipv4 的 forward 参数。</p>
+<h2 id="六、Tunnel-模式操作实践"><a href="#六、Tunnel-模式操作实践" class="headerlink" title="六、Tunnel 模式操作实践"></a>六、Tunnel 模式操作实践</h2><p><strong>（一）实验环境</strong></p>
+<ul>
+<li>客户端：<code>10.211.102.46</code></li>
+<li>负载均衡：VIP=<code>10.211.102.47</code>  DIP=<code>172.16.100.10</code> </li>
+<li>后端1：<code>172.16.100.20</code> ，注，rs 与 DIP 可以不在一个网段，只要三层通就行。</li>
+<li>后端2：<code>172.16.100.30</code></li>
+</ul>
+<p><strong>（二）负载均衡服务器配置</strong></p>
+<p>安装 ipvsadm 并执行相关配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ yum install ipvsadm</span><br><span class="line">$ vim lvs_tunnel.sh   <span class="comment"># 内容如下</span></span><br><span class="line">vip=10.211.102.47</span><br><span class="line">rs1=172.16.100.20</span><br><span class="line">rs2=172.16.100.30</span><br><span class="line">/sbin/ipvsadm -C</span><br><span class="line">/sbin/ipvsadm -A -t <span class="variable">$vip</span>:8088 -s rr</span><br><span class="line">/sbin/ipvsadm -a -t <span class="variable">$vip</span>:8088 -r <span class="variable">$rs1</span>:8088 -i</span><br><span class="line">/sbin/ipvsadm -a -t <span class="variable">$vip</span>:8088 -r <span class="variable">$rs2</span>:8088 -i</span><br><span class="line"></span><br><span class="line"><span class="comment">## 执行脚本</span></span><br><span class="line">$ /bin/bash lvs_tunnel.sh</span><br></pre></td></tr></table></figure>
+
+<p>查看服务配置信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ ipvsadm -<span class="built_in">ln</span></span><br><span class="line">IP Virtual Server version 1.2.1 (size=4096)</span><br><span class="line">Prot LocalAddress:Port Scheduler Flags</span><br><span class="line">  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</span><br><span class="line">TCP  10.211.102.47:8088 rr</span><br><span class="line">  -&gt; 172.16.100.20:8088           Tunnel  1      0          0</span><br><span class="line">  -&gt; 172.16.100.30:8088           Tunnel  1      0          0</span><br></pre></td></tr></table></figure>
+
+<p><strong>（三）后端服务器配置</strong></p>
+<p>后端服务器安装和配置如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ yum install nginx    <span class="comment"># 安装 nginx，启动并侦听 8088 端口</span></span><br><span class="line"><span class="comment"># vim rs_tunnel.sh        # 如下内容</span></span><br><span class="line">vip=10.211.102.47</span><br><span class="line">modprobe ipip</span><br><span class="line">ifconfig tunl0 <span class="variable">$vip</span> broadcast <span class="variable">$vip</span> netmask 255.255.255.255 up</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;0&quot;</span> &gt; /proc/sys/net/ipv4/ip_forward</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;1&quot;</span> &gt;/proc/sys/net/ipv4/conf/all/arp_ignore</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;2&quot;</span> &gt;/proc/sys/net/ipv4/conf/all/arp_announce</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;0&quot;</span> &gt; /proc/sys/net/ipv4/conf/all/rp_filter</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;0&quot;</span> &gt; /proc/sys/net/ipv4/conf/tunl0/rp_filter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行脚本（两个rs都需要执行）</span></span><br><span class="line">$ /bin/bash rs_tunnel.sh</span><br></pre></td></tr></table></figure>
+
+<p><strong>（四）执行测试</strong></p>
+<p>上述所有步骤执行完毕后，如果一切都顺利的话，执行测试命令会出现如下结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ curl 10.211.102.47:8088</span><br><span class="line">hello from rs1...</span><br><span class="line">$ curl 10.211.102.47:8088</span><br><span class="line">hello from rs2...</span><br></pre></td></tr></table></figure>
+
+<p>实验成功！两次请求分别被调度到了两台的后端服务器上了。感兴趣的话，在后端服务器上抓包观测实际数据包的各个字段是否符合预期。</p>
+<p><strong>（五）为何设置 rp_filter 参数</strong></p>
+<p>为何需要设置 rp_filter 参数？A：默认 rp_filter 参数设置为 1，Linux 会反向校验源 IP 的路由，如果源和目的 IP 路由出口不是一个网卡，就会被丢弃。因为数据包到后端服务器物理网卡后会被转发给虚拟网卡 tunl0 接口，这时进入的网卡是 tunl0，而源 IP 的路由出口网卡肯定不是 tunl0，所以数据包会被丢弃。配置 rp_filter 参数为 0，就相当于关闭了这个校验。</p>
+<h2 id="七、使用keepalived配置LVS"><a href="#七、使用keepalived配置LVS" class="headerlink" title="七、使用keepalived配置LVS"></a>七、使用keepalived配置LVS</h2><p>上述的所有操作都是通过 ipvsadm 命令来实现的，虽然也能完成相应的功能，但也存在如下的问题：</p>
+<ul>
+<li>命令行操作和变更，很不方便。</li>
+<li>配置信息不方便持久化。</li>
+<li>假设一个 RealServer 宕机或无响应，LVS 仍会将请求转发至后端，导致业务不可用。</li>
+<li>存在单点问题，如果 LVS 服务器宕机，则全部服务不可用。</li>
+</ul>
+<p>keepalived 本身就是为 LVS 而开发的，能够优雅的解决上述问题。</p>
+<p><strong>（一）实验环境</strong></p>
+<ul>
+<li>客户端：<code>10.211.102.46</code></li>
+<li>负载均衡1：VIP=<code>10.211.102.47</code>  DIP=<code>172.16.100.10</code> </li>
+<li>负载均衡2：VIP=<code>10.211.102.48</code>  DIP=<code>172.16.100.40</code> </li>
+<li>后端1：<code>172.16.100.20</code> ，注，rs 与 DIP 可以不在一个网段，只要三层通就行。</li>
+<li>后端2：<code>172.16.100.30</code></li>
+</ul>
+<p><strong>（二）安装配置keepalvied</strong></p>
+<p>负载均衡设备需要安装 keepalived 软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install keepalived</span><br></pre></td></tr></table></figure>
+<p>keepalived master 配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">$ vim /etc/keepalived/keepalived.conf</span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state MASTER</span><br><span class="line">    interface eth0</span><br><span class="line">    virtual_router_id 51</span><br><span class="line">    priority 100</span><br><span class="line">    advert_int 1</span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass 1111</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        10.211.102.47</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">virtual_server 10.211.102.47 8088 &#123;</span><br><span class="line">    delay_loop 3</span><br><span class="line">    lb_algo wrr</span><br><span class="line">    lb_kind DR</span><br><span class="line">    protocol TCP</span><br><span class="line"></span><br><span class="line">    real_server 172.16.100.20 8088 &#123;</span><br><span class="line">        weight 1</span><br><span class="line">        TCP_CHECK &#123;</span><br><span class="line">            connect_timeout 10</span><br><span class="line">            connect_port 8088</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    real_server 172.16.100.30 8088 &#123;</span><br><span class="line">        weight 1</span><br><span class="line">        TCP_CHECK &#123;</span><br><span class="line">            connect_timeout 10</span><br><span class="line">            connect_port 8088</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>backup 结点配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拷贝主节点的配置文件keepalived.conf，然后修改如下内容：</span></span><br><span class="line">state MASTER -&gt; state BACKUP</span><br><span class="line">priority 100 -&gt; priority 90</span><br></pre></td></tr></table></figure>
+<p>启动 keepalvied 软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ service keepalived start</span><br></pre></td></tr></table></figure>
+
+<p><strong>（三）执行测试</strong></p>
+<ul>
+<li><strong>健康检查</strong>。手动关闭 rs2，执行测试命令，发现 lvs 会一直将请求转发至 rs1。恢复 rs2，lvs 很快就会感知并将 rs2 加入到集群列表。</li>
+<li><strong>高可用</strong>。手动 stop 掉 lvs1，会发现 vip 漂移到 lvs2 上，执行测试命令，正常工作。</li>
+</ul>
+<h2 id="八、LVS-的几种调度算法"><a href="#八、LVS-的几种调度算法" class="headerlink" title="八、LVS 的几种调度算法"></a>八、LVS 的几种调度算法</h2><p>在前边的一些实验过程中，会发现 ipvsadm 命令最后边的 <code>-s rr</code> ，就表示的是调度算法，其中 rr 就是最简单的轮询调度算法，下边先简单介绍负载均衡 LVS 支持的几种调度算法。</p>
+<ul>
+<li><code>轮询rr</code> - 这种算法是最简单的，就是按依次循环的方式将请求调度到不同的服务器上，该算法最大的特点就是简单。轮询算法假设所有的服务器处理请求的能力都是一样的，调度器会将所有的请求平均分配给每个真实服务器，不管后端 RS 配置和处理能力，非常均衡地分发下去。</li>
+<li><code>加权轮询wrr</code> - 这种算法比 rr 的算法多了一个权重的概念，可以给 RS 设置权重，权重越高，那么分发的请求数越多。实际生产环境的服务器配置可能不同，根据服务器配置适当设置权重，可以有效利用服务器资源。</li>
+<li><code>最少连接lc</code> - 这个算法会根据后端 RS 的连接数来决定把请求分发给谁，比如 RS1 连接数比 RS2 连接数少，那么请求就优先发给 RS1 </li>
+<li><code>加权最少链接 wlc</code> - 这个算法比 lc 多了一个权重的概念。</li>
+<li><code>基于局部性的最少连接调度算法 lblc</code> - 这个算法是请求数据包的目标 IP 地址的一种调度算法，该算法先根据请求的目标 IP 地址寻找最近的该目标 IP 地址所有使用的服务器，如果这台服务器依然可用，并且有能力处理该请求，调度器会尽量选择相同的服务器，否则会继续选择其它可行的服务器。</li>
+<li><code>复杂的基于局部性最少的连接算法 lblcr</code> - 记录的不是要给目标 IP 与一台服务器之间的连接记录，它会维护一个目标 IP 到一组服务器之间的映射关系，防止单点服务器负载过高。</li>
+<li><code>目标地址散列调度算法 dh</code> - 该算法是根据目标 IP 地址通过散列函数将目标 IP 与服务器建立映射关系，出现服务器不可用或负载过高的情况下，发往该目标 IP 的请求会固定发给该服务器。</li>
+<li><code>源地址散列调度算法 sh</code> - 与目标地址散列调度算法类似，但它是根据源地址散列算法进行静态分配固定的服务器资源。</li>
+</ul>
+
+        
+<script src="/js/qrious.min.js"></script>
+
+
+        <hr style="margin-top: 2rem;">
+        <div>
+            
+            <p>
+                <span>专题: </span>
+                
+                <a href="/series/#负载均衡">
+                    <code key="负载均衡" class="post-label">负载均衡</code>
+                </a>
+                
+            </p>
+            
+            <p>
+                <span>本文发表于 2021-04-08，最后修改于 2022-04-16。</span>
+            </p>
+            <!-- 文章末尾的提示 start -->
+            
+            <p>
+                本站永久域名「 <a
+                        href="/post/3671532823.html">www.tcpdump.cn</a>
+                    」，也可搜索「 肖邦Linux 」找到我。
+            </p>
+            
+            
+                
+            <!-- 文章末尾的提示 end -->
+        </div>
+        <hr />
+        <p name="pagination" style="font-size: 1.2em">
+    
+    <a class="float-left" href="/post/1970613528.html">上一篇 « 负载均衡 LVS 基本原理</a>
+    
+    
+    <a class="float-right" href="/post/2126991808.html">下一篇 » 负载均衡 LVS 连接表</a>
+    
+</p>
+    </article>
+    <!-- 赞赏 -->
+    <!--打赏-->
+
+<style>
+    #reward .reward-btn-wrapper {
+        width: 100px;
+        padding-top: 35px;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+
+    #reward .reward-btn {
+        padding: 2px 15px;
+        color: #fff;
+        background-color: #ea6f5a;
+        border-radius: 20px;
+    }
+
+    #reward .reward-code {
+        position: absolute;
+        top: -220px;
+        left: 50%;
+        display: none;
+        width: 360px;
+        height: 240px;
+        margin-left: -180px;
+        padding: 15px 20px;
+        border: 1px solid #e6e6e6;
+        background: #fff;
+        box-shadow: 0 1px 1px 1px #efefef;
+    }
+
+    #reward .reward-code:after,
+    #reward .reward-code:before {
+        position: absolute;
+        content: '';
+        border: 10px solid transparent
+    }
+
+    #reward .reward-code:after {
+        bottom: -19px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #fff
+    }
+
+    #reward .reward-code:before {
+        bottom: -20px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #e6e6e6
+    }
+
+    #reward .qr-code {
+        width: 50%;
+        float: left;
+        padding: 5px;
+    }
+
+    #reward .qr-code p {
+        margin-top: -6px;
+    }
+
+    #reward img {
+        transform: none;
+        -webkit-transform: none;
+        margin-left: 0;
+    }
+
+    #reward img[alt='i'] {
+        width: 20px;
+        height: 20px;
+        z-index: 2;
+        position: absolute;
+        margin: 65px 0 0 65px;
+    }
+
+    #reward img[alt="ali"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #0f9be0;
+    }
+
+    #reward img[alt="wechat"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #3db034;
+    }
+
+    #reward .reward-tip {
+        font-size: 1.2em;
+        margin-bottom: 0;
+        color: #ea6f5a;
+    }
+</style>
+<div id="reward" class="col-xs-12">
+    <div class="reward-btn-wrapper">
+        <div class="reward-btn text-center">赞赏支持</div>
+    </div>
+    <div class="reward-code text-center">
+        <p class="text-center reward-tip"><strong>请我吃胡萝卜 =^_^= </strong></p>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-ali" src="" alt="ali">
+            <p><small>支付宝</small></p>
+        </div>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-wechat" src="" alt="wechat">
+            <p><small>微信</small></p>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window, document) {
+        var aliQr = new QRious({ value: 'HTTPS://QR.ALIPAY.COM/FKX060337TUXBAX9LIFJE8' });
+        var wechatQr = new QRious({ value: 'wxp://f2f0qgGBlfD1nZXjvBjievxB0z0fc0W2sBq5' });
+        document.querySelector('#reward-ali').src = aliQr.toDataURL();
+        document.querySelector('#reward-wechat').src = wechatQr.toDataURL();
+
+        var rewardBtn = document.querySelector('#reward .reward-btn-wrapper');
+        var qrCode = document.querySelector('#reward .reward-code')
+        var activeFunc = function (e) {
+            qrCode.style.display = 'block';
+        }
+        var hideFunc = function (e) {
+            qrCode.style.display = 'none';
+        }
+
+        rewardBtn.addEventListener('mouseenter', activeFunc, false)
+        rewardBtn.addEventListener('mouseover', activeFunc, false)
+        rewardBtn.addEventListener('mouseleave', hideFunc, false)
+        qrCode.addEventListener('mouseenter', activeFunc, false)
+        qrCode.addEventListener('mouseover', activeFunc, false)
+        qrCode.addEventListener('mouseleave', hideFunc, false)
+    })(window, document);
+</script>
+
+    
+<div class="col-xs-12 text-center" style="margin-top: 30px;">
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://github.com/chopin11" title="Github"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/github.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://geektutu.com/feed.xml" title="RSS"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/rss.jpg" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie" title="知乎"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/zhihu.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://weibo.com/geektutu" title="微博"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/weibo.jpg" /></a>
+    
+</div>
+
+    <!-- 推荐阅读三篇文章 -->
+    <div class="col-xs-12">
+        <h3>推荐阅读</h3>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#HTTPS"
+                    title="HTTPS">HTTPS</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#OPENSSL"
+                    title="OPENSSL">OPENSSL</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#签发证书"
+                    title="签发证书">签发证书</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/1717622242.html" class="title">
+                使用 openssl 操作证书的常见用法
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2022-04-08，</span>
+                    <span class="hidden-xs">全文2312字，</span>
+                    <span>阅读约8分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#dpvs"
+                    title="dpvs">dpvs</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#路由"
+                    title="路由">路由</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/3989527185.html" class="title">
+                负载均衡 DPVS 路由子系统的实现
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-10-20，</span>
+                    <span class="hidden-xs">全文5514字，</span>
+                    <span>阅读约19分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/2126991808.html" class="title">
+                负载均衡 LVS 连接表
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-05-10，</span>
+                    <span class="hidden-xs">全文8839字，</span>
+                    <span>阅读约30分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+    </div>
+    <div class="col-xs-12">
+        <!-- 标签列表 -->
+        <!-- Featured Tags -->
+<style>
+    #featured-tag .post-tag-item {
+        font-size: 12px;
+        line-height: 30px;
+        display: inline-block;
+        height: 30px;
+        margin: 5px 0px;
+        padding: 0 7px;
+        color: #333;
+        border-radius: 15px;
+        background: #f6f6f6;
+    }
+
+    #featured-tag .post-tag-item:hover {
+        color: #337ab7;
+    }
+</style>
+<div id="featured-tag">
+    
+    <a class="post-tag-item" href="/tags/#keepalived" title="keepalived"
+        rel="1">#keepalived (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#负载均衡" title="负载均衡"
+        rel="9">#负载均衡 (9) </a>
+    
+    <a class="post-tag-item" href="/tags/#高可用" title="高可用"
+        rel="1">#高可用 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#dpvs" title="dpvs"
+        rel="3">#dpvs (3) </a>
+    
+    <a class="post-tag-item" href="/tags/#邻居" title="邻居"
+        rel="1">#邻居 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#linux" title="linux"
+        rel="1">#linux (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#HTTPS" title="HTTPS"
+        rel="8">#HTTPS (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#OPENSSL" title="OPENSSL"
+        rel="8">#OPENSSL (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#签发证书" title="签发证书"
+        rel="8">#签发证书 (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#路由" title="路由"
+        rel="1">#路由 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#lvs" title="lvs"
+        rel="7">#lvs (7) </a>
+    
+    <a class="post-tag-item" href="/tags/#TCP" title="TCP"
+        rel="1">#TCP (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#网络协议" title="网络协议"
+        rel="1">#网络协议 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#工具效率" title="工具效率"
+        rel="1">#工具效率 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#调度算法" title="调度算法"
+        rel="1">#调度算法 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#toa" title="toa"
+        rel="1">#toa (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#snat" title="snat"
+        rel="1">#snat (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#关于我" title="关于我"
+        rel="1">#关于我 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#友链" title="友链"
+        rel="1">#友链 (1) </a>
+    
+</div>
+    </div>
+    <!-- 评论 -->
+    
+    <div class="col-xs-12">
+        
+<div class="col-xs-12 padding-0">
+    <div id="gitalk-container">
+        <div class="gt-container text-center" style="margin-top: 50px;">
+            <button class="gt-btn gt-btn-public"><span class="gt-btn-text">去 Github 评论</span></button>
+        </div>
+    </div>
+    <div id="gitalk-related"></div>
+</div>
+
+<link rel="stylesheet" href="/css/gitalk.css">
+
+
+<script src="/js/gitalk.min.js"></script>
+
+<script>
+    window.addEventListener('load', function () {
+        function renderCommentUrl(data) {
+            var url = (data[window.location.pathname] || {}).url
+            url && getDom('#gitalk-container button').addEventListener('click', function (e) { window.open(url)})
+            url || (getDom('#gitalk-container').style.display = 'none')
+        }
+        const gitalk = new Gitalk({
+            clientID: 'c1fdd456a4caae5f7df0',
+            clientSecret: 'b2674451e21feae50520f99337ec15d2aebe7879',
+            accessToken: '513dc2f1e6df8c07a12fbf1547874f54679d9712',
+            repo: 'blog',
+            owner: 'geektutu',
+            admin: ['geektutu'],
+            id: window.location.pathname,
+            distractionFreeMode: false
+        });
+        fetch("https://api.github.com/user").then(function(resp){
+            gitalk.render('gitalk-container');
+        }).catch(function(e){
+            fetch('/tool/issues.json').then(function (r) { return r.json() }).then(renderCommentUrl).catch(function (e) { })
+        })
+        getDom('#gitalk-container').addEventListener('click', function (e) {
+            e && e.stopPropagation && e.stopPropagation();
+        });
+    })
+</script>
+<script>
+    window.addEventListener('load', function () {
+        function render(comments) {
+            var template = '<a href="${comment.url}?utm_source=gitalk" class="dis-item-url"><h3 class="dis-item-title">${comment.title}</h3>' +
+                '<p class="dis-item-des">${comment.count} 评论 ● ${comment.date}</p>' +
+                '<div class="dis-item-content"><img class="dis-item-img" src="${comment.icon}" alt="icon"><p><b><span class="dis-item-user">${comment.user}</span></b>&nbsp;——&nbsp;${comment.body}</p></div>' +
+                '</a>'
+
+            var wrapper = getDom('#gitalk-related');
+            comments = shuffle(comments);
+            comments.slice(0, 4).forEach(function (c) {
+                var div = document.createElement('div');
+                div.classList.add('dis-item');
+                div.innerHTML = template.replace("${comment.url}", c.url)
+                    .replace("${comment.title}", c.title)
+                    .replace("${comment.count}", c.count)
+                    .replace("${comment.date}", c.date)
+                    .replace("${comment.icon}", c.icon)
+                    .replace("${comment.user}", c.user)
+                    .replace("${comment.body}", c.body)
+                wrapper.appendChild(div)
+            })
+            var p = document.createElement('p')
+            p.innerHTML = '<a target="_blank" rel="noopener" href="https://geektutu.com/post/blog-experience-7.html">Gitalk Plus</a>';
+            p.classList.add('dis-divide');
+            wrapper.appendChild(p);
+            wrapper.classList.add('dis-wrapper')
+        }
+        function shuffle(a) {
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+        fetch('/tool/comments.json').then(function (r) { return r.json() }).then(render).catch(function (e) { })
+    })
+</script>
+
+    </div>
+    
+</div>
+<aside class="float-left gkt-sidebar hidden-xs hidden-sm">
+    <div style="clear: both"></div>
+    <div class="gkt-sidebar-wrapper">
+        <section class="box-shadow"><style>
+    .gkt-summary {
+        border: 1px solid #DDDDDD;
+        border-radius: 3px;
+        padding: 5px;
+        width: 100%;
+    }
+
+
+    .gkt-summary nav {
+        overflow: hidden;
+    }
+
+    .gkt-summary nav a {
+        display: inline-block;
+        text-align: center;
+        color: #333;
+        font-size: 12px;
+    }
+
+    .gkt-summary nav span {
+        display: block;
+    }
+
+    .gkt-summary nav .middle {
+        border-left: 1px solid #eaecef;
+        border-right: 1px solid #eaecef;
+    }
+
+    .gkt-summary .number {
+        font-weight: bold;
+    }
+
+    .gkt-summary .link-list {
+        margin-top: 5px;
+        margin-bottom: -5px;
+        padding-top: 7px;
+        border-top: 1px dashed #999;
+        display: flex;
+    }
+
+    .gkt-summary .link-list a {
+        flex: 1;
+    }
+
+    .gkt-summary .link-list img {
+        width: 25px;
+        height: 25px;
+    }
+</style>
+
+<div class="gkt-summary">
+    <nav>
+        <a href="/" class="col-xs-4">
+            <span class="number">24</span><span>文章</span>
+        </a>
+        <a href="/series" class="col-xs-4 middle">
+            <span class="number">5</span><span>专题</span>
+        </a>
+        <a href="/tags" class="col-xs-4">
+            <span class="number">19</span><span>标签</span>
+        </a>
+    </nav>
+
+    
+    <div class="link-list">
+        
+        <a target="_blank" rel="noopener" href="https://github.com/chopin11"><img src="/img/related_links/github.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://geektutu.com/feed.xml"><img src="/img/related_links/rss.jpg" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie"><img src="/img/related_links/zhihu.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://weibo.com/geektutu"><img src="/img/related_links/weibo.jpg" /></a>
+        
+    </div>
+    
+</div></section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>负载均衡</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/325553977.html"
+                        class="">keepalived 快速入门介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2589298645.html"
+                        class="">负载均衡 LVS 基本介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1970613528.html"
+                        class="">负载均衡 LVS 基本原理</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3671532823.html"
+                        class="gkt-sidebar-active">负载均衡 LVS 操作实践</a>
+                    
+                    <!-- Table of Contents -->
+<div id="sidebar-toc">
+  <!-- TOC  -->
+  
+  
+  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%9E%E9%AA%8C%E7%8E%AF%E5%A2%83%E8%AF%B4%E6%98%8E"><span class="toc-nav-text">一、实验环境说明</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%8C%E3%80%81LVS-%E7%9B%B8%E5%85%B3%E7%BB%84%E4%BB%B6"><span class="toc-nav-text">二、LVS 相关组件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%89%E3%80%81DR-%E6%A8%A1%E5%BC%8F%E6%93%8D%E4%BD%9C%E5%AE%9E%E8%B7%B5"><span class="toc-nav-text">三、DR 模式操作实践</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%9B%9B%E3%80%81DR-%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E7%9A%84%E5%90%AB%E4%B9%89"><span class="toc-nav-text">四、DR 配置信息的含义</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%94%E3%80%81NAT-%E6%A8%A1%E5%BC%8F%E6%93%8D%E4%BD%9C%E5%AE%9E%E8%B7%B5"><span class="toc-nav-text">五、NAT 模式操作实践</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%85%AD%E3%80%81Tunnel-%E6%A8%A1%E5%BC%8F%E6%93%8D%E4%BD%9C%E5%AE%9E%E8%B7%B5"><span class="toc-nav-text">六、Tunnel 模式操作实践</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%83%E3%80%81%E4%BD%BF%E7%94%A8keepalived%E9%85%8D%E7%BD%AELVS"><span class="toc-nav-text">七、使用keepalived配置LVS</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%85%AB%E3%80%81LVS-%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-nav-text">八、LVS 的几种调度算法</span></a></li></ol>
+  
+</div>
+
+<script>
+  (function () {
+    var h2 = document.querySelectorAll('article h2');
+    var h3 = document.querySelectorAll('article h3');
+    var linkList = document.querySelectorAll('#sidebar-toc a');
+
+    function findLinkElement(name) {
+      for (var i = 0; i < linkList.length; i++) {
+        var items = linkList[i].href.split('#');
+        if (items && items[items.length - 1] === encodeURIComponent(name)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function activeLink(titleList) {
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      for (var i = titleList.length - 1; i >= 0; i--) {
+        if (scrollTop - titleList[i].offsetTop > 0) {
+          var index = findLinkElement(titleList[i].id);
+          index != -1 && linkList[index].classList.add('gkt-sidebar-active');
+          break;
+        }
+      }
+    }
+
+    window.addEventListener("scroll", function (e) {
+      [].slice.call(linkList).forEach(function (link) {
+        link.classList.remove('gkt-sidebar-active');
+      })
+      activeLink(h2);
+    })
+  })();
+</script>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2126991808.html"
+                        class="">负载均衡 LVS 连接表</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/522418658.html"
+                        class="">负载均衡 LVS 调度算法</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3360290171.html"
+                        class="">负载均衡 LVS 主流程代码分析</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1229090889.html"
+                        class="">负载均衡 LVS TOA 实现原理</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2778281555.html"
+                        class="">负载均衡 DPVS SNAT 功能介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3989527185.html"
+                        class="">负载均衡 DPVS 路由子系统的实现</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/4205823097.html"
+                        class="">负载均衡 DPVS 邻居子系统的实现</a>
+                    
+                </li>
+                
+            </ul>
+        </section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>最近的文章</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/55249683.html">让浏览器快如飞的插件 vimium</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1335797944.html">经典的 TCP 三次握手问题</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1717622242.html">使用 openssl 操作证书的常见用法</a>
+                </li>
+                
+            </ul>
+        </section>
+        
+    </div>
+</aside>
+
+<script>
+    (function () {
+        function resizeUArrow() {
+            var s = getDom('.u-arrow-wrapper').style
+            var pc = getDom('.post-container')
+            s.left = getPosition(pc).x + 'px';
+            s.width = pc.clientWidth + 'px';
+        }
+        resizeUArrow()
+        window.addEventListener('resize', resizeUArrow);
+    })();
+</script>
+
+    
+
+<script>
+    (function () {
+        var ele = getDom('.gkt-sidebar-content')
+        if(!ele) return;
+        var wrapper = getDom('.gkt-sidebar-wrapper')
+        var last = 0
+        ele.style.maxHeight = ((window.innerHeight || 798) - 200) + 'px'
+        var f = function (e) {
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            var isDown = scrollTop > last;
+            var pos = getPosition(ele).y - scrollTop;
+            var downLimit = 50;
+            var upLimit = -100;
+            // uarrow.style.marginTop = scrollTop + 'px';
+            isDown && pos <= downLimit && wrapper.classList.add("gkt-sidebar-fixed");
+            !isDown && pos > upLimit && wrapper.classList.remove("gkt-sidebar-fixed");
+            last = scrollTop
+        }
+        f()
+        window.addEventListener("scroll", f)
+    })();
+</script>
+
+</main>
+    </div>
+    <style>
+    img#go-top {
+        position: fixed;
+        bottom: 100px;
+        width: 50px;
+        cursor: pointer;
+        z-index: 9999;
+    }
+</style>
+<img id="go-top" src="/icon/top.png" class="hidden-xs" style="display: none" />
+<script>
+    (function () {
+        var goTop = document.getElementById('go-top');
+        var mainContainer = document.querySelector('.main-container');
+        
+        goTop.addEventListener('click', function () {
+            window.scroll(0, 0);
+        }, false);
+        window.addEventListener('scroll', function () {
+            var right = document.body.offsetWidth - mainContainer.getBoundingClientRect().right;
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            goTop.style.right = right + 10 + 'px'
+            scrollTop > 700 && (goTop.style.display = "block");
+            scrollTop <= 700 && (goTop.style.display = "none");
+        });
+    })();
+</script>
+    <style>
+    #geektutu-click-img-container {
+        position: fixed;
+        left: 0;
+        top: 0;
+        text-align: center;
+        width: 100%;
+        display: none;
+        z-index: 9999;
+    }
+
+    #geektutu-click-img-container img {
+        object-fit: contain;
+        background: #eaecef;
+        padding: 15px;
+        border-radius: 10px;
+        height: auto;
+        width: auto;
+        vertical-align: middle;
+    }
+</style>
+
+
+<div id="geektutu-click-img-container">
+    <img src="" alt="Big Image">
+</div>
+
+<script>
+    (function () {
+        var container = document.querySelector('#geektutu-click-img-container')
+        var targetImg = container.querySelector('img')
+        var imgs = document.querySelectorAll('article img');
+        targetImg.addEventListener('click', function (e) {
+            container.style.display = 'none';
+            e && e.stopPropagation && e.stopPropagation();
+        }, false);
+
+        for (var i = 0; i < imgs.length; ++i) {
+            var img = imgs[i];
+            img.addEventListener('click', (function (src, rate) {
+                return function (e) {
+                    e && e.stopPropagation && e.stopPropagation();
+                    if (window.innerWidth < 980) {
+                        return
+                    }
+                    targetImg.style.height = targetImg.style.width = 'auto';
+                    if (window.innerWidth / window.innerHeight > rate) {
+                        targetImg.style.height = (window.innerHeight - 20) + 'px';
+                    } else {
+                        targetImg.style.width = (window.innerWidth - 20) + 'px';
+                    }
+                    container.style.height = window.innerHeight + 'px'
+                    container.style.lineHeight = window.innerHeight + 'px'
+                    container.style.display = 'block';
+                    targetImg.src = src;
+                };
+            }(img.src, img.width / img.height)), false)
+        }
+    })();
+</script>
+    <!-- Footer -->
+    <!-- Footer -->
+<style>
+    footer {
+        width: 100%;
+        line-height: 1.5;
+        padding: 20px;
+    }
+
+    footer a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .footer-hexo img {
+        height: 20px;
+        margin-bottom: -5px;
+    }
+
+    .footer-hexo a {
+        color: #337ab7;
+    }
+</style>
+<footer class="text-center col-xs-12">
+    <p>
+        <small>©2019 - 2022 - 肖邦 - </small>
+        <small>
+            <a target="_blank" rel="nofollow noopener" href="http://beian.miit.gov.cn/">临渊羡鱼，不如退而结网</a>
+        </small>
+    </p>
+    <p class="footer-hexo">
+        <!-- 但若直接使用或修改主题，请务必保留这段声明 -->
+        <small>Powered by <a target="_blank" href="https://hexo.io">Hexo</a> | Theme
+            <a target="_blank" href="https://geektutu.com">Geektutu</a>
+            <a target="_blank" rel="noopener" href="https://github.com/chopin11">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYGBgYHBgcICAcKCwoLCg8ODAwODxYQERAREBYiFRkVFRkVIh4kHhweJB42KiYmKjY+NDI0PkxERExfWl98fKcBBgYGBgcGBwgIBwoLCgsKDw4MDA4PFhAREBEQFiIVGRUVGRUiHiQeHB4kHjYqJiYqNj40MjQ+TERETF9aX3x8p//CABEIACIAUAMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAAAAQQFBwIDBgj/2gAIAQEAAAAA9KrHSgAYL5/z6zZGuJd12uugbhq3uKtmuRtix20IS7lTLAfAAAn/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAAAB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAxAAAAAAAf/EADEQAAICAQIEBQEGBwAAAAAAAAECAwQFAAYREhORBxQhUlQxQVFic5KxJDJCYYGC0f/aAAgBAQABPwCFHnjWUzuvN6hV4cANSRLGjO9yRVUcSzMoA7jVXJYe5N0a2dhmk9kc0bN2GvLN8mbuNeWb5M3ca8s3yZu415Y/Jm7jXlm+TN3H/NeVPyZu40vOk3TZywK8wJ+v3EHVM/wsI/Dq2lrxN3Nnca16eti8chSAIoMbzByhMwP14kHVfwIiSaF5c96J6kwwCOTnHsYk8uvCrdmQy1TI4rJuz3cZLyGR/wCd4+YoOf8AEpUjXitubLYPG4paFsUxcuiGe7yc5gTW3LW44szXmobsi3Dhmic2+Z4+vCVH9CpraPiQ+QvbgTJrPFBWd5YpWrmNIIEXiRO32Pqt4p7cnfHk18lFBdmEVW1LVdIZGOrniTt6plrWKaO69yCykDRxwF+LMAewB0Txtr+Sf31VI8tEPw62fZt7N3Humtbpzz13ucX6CGSWMSuzpLyD1eNgeUka3PuvHbaxq3biTMHfkiSNCS78CwU+3Xg7Vu3MhuTcU6cq3Zemn3Eh2dv8Lzcut+29x1atKbHYqLJUhLwyNMwiZ3j9yDWOxUOV3tgb+3No5LDx1pi9+aeIwRlNY6bc+Jv+IFGrhLxtXJZ7VKcw81diiAAEn0JOrkWZyNfbEr0tz27UGQgkuGzXdIIvyowq99bRxk9ffO/L81SZBPZgEEroQroIxxMZOgeNsfkn99QypHGqO4Vl9CDrN4LDZkwyzyyQ2IgRHZrzGCZVP1XnQglT9oOtw4LC7iqV6uRkZoYpxKFSQpzFRw4EjVRMfSrQ1qqwxQxKFjjTgFUD7BoWYR6iVe+mtxt9Zwf9teaj4AdccPu5tedX5A/VrzUR+sy/q1CwksF19VEfDj/cnQRW+qg66cfsXtrpx+xe2unH7F7a6cfsXtrpx+xe2unH7F7a6cfsXtoxx+xe2gAAOA1//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAgEBPwB//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAwEBPwB//9k="
+                    alt="Github Star">
+            </a>
+        </small>
+    </p>
+    <!-- 
+    <p>
+        <small>
+            <span id="busuanzi_container_site_pv">👁<span id="busuanzi_value_site_pv"></span></span> &nbsp;
+            <span id="busuanzi_container_page_pv">📚<span id="busuanzi_value_page_pv"></span></span>
+        </small>
+    </p>
+    
+     -->
+
+</footer>
+
+
+<script>
+    window.addEventListener('load', function () {
+        globalAddScript('//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js');
+    })
+</script>
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+    <script>
+        // 非本站网址，新开tab页签
+        (function () {
+            var stopBubble = function (e) {
+                e && e.stopPropagation && e.stopPropagation();
+            }
+            var links = document.querySelectorAll('a');
+            [].slice.call(links).forEach(function (item) {
+                if (item.href && item.href.indexOf(window.location.host) === -1) {
+                    item.target = '_blank'
+                }
+                // 阻止冒泡，不触发彩蛋。
+                item.addEventListener('click', stopBubble, false);
+            });
+            var article = document.querySelector('article');
+            article && article.addEventListener('click', stopBubble, false)
+        })();
+    </script>
+    
+</body>
+
+</html>

@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<!-- Head tag -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  <meta name="baidu-site-verification" content="" />
+  <meta name="google-site-verification" content="" />
+  <meta name="msvalidate.01" content="" />
+  <meta name="360-site-verification" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- if page has tags, then add tags to keyword -->
+  
+  
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,负载均衡,lvs,lvs,lb,负载均衡,高性能">
+  <!-- page.description has higher priority -->
+  <meta name="description" content="前边系统介绍了 lvs 的两个核心概念连接表和调度算法，它们是 lvs 的核心内容，是其实现的原理基础。">
+  <link rel="shortcut icon" href="/img/favicon.ico">
+  <title>
+    
+    负载均衡 LVS 主流程代码分析 | 肖邦Linux
+    
+  </title>
+
+  <link rel="canonical" href="https://www.tcpdump.cn/post/3360290171.html">
+  
+<link rel="stylesheet" href="/css/geektutu.css">
+
+  <!-- global function -->
+  <script>
+    window.globalAddScript = function (url, onload, onerror) {
+      var s = document.createElement('script');
+      s.src = url;
+      onload && (s.onload = onload);
+      onerror && (s.onerror = onerror);
+      document.body.appendChild(s);
+    }
+    window.globalAddCss = function (url) {
+      var s = document.createElement('link');
+      s.rel = 'stylesheet';
+      s.href = url;
+      document.body.appendChild(s);
+    }
+    window.getPosition = function (ele) {
+      var x = 0, y = 0;
+      while (ele) {
+        x += (ele.offsetLeft - ele.scrollLeft + ele.clientLeft);
+        y += (ele.offsetTop - ele.scrollTop + ele.clientTop);
+        ele = ele.offsetParent;
+      }
+      return { x: x, y: y };
+    }
+    window.getDom = function (str) { return document.querySelector(str) }
+  </script>
+  <!-- google ad -->
+  
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/feed.xml" title="肖邦Linux" type="application/rss+xml">
+</head>
+
+<body>
+    
+<header class="gkt-header col-xs-12 padding-0">
+    <div id="gkt-nav" class="gkt-header-container">
+        <a href="/" class="gkt-header-title float-left">
+            <img class="float-left" src="/img/favicon.ico" alt="">
+            <span>肖邦Linux</span>
+        </a>
+        <nav class="gkt-header-nav text-right">
+            <ul>
+                <li><a class="hidden-xs" href="/feed.xml">订阅</a></li>
+                <li><a href="/series/">专题</a></li>
+                <li><a href="/archives/">归档</a></li>
+                <li><a href="/post/link.html">友链</a></li>
+                <li><a href="/post/about.html">关于</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div id="gkt-cate-nav" class="gkt-header-container hidden-xs">
+        
+        <nav class="gkt-header-nav float-left">
+            <ul>
+                
+                
+                <li class="gkt-cate-name float-left active">
+                    <a class="float-left" href="/post/325553977.html">负载均衡</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1111606992.html">Linux基础</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/78358564.html">HTTPS</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1335797944.html">网络协议</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/55249683.html">工具效率</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+<div class="gkt-header-placeholder" style="height: 44px"></div>
+<div class="gkt-header-placeholder hidden-xs" style="height: 44px"></div>
+<script>
+    (function () {
+        window.addEventListener('scroll', function () {
+            if (window.innerWidth < 768) {
+                return;
+            }
+            var nav = document.querySelector('#gkt-nav');
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            scrollTop > 50 && (nav.classList.add('hide'));
+            scrollTop <= 50 && (nav.classList.remove('hide'));
+        });
+        var cateNavs = document.querySelectorAll('#gkt-cate-nav>nav>ul>li');
+        [].slice.call(cateNavs).forEach(function (item) {
+            var sub = item.querySelector('.gkt-sub-cate');
+            if (!sub) return;
+            item.addEventListener('mouseenter', function (e) { sub.style.display = 'block'; }, false);
+            item.addEventListener('mouseleave', function (e) { sub.style.display = 'none'; }, false);
+        })
+    })();
+</script>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Main Content -->
+<main class="col-xs-12 padding-0 markdown-it">
+    <!-- Post Container -->
+    
+    
+    <!-- Post Content -->
+<div class="float-left post-container box-shadow">
+    <div class="u-arrow-wrapper hidden-xs">
+        
+        <a class="float-left" href="/post/522418658.html"><i class="u-arrow-left"></i></a>
+        
+        
+        <a class="float-right" href="/post/1229090889.html"><i class="u-arrow-right"></i></a>
+        
+    </div>
+    <article class="col-xs-12">
+        <h1> 负载均衡 LVS 主流程代码分析 </h1>
+        
+        
+        <div class="hidden-lg hidden-md series_links">
+            <p> <strong> 负载均衡系列文章链接：</strong></p>
+            <ul>
+                
+                <li>
+                    <a href="/post/325553977.html">keepalived 快速入门介绍</a>
+                    <span class="post-item-date">(Jan 2, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2589298645.html">负载均衡 LVS 基本介绍</a>
+                    <span class="post-item-date">(Feb 4, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/1970613528.html">负载均衡 LVS 基本原理</a>
+                    <span class="post-item-date">(Mar 6, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3671532823.html">负载均衡 LVS 操作实践</a>
+                    <span class="post-item-date">(Apr 8, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2126991808.html">负载均衡 LVS 连接表</a>
+                    <span class="post-item-date">(May 10, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/522418658.html">负载均衡 LVS 调度算法</a>
+                    <span class="post-item-date">(Jun 12, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3360290171.html">负载均衡 LVS 主流程代码分析</a>
+                    <span class="post-item-date">(Jul 14, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/1229090889.html">负载均衡 LVS TOA 实现原理</a>
+                    <span class="post-item-date">(Aug 16, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2778281555.html">负载均衡 DPVS SNAT 功能介绍</a>
+                    <span class="post-item-date">(Sep 18, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3989527185.html">负载均衡 DPVS 路由子系统的实现</a>
+                    <span class="post-item-date">(Oct 20, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/4205823097.html">负载均衡 DPVS 邻居子系统的实现</a>
+                    <span class="post-item-date">(Nov 22, 2021)</span>
+                </li>
+                
+            </ul>
+        </div>
+        
+        
+        <div class="gkt-article-start"></div>
+        <blockquote>
+<p>前边系统介绍了 lvs 的两个核心概念<strong>连接表</strong>和<strong>调度算法</strong>，它们是 lvs 的核心内容，是其实现的原理基础。</p>
+</blockquote>
+<p>连接表的本质其实就是连接跟踪，维护保持一个连接相关的数据包的关联性；调度算法是 lvs 实现后端服务器调度的依据原则。理解了这两个概念后，再来分析 lvs 具体实现的过程就会比较容易了，本文会从代码层面来简述 lvs 各种模式的实现原理，理解本文后再回头去看基础原理那篇文章应该会有知其所以然的感觉。</p>
+<h2 id="一、关于-netfileter-内容"><a href="#一、关于-netfileter-内容" class="headerlink" title="一、关于 netfileter 内容"></a>一、关于 netfileter 内容</h2><p>我们知道 lvs 是基于 netfilter 框架的，netfilter 整体上还是比较复杂的，它支持数据包在网络栈传输路径各个地方（挂载点）注册回调函数，从而对数据包执行各种操作，如修改地址或端口、丢弃数据包等。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/lb003netfilter.png" alt="netfilter"></p>
+<p>如图中，在网络栈中有 5 个地方设置了 netfilter 挂载点：</p>
+<ul>
+<li><code>NF_INET_PRE_ROUTING</code> - 这是所有入栈数据包的第一个挂载点，它处于路由选择子系统查找之前，挂载点位于 <code>ip_rcv</code> 中，v6 是 ipv6_rcv。</li>
+<li><code>NF_INET_LOCAL_IN</code> - 对于所有发送给当前主机的入栈数据包，经过挂载点 NF_INET_PRE_ROUTING 并执行路由选择子系统查找后，都将到达这个挂载点。挂载点位于方法 <code>ip_local_deliver</code> 中，v6 对应函数是 ip6_input 中。</li>
+<li><code>NF_INET_FORWARD</code> - 对于所有要转发的数据包，经过挂载点 NF_INET_PRE_ROUTING 并执行路由选择子系统查找后，都将到达这个点。挂载点位于 <code>ip_forward</code> 中，而 v6 对应函数是 ip6_forward。</li>
+<li><code>NF_INET_POST_ROUTING</code> - 所有要转发的数据包和当前主机生成的数据包都要经过此挂载点，IPv4 中这个挂载点位于方法 ip_output 中，IPv6 位于方法 ip6_finish_output2 中。</li>
+<li><code>NF_INET_LOCAL_OUT</code> - 当前主机生成的所有出站数据包都在经过这个挂载点，IPv4 中挂载点位于方法 __ip_local_out 中，而在 IPv6 中位于方法 __ip6_local_out 中。</li>
+</ul>
+<p>lvs 在不同的模式（DR、NAT、Tunnel）中，根据不同的需求在 netfilter 中注册了多个挂载点，在每个挂在点上执行相应的代码程序，从而实现相应的功能。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> <span class="title class_">nf_hook_ops</span> ip_vs_ops[] __read_mostly = &#123;</span><br><span class="line">	&#123;</span><br><span class="line">		.hook		= ip_vs_in,</span><br><span class="line">		.owner		= THIS_MODULE,</span><br><span class="line">		.pf		    = PF_INET,</span><br><span class="line">		.hooknum    = NF_INET_LOCAL_IN,</span><br><span class="line">		.priority   = <span class="number">100</span>,</span><br><span class="line">	&#125;,</span><br><span class="line">	&#123;</span><br><span class="line">		.hook	    = ip_vs_out,</span><br><span class="line">		.owner		= THIS_MODULE,</span><br><span class="line">		.pf		    = PF_INET,</span><br><span class="line">		.hooknum    = NF_INET_FORWARD,</span><br><span class="line">    	.priority   = <span class="number">100</span>,</span><br><span class="line">	&#125;,</span><br><span class="line">	&#123;</span><br><span class="line">		.hook		= ip_vs_forward_icmp,</span><br><span class="line">		.owner		= THIS_MODULE,</span><br><span class="line">		.pf		    = PF_INET,</span><br><span class="line">		.hooknum    = NF_INET_FORWARD,</span><br><span class="line">		.priority   = <span class="number">99</span>,</span><br><span class="line">	&#125;,</span><br><span class="line">	&#123;</span><br><span class="line">		.hook		= ip_vs_post_routing,</span><br><span class="line">		.owner		= THIS_MODULE,</span><br><span class="line">		.pf	        = PF_INET,</span><br><span class="line">		.hooknum    = NF_INET_POST_ROUTING,</span><br><span class="line">		.priority   = NF_IP_PRI_NAT_SRC<span class="number">-1</span>,</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这是 lvs 在 IPv4 实现中注册的几个钩子函数，也是相应的入口位置，下边内容会分别从 DR、NAT、Tunnel 不同模式来总结数据包从入口，主逻辑处理，输出发送等过程。</p>
+<h2 id="二、DR-模式的数据包处理流程"><a href="#二、DR-模式的数据包处理流程" class="headerlink" title="二、DR 模式的数据包处理流程"></a>二、DR 模式的数据包处理流程</h2><p>首先，DR 模式使用到的 hook 函数是 <code>ip_vs_in</code>，它是 DR 模式时数据包的入口位置。从上边注册代码段中，可以知道它注册的挂载点位置是 <code>NF_INET_LOCAL_IN</code>，也就是说数据包到目前位置时，已经通过 prerouting 和路由系统查找。我们现在假设某个客户端访问 vip 是 182.120.11.20 端口为 80 的数据包，将会经过如下步骤，来实现 DR 模式的数据包转发功能。</p>
+<p><strong>（一）查找四层协议</strong></p>
+<p>通过 IP 报文中的 protocol 字段，查找并确定该协议是否被 lvs 所支持。lvs 能够支持 tcp、udp、ah、esp 协议，不过本文重点以最常用的 tcp 协议来介绍。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pp = <span class="built_in">ip_vs_proto_get</span>(iph.protocol);</span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">unlikely</span>(!pp))</span><br><span class="line">	<span class="keyword">return</span> NF_ACCEPT;</span><br></pre></td></tr></table></figure>
+<p>调用上述函数查找该数据包四层协议是否在已经注册的协议类型列表中，如果不是支持的协议，也就没有必要再继续执行后续流程，就直接退出 lvs 代码主流程，由后续内核处理流程来执行，可能是内核其他应用程序感兴趣的数据包，返回 NF_ACCEPT。</p>
+<p><strong>（二）调度并新建连接信息</strong></p>
+<p>接着，调用连接表查找函数 <code>conn_in_get</code> </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp = pp-&gt;<span class="built_in">conn_in_get</span>(af, skb, pp, &amp;iph, iph.len, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>根据数据包 5 元组相关字段进行查找，这里假设是一个新连接的请求数据包，那么在连接表中是查不到连接表项的，因此这时 cp = NULL，然后会调用 <code>conn_schedule</code> 函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pp-&gt;<span class="built_in">conn_schedule</span>(af, skb, pp, &amp;v, &amp;cp)</span><br></pre></td></tr></table></figure>
+<p>这个函数主要是调度一个新的 RS ，然后新建立一个连接条目：</p>
+<ul>
+<li>我们主要以 tcp 来说明，所以这里使用的调度函数是 <code>tcp_conn_schedule</code></li>
+<li>首先要说明，并不是说有数据包来到这里都会执行调度流程，需要符合 2 个前提条件<ul>
+<li>数据包必须携带 SYN 标记</li>
+<li>数据包所访问请求必须是我们定义的 service 才行，也就是能够正常获取到 svc <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">svc = <span class="built_in">ip_vs_service_get</span>(af, skb-&gt;mark, iph.protocol, &amp;iph.daddr, th-&gt;dest)</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>满足上述条件后，执行调度函数 <code>ip_vs_schedule</code><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dest = svc-&gt;scheduler-&gt;<span class="built_in">schedule</span>(svc, skb);</span><br></pre></td></tr></table></figure>
+调度函数主要是负责从 svc 所指向的 dests 中根据调度算法选择出一个合适的后端服务器（dest）</li>
+<li>在成功调度 dest 后，调用 <code>ip_vs_conn_new</code> 函数来创建真正的连接 Entry<ul>
+<li>分配 cp 内存资源</li>
+<li>设置定时器</li>
+<li>填充相关字段</li>
+<li>绑定并设置 dest 相关信息，调用 <code>ip_vs_bind_dest</code> 函数</li>
+<li>绑定 conn 所需的 xmit 函数，调用 <code>ip_vs_bind_xmit</code> 函数</li>
+<li>将 cp 连接条目 hash 到全局的连接表中</li>
+</ul>
+</li>
+<li>至此，连接相关的信息已经准备完毕了。<blockquote>
+<p>注1：如果客户端第 2 个数据包到来时，就不需要再次调度 RS 和新建连接表项了，直接根据查找到的 cp 来执行下列的相关流程。</p>
+<p>注2：我们知道 DR 模式数据包从服务器响应之后是直接从 Server 发给 Client 的，无需经过 lvs，所以到达 lvs 的所有数据包都是客户端发过来的。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>（三）更新设置连接的状态机</strong></p>
+<p>还记得我们在「连接篇」文章中说过，对于一个连接来说，尤其处于每个 tcp 状态时的连接对应的过期时间设置的都不相同，因此我们需要记录连接的各种状态的转换。另外如果我们需要统计活跃连接和非活跃连接的话，也必须采用当前连接所处的状态为依据。</p>
+<p>下边我们对着代码来看 tcp 的状态机设置函数 <code>tcp_state_transition</code> 是如何进行更新状态机的。其实主要的核心函数是 <code>set_tcp_state</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span></span></span><br><span class="line"><span class="function"><span class="title">set_tcp_state</span><span class="params">(<span class="keyword">struct</span> ip_vs_protocol *pp, <span class="keyword">struct</span> ip_vs_conn *cp,</span></span></span><br><span class="line"><span class="params"><span class="function">	      <span class="type">int</span> direction, <span class="keyword">struct</span> tcphdr *th)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> state_idx;</span><br><span class="line">	<span class="type">int</span> new_state = IP_VS_TCP_S_CLOSE;</span><br><span class="line">	<span class="type">int</span> state_off = tcp_state_off[direction];</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (cp-&gt;flags &amp; IP_VS_CONN_F_NOOUTPUT) &#123;</span><br><span class="line">		<span class="keyword">if</span> (state_off == TCP_DIR_OUTPUT)</span><br><span class="line">			cp-&gt;flags &amp;= ~IP_VS_CONN_F_NOOUTPUT;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			state_off = TCP_DIR_INPUT_ONLY;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> ((state_idx = <span class="built_in">tcp_state_idx</span>(th)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">		<span class="built_in">IP_VS_DBG</span>(<span class="number">8</span>, <span class="string">&quot;tcp_state_idx=%d!!!\n&quot;</span>, state_idx);</span><br><span class="line">		<span class="keyword">goto</span> tcp_state_out;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	new_state = tcp_state_table[state_off+state_idx].next_state[cp-&gt;state];</span><br><span class="line"></span><br><span class="line">tcp_state_out:</span><br><span class="line">	<span class="keyword">if</span> (new_state != cp-&gt;state) &#123;</span><br><span class="line">		<span class="keyword">struct</span> <span class="title class_">ip_vs_dest</span> *dest = cp-&gt;dest;</span><br><span class="line">		<span class="keyword">if</span> (dest) &#123;</span><br><span class="line">			<span class="keyword">if</span> (!(cp-&gt;flags &amp; IP_VS_CONN_F_INACTIVE) &amp;&amp;</span><br><span class="line">			    (new_state != IP_VS_TCP_S_ESTABLISHED)) &#123;</span><br><span class="line">				<span class="built_in">atomic_dec</span>(&amp;dest-&gt;activeconns);</span><br><span class="line">				<span class="built_in">atomic_inc</span>(&amp;dest-&gt;inactconns);</span><br><span class="line">				cp-&gt;flags |= IP_VS_CONN_F_INACTIVE;</span><br><span class="line">			&#125; <span class="keyword">else</span> <span class="keyword">if</span> ((cp-&gt;flags &amp; IP_VS_CONN_F_INACTIVE) &amp;&amp;</span><br><span class="line">				   (new_state == IP_VS_TCP_S_ESTABLISHED)) &#123;</span><br><span class="line">				<span class="built_in">atomic_inc</span>(&amp;dest-&gt;activeconns);</span><br><span class="line">				<span class="built_in">atomic_dec</span>(&amp;dest-&gt;inactconns);</span><br><span class="line">				cp-&gt;flags &amp;= ~IP_VS_CONN_F_INACTIVE;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	cp-&gt;timeout = pp-&gt;timeout_table[cp-&gt;state = new_state];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上述代码上来看，该函数主要做了这几件事情：</p>
+<ol>
+<li>根据数据包 tcp 标记字段来更新当前状态机</li>
+<li>更新连接对应的统计数据，包括：活跃连接和非活跃连接</li>
+<li>根据连接状态，设置超时时间</li>
+</ol>
+<p>下面我们来具体分析下状态机状态转换过程，是通过索引从 <code>tcp_state_table</code> 数组中获取到下一个状态：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">new_state = tcp_state_table[state_off+state_idx].next_state[cp-&gt;state];</span><br><span class="line"><span class="comment">// @new_state：是查找得到的最新状态</span></span><br><span class="line"><span class="comment">// @cp-&gt;state：是查找前conn所处的当前状态</span></span><br></pre></td></tr></table></figure>
+<p>这个数组的具体内容大概如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">struct</span> <span class="title class_">tcp_states_t</span> tcp_states [] = &#123;</span><br><span class="line"><span class="comment">/*	INPUT */</span></span><br><span class="line"><span class="comment">/*        sNO, sES, sSS, sSR, sFW, sTW, sCL, sCW, sLA, sLI, sSA	*/</span></span><br><span class="line"><span class="comment">/*syn*/</span> &#123;&#123;sSR, sES, sES, sSR, sSR, sSR, sSR, sSR, sSR, sSR, sSR &#125;&#125;,</span><br><span class="line"><span class="comment">/*fin*/</span> &#123;&#123;sCL, sCW, sSS, sTW, sTW, sTW, sCL, sCW, sLA, sLI, sTW &#125;&#125;,</span><br><span class="line"><span class="comment">/*ack*/</span> &#123;&#123;sCL, sES, sSS, sES, sFW, sTW, sCL, sCW, sCL, sLI, sES &#125;&#125;,</span><br><span class="line"><span class="comment">/*rst*/</span> &#123;&#123;sCL, sCL, sCL, sSR, sCL, sCL, sCL, sCL, sLA, sLI, sSR &#125;&#125;,</span><br><span class="line"></span><br><span class="line"><span class="comment">/*	OUTPUT */</span></span><br><span class="line"><span class="comment">/*        sNO, sES, sSS, sSR, sFW, sTW, sCL, sCW, sLA, sLI, sSA	*/</span></span><br><span class="line"><span class="comment">/*syn*/</span> &#123;&#123;sSS, sES, sSS, sSR, sSS, sSS, sSS, sSS, sSS, sLI, sSR &#125;&#125;,</span><br><span class="line"><span class="comment">/*fin*/</span> &#123;&#123;sTW, sFW, sSS, sTW, sFW, sTW, sCL, sTW, sLA, sLI, sTW &#125;&#125;,</span><br><span class="line"><span class="comment">/*ack*/</span> &#123;&#123;sES, sES, sSS, sES, sFW, sTW, sCL, sCW, sLA, sES, sES &#125;&#125;,</span><br><span class="line"><span class="comment">/*rst*/</span> &#123;&#123;sCL, sCL, sSS, sCL, sCL, sTW, sCL, sCL, sCL, sCL, sCL &#125;&#125;,</span><br><span class="line"></span><br><span class="line"><span class="comment">/*	INPUT-ONLY */</span></span><br><span class="line"><span class="comment">/*        sNO, sES, sSS, sSR, sFW, sTW, sCL, sCW, sLA, sLI, sSA	*/</span></span><br><span class="line"><span class="comment">/*syn*/</span> &#123;&#123;sSR, sES, sES, sSR, sSR, sSR, sSR, sSR, sSR, sSR, sSR &#125;&#125;,</span><br><span class="line"><span class="comment">/*fin*/</span> &#123;&#123;sCL, sFW, sSS, sTW, sFW, sTW, sCL, sCW, sLA, sLI, sTW &#125;&#125;,</span><br><span class="line"><span class="comment">/*ack*/</span> &#123;&#123;sCL, sES, sSS, sES, sFW, sTW, sCL, sCW, sCL, sLI, sES &#125;&#125;,</span><br><span class="line"><span class="comment">/*rst*/</span> &#123;&#123;sCL, sCL, sCL, sSR, sCL, sCL, sCL, sCL, sLA, sLI, sCL &#125;&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上述表看着很复杂，我们先来搞懂 state_off 和 state_idx 两个变量的具体作用：</p>
+<ul>
+<li><strong>state_off</strong>。在 DR 模式下，取值为 TCP_DIR_INPUT_ONLY</li>
+<li><strong>state_idx</strong>。是根据数据包 tcp 头部标记位来确定的，比如 syn=0，fin=1，ack=2，rst=3。也只有这些标记能够改变 tcp 的连接状态</li>
+<li><strong>cp-&gt;state</strong>。是当前 tcp 连接所处于的状态。</li>
+</ul>
+<ol>
+<li>假设这个数据包是携带 syn 标记，那么数组索引到的就是 INPUT-ONLY 组中 syn<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*syn*/</span> &#123;&#123;sSR, sES, sES, sSR, sSR, sSR, sSR, sSR, sSR, sSR, sSR &#125;&#125;,</span><br></pre></td></tr></table></figure>
+因为 cp-&gt;state 初始值为 0，因此最终得到的 new_state = sSR，也就是 <code>IP_VS_TCP_S_SYN_RECV</code> 状态了</li>
+<li>假设这个数据包是携带 ack 标记，那么数组索引到的就是 INPUT-ONLY 组中的 ack<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*ack*/</span> &#123;&#123;sCL, sES, sSS, sES, sFW, sTW, sCL, sCW, sCL, sLI, sES &#125;&#125;,</span><br></pre></td></tr></table></figure>
+因为 cp-&gt;state 值为 sSR，因此最终得到的 new_state = sES，也就是 <code>IP_VS_TCP_S_ESTABLISHED</code> 状态，对于 lvs 来说三次握手的 ack 到来意味着连接的成功建立，进入 est 状态。</li>
+</ol>
+<p>关于状态机的转换就不逐一分析了，需要注意的是 DR 模式下与我们平时所理解的状态有所不同，因为后端服务器响应数据包是直接发给 client 的不经过 lvs，所以看到上边数据分类区分 INPUT、OUTPUT、INPUT-ONLY</p>
+<p><strong>（四）转发数据包</strong></p>
+<p>DR 的基本处理逻辑已经完毕了，到了数据包转发阶段，会调用相应的 xmit 函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ret = cp-&gt;<span class="built_in">packet_xmit</span>(skb, cp, pp);</span><br><span class="line"><span class="comment">// 对于 DR 模式来说，调用的其实是 ip_vs_dr_xmit</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">ip_vs_dr_xmit</span><span class="params">(<span class="keyword">struct</span> sk_buff *skb, <span class="keyword">struct</span> ip_vs_conn *cp, <span class="keyword">struct</span> ip_vs_protocol *pp)</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>路由查找。以 dest 地址为路由的 daddr 进行查找，调用 <code>ip_route_output_key</code> 进行路由查找，由于 DR 后端的 dest 都是同网段的，因此路由查找的下一跳直接就是 dest 服务器，并将此路由信息设置到 dst_entry。</li>
+<li>mtu 检查。检查当前数据包的大小与路由相关 mtu 的关系，如果大于路由 mtu 且 IP 头部设置禁止分片的选项，那么 lvs 只能丢弃该数据包，调用内核函数 <code>icmp_send</code> 发送 <code>ICMP_DEST_UNREACH</code> 数据包给源客户端上报此错误信息。</li>
+<li>为 skb 设置路由。将查找到的路由 dst_entry 信息绑定到 skb 结构上，以供后续流程使用。</li>
+<li>转发数据包。设置路由后，就可以转发数据包了，使用 <code>IP_VS_XMIT</code> 转发，本质上就是调用 NF_HOOK 函数来执行 LOCAL_OUT 挂载点相关的代码。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NF_HOOK</span>(pf, NF_INET_LOCAL_OUT, (skb), <span class="literal">NULL</span>,	(rt)-&gt;u.dst.dev, dst_output);</span><br></pre></td></tr></table></figure>
+上述代码会执行 <code>LOCAL_OUT</code> 挂载点的代码，以及相关内核后续正常的流程，相关大概流程如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local_out -&gt; ip_output() -&gt; ip_finish_output -&gt; ip_finish_output2 -&gt; neigh_hh_output</span><br></pre></td></tr></table></figure>
+其实可以简单理解为，此时将 dest 设置为路由目标地址后，直接将数据包送往到 output 链上，直接执行后续相关的流程，包括邻居子系统执行的 mac 地址替换阶段，最终数据包转发出去后，目标 mac 地址就是某个 dest 的 mac 地址，也就实现了 mac 地址的 “修改”，最终完成了 DR 模式的数据包转发。</li>
+</ul>
+<blockquote>
+<p>注1：我们在基础原理篇讲 DR 模式 lvs 会替换 mac 地址，其实严格从代码上分析，lvs 代码本身没有修改 mac 地址，而是借助于内核数据包的处理流程，在二层邻居系统帮助修改的而已。</p>
+<p>注2：如果想要非常清晰的理解最后的 xmit 过程，需要研究内核协议栈数据包的流程细节了。</p>
+</blockquote>
+<h2 id="三、NAT-模式的数据包处理流程"><a href="#三、NAT-模式的数据包处理流程" class="headerlink" title="三、NAT 模式的数据包处理流程"></a>三、NAT 模式的数据包处理流程</h2><p>接下来分析下 NAT 模式下的数据包处理流程，NAT 模式和 DR 模式区别还是比较大的，NAT 响应数据包也会经过 lvs 设备，且回包经过 lvs 时的目的 IP 是客户端 IP 地址，在 <code>LOCAL_IN</code> 挂载点是截获不了 NAT 响应数据包的，因此 NAT 需要注册两个挂载点：</p>
+<ul>
+<li><code>ip_vs_in</code> - 这个 hook 函数主要是用来处理从客户端到服务器方向的数据包流程，比较像 DR 模式的流程。</li>
+<li><code>ip_vs_out</code> - 这个 hook 函数主要是用来处理 NAT 响应数据包，也就是从服务器发给客户端的包，因为它目的 IP 不是 lvs 本地 IP，在 <code>local_in</code> 挂载点无法截获，需要通过注册在 <code>forward</code> 挂载点的 <code>ip_vs_out</code> 函数来进行处理。</li>
+</ul>
+<p><strong>（一）NAT 请求数据包处理流程</strong></p>
+<p>NAT 模式下，客户端的请求数据包都会经过 <code>ip_vs_in</code> 函数进行一些列的逻辑处理，这些处理从步骤上和 DR 模式非常相似，所以这里就会省略或简化一些和 DR 类似的一些内容。</p>
+<ol start="0">
+<li>NAT 请求数据包入口函数是 <code>ip_vs_in</code></li>
+<li>查找四层协议，确认请求数据包是 lvs 支持的协议，不支持的当然不会处理了</li>
+<li>查找相关 svc，调度新的 RS 服务器，然后新建连接表项，hash 连接表</li>
+<li>更新设置连接相关的状态机，只不过有一些区别是，NAT 状态机表分组选择的是 INPUT，有兴趣的话可以对照着仔细分析各状态的变化。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*	INPUT */</span></span><br><span class="line"><span class="comment">/*        sNO, sES, sSS, sSR, sFW, sTW, sCL, sCW, sLA, sLI, sSA	*/</span></span><br><span class="line"><span class="comment">/*syn*/</span> &#123;&#123;sSR, sES, sES, sSR, sSR, sSR, sSR, sSR, sSR, sSR, sSR &#125;&#125;,</span><br><span class="line"><span class="comment">/*fin*/</span> &#123;&#123;sCL, sCW, sSS, sTW, sTW, sTW, sCL, sCW, sLA, sLI, sTW &#125;&#125;,</span><br><span class="line"><span class="comment">/*ack*/</span> &#123;&#123;sCL, sES, sSS, sES, sFW, sTW, sCL, sCW, sCL, sLI, sES &#125;&#125;,</span><br><span class="line"><span class="comment">/*rst*/</span> &#123;&#123;sCL, sCL, sCL, sSR, sCL, sCL, sCL, sCL, sLA, sLI, sSR &#125;&#125;,</span><br></pre></td></tr></table></figure></li>
+<li>NAT 数据包转发 xmit 阶段，它对应的 xmit 函数是 <code>ip_vs_nat_xmit</code><ul>
+<li>路由查找。根据 dest 为 daddr 进行路由查找</li>
+<li>检查 mtu。 检查 mtu 与包大小，如果包大于 mtu，且不允许分片的话，就会向客户端发送 “ICMP_DEST_UNREACH” 错误数据包，并丢弃该请求数据包。</li>
+<li>修改数据包四层信息。NAT 比 DR 模式多了四层处理的逻辑，因为 NAT 支持修改目的端口，因此会执行 <code>dnat_handler</code> 操作，对应的实际函数 <code>tcp_dnat_handler</code>。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">/* 1. 修改目的端口为 dport */</span></span><br><span class="line">   tcph-&gt;dest = cp-&gt;dport;</span><br><span class="line">   <span class="comment">/* 2. 重新计算 tcp 校验和，计算前需要将 check 字段置为 0 */</span></span><br><span class="line">   tcph-&gt;check = <span class="number">0</span>;</span><br><span class="line">tcph-&gt;check = <span class="built_in">csum_tcpudp_magic</span>(cp-&gt;caddr.ip, cp-&gt;daddr.ip, skb-&gt;len - tcphoff, cp-&gt;protocol, skb-&gt;csum);</span><br></pre></td></tr></table></figure></li>
+<li>修改数据包三层信息。NAT 需要修改目标 IP 地址为 RS 服务器 IP 地址，否则 RS 服务器不会接受此数据包（非本机 IP 默认会丢弃）。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">/* 1. 修改目的 IP 地址为 daddr */</span></span><br><span class="line">   <span class="built_in">ip_hdr</span>(skb)-&gt;daddr = cp-&gt;daddr.ip;</span><br><span class="line">   <span class="comment">/* 2. 修改 IP 后，需要重新计算 3 层校验和 */</span></span><br><span class="line"><span class="built_in">ip_send_check</span>(<span class="built_in">ip_hdr</span>(skb));</span><br></pre></td></tr></table></figure></li>
+<li>转发数据包。设置路由后，并修改了数据包的目的 IP，调用 <code>IP_VS_XMIT</code> 方法进行转发，和 DR 模式完全一样，本质上就是执行如下代码<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NF_HOOK</span>(pf, NF_INET_LOCAL_OUT, (skb), <span class="literal">NULL</span>, (rt)-&gt;u.dst.dev, dst_output);</span><br></pre></td></tr></table></figure>
+调用完毕后，就将数据包送往 output 链上，直接执行后续的相关数据包流程，包括邻居子系统填充 mac 信息，最终将数据包发送出去，完成 NAT 请求数据包的转发。<blockquote>
+<p>注：上述所展示的所有代码逻辑都是在 ip_vs_in 函数内调用完成的，即使后续的 NET_HOOK 相关调用，这时需要注意个小细节，xmit 函数返回的是 NF_STOLEN 值，代表的意思就是说这个数据包我已经处理完毕了，后边的代码就不要再进行处理啦。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>（二）NAT 响应数据包处理流程</strong></p>
+<p>NAT 响应数据包是后端服务器发给 lvs 设备，此时目的 IP 是客户端 IP 地址，需要注册在 <code>forward</code> 链上的 <code>ip_vs_out</code> 函数来进行处理：</p>
+<ol>
+<li>NAT 响应数据包处理流程入口函数是 <code>ip_vs_out</code></li>
+<li>查找四层协议，确认响应数据包是 lvs 支持的协议，不支持的就会丢弃</li>
+<li>根据响应数据包的 5 元组信息（proto，sip，sport，dip，dport），查找连接表，如果查找不到就不再继续 lvs 的流程处理了。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Check if the packet belongs to an existing entry */</span></span><br><span class="line">cp = pp-&gt;<span class="built_in">conn_out_get</span>(af, skb, pp, &amp;iph, iph.len, <span class="number">0</span>);</span><br></pre></td></tr></table></figure></li>
+<li>接下来的一系列操作处理函数在 <code>handle_response</code></li>
+<li>修改数据包四层信息，调用函数 <code>tcp_snat_handler</code><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 1. 数据包的源端口需要修改为 vport，否则客户端不认识这个连接 */</span></span><br><span class="line">tcph-&gt;source = cp-&gt;vport;</span><br><span class="line"><span class="comment">/* 2. 重新计算 tcp 校验和，计算前需要将 check 字段置为 0 */</span></span><br><span class="line">tcph-&gt;check = <span class="number">0</span>;</span><br><span class="line">tcph-&gt;check = <span class="built_in">csum_tcpudp_magic</span>(cp-&gt;caddr.ip, cp-&gt;daddr.ip, skb-&gt;len - tcphoff, cp-&gt;protocol, skb-&gt;csum);</span><br></pre></td></tr></table></figure></li>
+<li>修改数据包三层信息。NAT 需要将响应数据包的源 IP 修改为 vip，这样就能保证这些信息修改对客户端是透明的。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 1. 修改源 IP 地址为 vip */</span></span><br><span class="line"><span class="built_in">ip_hdr</span>(skb)-&gt;saddr = cp-&gt;vaddr.ip;</span><br><span class="line"><span class="comment">/* 2. 修改 IP 后，需要重新计算 3 层校验和 */</span></span><br><span class="line"><span class="built_in">ip_send_check</span>(<span class="built_in">ip_hdr</span>(skb));</span><br></pre></td></tr></table></figure></li>
+<li>更新 tcp 连接的状态机。注意这时 NAT 状态机表分组选择的是 OUTPUT。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*	OUTPUT */</span></span><br><span class="line"><span class="comment">/*        sNO, sES, sSS, sSR, sFW, sTW, sCL, sCW, sLA, sLI, sSA	*/</span></span><br><span class="line"><span class="comment">/*syn*/</span> &#123;&#123;sSS, sES, sSS, sSR, sSS, sSS, sSS, sSS, sSS, sLI, sSR &#125;&#125;,</span><br><span class="line"><span class="comment">/*fin*/</span> &#123;&#123;sTW, sFW, sSS, sTW, sFW, sTW, sCL, sTW, sLA, sLI, sTW &#125;&#125;,</span><br><span class="line"><span class="comment">/*ack*/</span> &#123;&#123;sES, sES, sSS, sES, sFW, sTW, sCL, sCW, sLA, sES, sES &#125;&#125;,</span><br><span class="line"><span class="comment">/*rst*/</span> &#123;&#123;sCL, sCL, sSS, sCL, sCL, sTW, sCL, sCL, sCL, sCL, sCL &#125;&#125;,</span><br></pre></td></tr></table></figure></li>
+<li><strong>直接返回 NF_ACCEPT</strong>。可以看到这里和之前 NAT 流程是有区别的，这里直接 return 不需要调用 <code>IP_VS_XMIT</code>。由于 <code>ip_vs_out</code> 函数工作在 <code>FORWARD</code> 链上，它已经通过路由查找了，在此函数执行完毕后，会按照内核默认的处理流程去执行，无需 lvs 再做其他的处理和干预了，所以直接返回 NF_ACCEPT 就 ok，接下来会执行:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip_forward_finish -&gt; ip_output -&gt; ip_finish_output() -&gt; ...</span><br></pre></td></tr></table></figure>
+到此就完成了 NAT 响应数据包的处理流程，实现 NAT 模式的转发功能。简单总结如下：</li>
+</ol>
+<ul>
+<li>查连接表</li>
+<li>修改源端口和源 IP 地址</li>
+<li>更新状态机</li>
+<li>默认流程继续 go …</li>
+</ul>
+<h2 id="四、Tunnel-模式数据包处理流程"><a href="#四、Tunnel-模式数据包处理流程" class="headerlink" title="四、Tunnel 模式数据包处理流程"></a>四、Tunnel 模式数据包处理流程</h2><p>Tunnel 模式貌似在各公司并不是很常用，我们可以先简单通过下图简单回顾下 Tunnel 的工作原理，然后对比着图示来分析代码实现原理。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/lb007tunnel.png" alt="tunnel"></p>
+<p>我们知道 Tunnel 模式，服务器的响应数据包也是不经过 lvs 的，这点和 DR 有点类似，它只需要处理转发客户端请求的数据包即可。因此 Tunnel 模式只需要在 <code>INPUT</code> 连上注册 hook 函数即可，它的入口函数同样是 <code>ip_vs_in</code>。</p>
+<p>Tunnel 数据包主处理逻辑，在前边的阶段和 DR 模式基本上一样的，所以会叙述的比较简单。只有在 xmit 阶段时，数据包的处理才会有所不同。</p>
+<ul>
+<li>Tunnel 模式下，客户端请求数据包处理的入口函数是 <code>ip_vs_in</code></li>
+<li>查找四层协议，确认请求数据包是否为 lvs 支持的协议，不支持就会直接丢弃</li>
+<li>查找相关 svc，调度新的 RS 后端服务器，然后新建连接表项，hash 到连接表</li>
+<li>更新设置连接相关的状态机，和 DR 模式状态机基本完全一致。</li>
+<li>Tunnel 数据包转发 xmit 阶段处理流程，它对应的 xmit 函数是 <code>ip_vs_tunnel_xmit</code></li>
+</ul>
+<p>下边分析 <code>ip_vs_tunnel_xmit</code> 函数的相关代码：</p>
+<ul>
+<li>路由查找。根据 dest 为 daddr 进行路由查找。</li>
+<li>调整 mtu。因为 Tunnel 模式需要在原有数据包头增加一个 ip 头部，导致数据包体变大，可能会超过原有 mtu 值，因此需要调整 pmtu 相关信息。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mtu = <span class="built_in">dst_mtu</span>(&amp;rt-&gt;u.dst) - <span class="built_in">sizeof</span>(<span class="keyword">struct</span> iphdr);</span><br><span class="line"><span class="built_in">skb_dst</span>(skb)-&gt;ops-&gt;<span class="built_in">update_pmtu</span>(<span class="built_in">skb_dst</span>(skb), mtu);</span><br></pre></td></tr></table></figure></li>
+<li>为 skb 数据结构内存空间调整 headroom，也就是在数据包前边在扩容 IP 头部所占用的空间。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">skb_realloc_headroom</span>(skb, max_headroom);</span><br></pre></td></tr></table></figure></li>
+<li>填充外部 IP 头部的相关字段信息。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">iph			=	<span class="built_in">ip_hdr</span>(skb);</span><br><span class="line">iph-&gt;version	=	<span class="number">4</span>;</span><br><span class="line">iph-&gt;ihl		=	<span class="built_in">sizeof</span>(<span class="keyword">struct</span> iphdr)&gt;&gt;<span class="number">2</span>;</span><br><span class="line">iph-&gt;frag_off	=	df;</span><br><span class="line">iph-&gt;protocol	=	IPPROTO_IPIP;</span><br><span class="line">iph-&gt;tos		=	tos;</span><br><span class="line"><span class="comment">/* 1. 目的地址设置的为 dest 服务器地址 */</span></span><br><span class="line">iph-&gt;daddr	=	rt-&gt;rt_dst;</span><br><span class="line"><span class="comment">/* 2. 源地址是根据路由选出的 Local IP 地址 */</span></span><br><span class="line">iph-&gt;saddr	=	rt-&gt;rt_src;</span><br><span class="line">iph-&gt;ttl		=	old_iph-&gt;ttl;</span><br><span class="line"><span class="built_in">ip_select_ident</span>(iph, &amp;rt-&gt;u.dst, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure></li>
+<li>真正转发数据包阶段。这里调用的不是 <code>IP_VS_XMIT</code> 方法，调用的是 <code>ip_local_out</code> 函数，通过下边代码就能看出，其实作用和 DR 模式调用 <code>IP_VS_XMIT</code> 函数是完全一样的。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __ip_local_out(<span class="keyword">struct</span> sk_buff *skb)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">iphdr</span> *iph = <span class="built_in">ip_hdr</span>(skb);</span><br><span class="line">    <span class="comment">/* 因为 Tunnel 增加了 IP 头部，导致数据包长度发生了变化 */</span></span><br><span class="line">    iph-&gt;tot_len = <span class="built_in">htons</span>(skb-&gt;len);</span><br><span class="line">    <span class="built_in">ip_send_check</span>(iph);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">nf_hook</span>(PF_INET, NF_INET_LOCAL_OUT, skb, <span class="literal">NULL</span>, <span class="built_in">skb_dst</span>(skb)-&gt;dev, dst_output);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+由此 Tunnel 后续数据包的处理流程和 DR 的情形一样，由内核完成后续的数据包操作。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local_out -&gt; ip_output -&gt; ip_finish_output -&gt; ip_finish_output2 -&gt; neigh_hh_output</span><br></pre></td></tr></table></figure>
+<p>到此为止，Tunnel 模式的数据包转发处理逻辑已经完成。</p>
+
+        
+<script src="/js/qrious.min.js"></script>
+
+
+        <hr style="margin-top: 2rem;">
+        <div>
+            
+            <p>
+                <span>专题: </span>
+                
+                <a href="/series/#负载均衡">
+                    <code key="负载均衡" class="post-label">负载均衡</code>
+                </a>
+                
+            </p>
+            
+            <p>
+                <span>本文发表于 2021-07-14，最后修改于 2022-04-16。</span>
+            </p>
+            <!-- 文章末尾的提示 start -->
+            
+            <p>
+                本站永久域名「 <a
+                        href="/post/3360290171.html">www.tcpdump.cn</a>
+                    」，也可搜索「 肖邦Linux 」找到我。
+            </p>
+            
+            
+                
+            <!-- 文章末尾的提示 end -->
+        </div>
+        <hr />
+        <p name="pagination" style="font-size: 1.2em">
+    
+    <a class="float-left" href="/post/522418658.html">上一篇 « 负载均衡 LVS 调度算法</a>
+    
+    
+    <a class="float-right" href="/post/1229090889.html">下一篇 » 负载均衡 LVS TOA 实现原理</a>
+    
+</p>
+    </article>
+    <!-- 赞赏 -->
+    <!--打赏-->
+
+<style>
+    #reward .reward-btn-wrapper {
+        width: 100px;
+        padding-top: 35px;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+
+    #reward .reward-btn {
+        padding: 2px 15px;
+        color: #fff;
+        background-color: #ea6f5a;
+        border-radius: 20px;
+    }
+
+    #reward .reward-code {
+        position: absolute;
+        top: -220px;
+        left: 50%;
+        display: none;
+        width: 360px;
+        height: 240px;
+        margin-left: -180px;
+        padding: 15px 20px;
+        border: 1px solid #e6e6e6;
+        background: #fff;
+        box-shadow: 0 1px 1px 1px #efefef;
+    }
+
+    #reward .reward-code:after,
+    #reward .reward-code:before {
+        position: absolute;
+        content: '';
+        border: 10px solid transparent
+    }
+
+    #reward .reward-code:after {
+        bottom: -19px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #fff
+    }
+
+    #reward .reward-code:before {
+        bottom: -20px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #e6e6e6
+    }
+
+    #reward .qr-code {
+        width: 50%;
+        float: left;
+        padding: 5px;
+    }
+
+    #reward .qr-code p {
+        margin-top: -6px;
+    }
+
+    #reward img {
+        transform: none;
+        -webkit-transform: none;
+        margin-left: 0;
+    }
+
+    #reward img[alt='i'] {
+        width: 20px;
+        height: 20px;
+        z-index: 2;
+        position: absolute;
+        margin: 65px 0 0 65px;
+    }
+
+    #reward img[alt="ali"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #0f9be0;
+    }
+
+    #reward img[alt="wechat"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #3db034;
+    }
+
+    #reward .reward-tip {
+        font-size: 1.2em;
+        margin-bottom: 0;
+        color: #ea6f5a;
+    }
+</style>
+<div id="reward" class="col-xs-12">
+    <div class="reward-btn-wrapper">
+        <div class="reward-btn text-center">赞赏支持</div>
+    </div>
+    <div class="reward-code text-center">
+        <p class="text-center reward-tip"><strong>请我吃胡萝卜 =^_^= </strong></p>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-ali" src="" alt="ali">
+            <p><small>支付宝</small></p>
+        </div>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-wechat" src="" alt="wechat">
+            <p><small>微信</small></p>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window, document) {
+        var aliQr = new QRious({ value: 'HTTPS://QR.ALIPAY.COM/FKX060337TUXBAX9LIFJE8' });
+        var wechatQr = new QRious({ value: 'wxp://f2f0qgGBlfD1nZXjvBjievxB0z0fc0W2sBq5' });
+        document.querySelector('#reward-ali').src = aliQr.toDataURL();
+        document.querySelector('#reward-wechat').src = wechatQr.toDataURL();
+
+        var rewardBtn = document.querySelector('#reward .reward-btn-wrapper');
+        var qrCode = document.querySelector('#reward .reward-code')
+        var activeFunc = function (e) {
+            qrCode.style.display = 'block';
+        }
+        var hideFunc = function (e) {
+            qrCode.style.display = 'none';
+        }
+
+        rewardBtn.addEventListener('mouseenter', activeFunc, false)
+        rewardBtn.addEventListener('mouseover', activeFunc, false)
+        rewardBtn.addEventListener('mouseleave', hideFunc, false)
+        qrCode.addEventListener('mouseenter', activeFunc, false)
+        qrCode.addEventListener('mouseover', activeFunc, false)
+        qrCode.addEventListener('mouseleave', hideFunc, false)
+    })(window, document);
+</script>
+
+    
+<div class="col-xs-12 text-center" style="margin-top: 30px;">
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://github.com/chopin11" title="Github"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/github.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://geektutu.com/feed.xml" title="RSS"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/rss.jpg" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie" title="知乎"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/zhihu.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://weibo.com/geektutu" title="微博"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/weibo.jpg" /></a>
+    
+</div>
+
+    <!-- 推荐阅读三篇文章 -->
+    <div class="col-xs-12">
+        <h3>推荐阅读</h3>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#HTTPS"
+                    title="HTTPS">HTTPS</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#OPENSSL"
+                    title="OPENSSL">OPENSSL</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#签发证书"
+                    title="签发证书">签发证书</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/3965235630.html" class="title">
+                使用 openssl 签发 RSA 证书
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2022-04-08，</span>
+                    <span class="hidden-xs">全文4150字，</span>
+                    <span>阅读约14分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/3360290171.html" class="title">
+                负载均衡 LVS 主流程代码分析
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-07-14，</span>
+                    <span class="hidden-xs">全文14415字，</span>
+                    <span>阅读约49分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/2589298645.html" class="title">
+                负载均衡 LVS 基本介绍
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-02-04，</span>
+                    <span class="hidden-xs">全文3012字，</span>
+                    <span>阅读约11分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+    </div>
+    <div class="col-xs-12">
+        <!-- 标签列表 -->
+        <!-- Featured Tags -->
+<style>
+    #featured-tag .post-tag-item {
+        font-size: 12px;
+        line-height: 30px;
+        display: inline-block;
+        height: 30px;
+        margin: 5px 0px;
+        padding: 0 7px;
+        color: #333;
+        border-radius: 15px;
+        background: #f6f6f6;
+    }
+
+    #featured-tag .post-tag-item:hover {
+        color: #337ab7;
+    }
+</style>
+<div id="featured-tag">
+    
+    <a class="post-tag-item" href="/tags/#keepalived" title="keepalived"
+        rel="1">#keepalived (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#负载均衡" title="负载均衡"
+        rel="9">#负载均衡 (9) </a>
+    
+    <a class="post-tag-item" href="/tags/#高可用" title="高可用"
+        rel="1">#高可用 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#dpvs" title="dpvs"
+        rel="3">#dpvs (3) </a>
+    
+    <a class="post-tag-item" href="/tags/#邻居" title="邻居"
+        rel="1">#邻居 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#linux" title="linux"
+        rel="1">#linux (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#HTTPS" title="HTTPS"
+        rel="8">#HTTPS (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#OPENSSL" title="OPENSSL"
+        rel="8">#OPENSSL (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#签发证书" title="签发证书"
+        rel="8">#签发证书 (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#路由" title="路由"
+        rel="1">#路由 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#lvs" title="lvs"
+        rel="7">#lvs (7) </a>
+    
+    <a class="post-tag-item" href="/tags/#TCP" title="TCP"
+        rel="1">#TCP (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#网络协议" title="网络协议"
+        rel="1">#网络协议 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#工具效率" title="工具效率"
+        rel="1">#工具效率 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#调度算法" title="调度算法"
+        rel="1">#调度算法 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#toa" title="toa"
+        rel="1">#toa (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#snat" title="snat"
+        rel="1">#snat (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#关于我" title="关于我"
+        rel="1">#关于我 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#友链" title="友链"
+        rel="1">#友链 (1) </a>
+    
+</div>
+    </div>
+    <!-- 评论 -->
+    
+    <div class="col-xs-12">
+        
+<div class="col-xs-12 padding-0">
+    <div id="gitalk-container">
+        <div class="gt-container text-center" style="margin-top: 50px;">
+            <button class="gt-btn gt-btn-public"><span class="gt-btn-text">去 Github 评论</span></button>
+        </div>
+    </div>
+    <div id="gitalk-related"></div>
+</div>
+
+<link rel="stylesheet" href="/css/gitalk.css">
+
+
+<script src="/js/gitalk.min.js"></script>
+
+<script>
+    window.addEventListener('load', function () {
+        function renderCommentUrl(data) {
+            var url = (data[window.location.pathname] || {}).url
+            url && getDom('#gitalk-container button').addEventListener('click', function (e) { window.open(url)})
+            url || (getDom('#gitalk-container').style.display = 'none')
+        }
+        const gitalk = new Gitalk({
+            clientID: 'c1fdd456a4caae5f7df0',
+            clientSecret: 'b2674451e21feae50520f99337ec15d2aebe7879',
+            accessToken: '513dc2f1e6df8c07a12fbf1547874f54679d9712',
+            repo: 'blog',
+            owner: 'geektutu',
+            admin: ['geektutu'],
+            id: window.location.pathname,
+            distractionFreeMode: false
+        });
+        fetch("https://api.github.com/user").then(function(resp){
+            gitalk.render('gitalk-container');
+        }).catch(function(e){
+            fetch('/tool/issues.json').then(function (r) { return r.json() }).then(renderCommentUrl).catch(function (e) { })
+        })
+        getDom('#gitalk-container').addEventListener('click', function (e) {
+            e && e.stopPropagation && e.stopPropagation();
+        });
+    })
+</script>
+<script>
+    window.addEventListener('load', function () {
+        function render(comments) {
+            var template = '<a href="${comment.url}?utm_source=gitalk" class="dis-item-url"><h3 class="dis-item-title">${comment.title}</h3>' +
+                '<p class="dis-item-des">${comment.count} 评论 ● ${comment.date}</p>' +
+                '<div class="dis-item-content"><img class="dis-item-img" src="${comment.icon}" alt="icon"><p><b><span class="dis-item-user">${comment.user}</span></b>&nbsp;——&nbsp;${comment.body}</p></div>' +
+                '</a>'
+
+            var wrapper = getDom('#gitalk-related');
+            comments = shuffle(comments);
+            comments.slice(0, 4).forEach(function (c) {
+                var div = document.createElement('div');
+                div.classList.add('dis-item');
+                div.innerHTML = template.replace("${comment.url}", c.url)
+                    .replace("${comment.title}", c.title)
+                    .replace("${comment.count}", c.count)
+                    .replace("${comment.date}", c.date)
+                    .replace("${comment.icon}", c.icon)
+                    .replace("${comment.user}", c.user)
+                    .replace("${comment.body}", c.body)
+                wrapper.appendChild(div)
+            })
+            var p = document.createElement('p')
+            p.innerHTML = '<a target="_blank" rel="noopener" href="https://geektutu.com/post/blog-experience-7.html">Gitalk Plus</a>';
+            p.classList.add('dis-divide');
+            wrapper.appendChild(p);
+            wrapper.classList.add('dis-wrapper')
+        }
+        function shuffle(a) {
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+        fetch('/tool/comments.json').then(function (r) { return r.json() }).then(render).catch(function (e) { })
+    })
+</script>
+
+    </div>
+    
+</div>
+<aside class="float-left gkt-sidebar hidden-xs hidden-sm">
+    <div style="clear: both"></div>
+    <div class="gkt-sidebar-wrapper">
+        <section class="box-shadow"><style>
+    .gkt-summary {
+        border: 1px solid #DDDDDD;
+        border-radius: 3px;
+        padding: 5px;
+        width: 100%;
+    }
+
+
+    .gkt-summary nav {
+        overflow: hidden;
+    }
+
+    .gkt-summary nav a {
+        display: inline-block;
+        text-align: center;
+        color: #333;
+        font-size: 12px;
+    }
+
+    .gkt-summary nav span {
+        display: block;
+    }
+
+    .gkt-summary nav .middle {
+        border-left: 1px solid #eaecef;
+        border-right: 1px solid #eaecef;
+    }
+
+    .gkt-summary .number {
+        font-weight: bold;
+    }
+
+    .gkt-summary .link-list {
+        margin-top: 5px;
+        margin-bottom: -5px;
+        padding-top: 7px;
+        border-top: 1px dashed #999;
+        display: flex;
+    }
+
+    .gkt-summary .link-list a {
+        flex: 1;
+    }
+
+    .gkt-summary .link-list img {
+        width: 25px;
+        height: 25px;
+    }
+</style>
+
+<div class="gkt-summary">
+    <nav>
+        <a href="/" class="col-xs-4">
+            <span class="number">24</span><span>文章</span>
+        </a>
+        <a href="/series" class="col-xs-4 middle">
+            <span class="number">5</span><span>专题</span>
+        </a>
+        <a href="/tags" class="col-xs-4">
+            <span class="number">19</span><span>标签</span>
+        </a>
+    </nav>
+
+    
+    <div class="link-list">
+        
+        <a target="_blank" rel="noopener" href="https://github.com/chopin11"><img src="/img/related_links/github.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://geektutu.com/feed.xml"><img src="/img/related_links/rss.jpg" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie"><img src="/img/related_links/zhihu.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://weibo.com/geektutu"><img src="/img/related_links/weibo.jpg" /></a>
+        
+    </div>
+    
+</div></section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>负载均衡</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/325553977.html"
+                        class="">keepalived 快速入门介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2589298645.html"
+                        class="">负载均衡 LVS 基本介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1970613528.html"
+                        class="">负载均衡 LVS 基本原理</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3671532823.html"
+                        class="">负载均衡 LVS 操作实践</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2126991808.html"
+                        class="">负载均衡 LVS 连接表</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/522418658.html"
+                        class="">负载均衡 LVS 调度算法</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3360290171.html"
+                        class="gkt-sidebar-active">负载均衡 LVS 主流程代码分析</a>
+                    
+                    <!-- Table of Contents -->
+<div id="sidebar-toc">
+  <!-- TOC  -->
+  
+  
+  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%80%E3%80%81%E5%85%B3%E4%BA%8E-netfileter-%E5%86%85%E5%AE%B9"><span class="toc-nav-text">一、关于 netfileter 内容</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%8C%E3%80%81DR-%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">二、DR 模式的数据包处理流程</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%89%E3%80%81NAT-%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">三、NAT 模式的数据包处理流程</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%9B%9B%E3%80%81Tunnel-%E6%A8%A1%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%8C%85%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">四、Tunnel 模式数据包处理流程</span></a></li></ol>
+  
+</div>
+
+<script>
+  (function () {
+    var h2 = document.querySelectorAll('article h2');
+    var h3 = document.querySelectorAll('article h3');
+    var linkList = document.querySelectorAll('#sidebar-toc a');
+
+    function findLinkElement(name) {
+      for (var i = 0; i < linkList.length; i++) {
+        var items = linkList[i].href.split('#');
+        if (items && items[items.length - 1] === encodeURIComponent(name)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function activeLink(titleList) {
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      for (var i = titleList.length - 1; i >= 0; i--) {
+        if (scrollTop - titleList[i].offsetTop > 0) {
+          var index = findLinkElement(titleList[i].id);
+          index != -1 && linkList[index].classList.add('gkt-sidebar-active');
+          break;
+        }
+      }
+    }
+
+    window.addEventListener("scroll", function (e) {
+      [].slice.call(linkList).forEach(function (link) {
+        link.classList.remove('gkt-sidebar-active');
+      })
+      activeLink(h2);
+    })
+  })();
+</script>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1229090889.html"
+                        class="">负载均衡 LVS TOA 实现原理</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2778281555.html"
+                        class="">负载均衡 DPVS SNAT 功能介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3989527185.html"
+                        class="">负载均衡 DPVS 路由子系统的实现</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/4205823097.html"
+                        class="">负载均衡 DPVS 邻居子系统的实现</a>
+                    
+                </li>
+                
+            </ul>
+        </section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>最近的文章</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/55249683.html">让浏览器快如飞的插件 vimium</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1335797944.html">经典的 TCP 三次握手问题</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1717622242.html">使用 openssl 操作证书的常见用法</a>
+                </li>
+                
+            </ul>
+        </section>
+        
+    </div>
+</aside>
+
+<script>
+    (function () {
+        function resizeUArrow() {
+            var s = getDom('.u-arrow-wrapper').style
+            var pc = getDom('.post-container')
+            s.left = getPosition(pc).x + 'px';
+            s.width = pc.clientWidth + 'px';
+        }
+        resizeUArrow()
+        window.addEventListener('resize', resizeUArrow);
+    })();
+</script>
+
+    
+
+<script>
+    (function () {
+        var ele = getDom('.gkt-sidebar-content')
+        if(!ele) return;
+        var wrapper = getDom('.gkt-sidebar-wrapper')
+        var last = 0
+        ele.style.maxHeight = ((window.innerHeight || 798) - 200) + 'px'
+        var f = function (e) {
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            var isDown = scrollTop > last;
+            var pos = getPosition(ele).y - scrollTop;
+            var downLimit = 50;
+            var upLimit = -100;
+            // uarrow.style.marginTop = scrollTop + 'px';
+            isDown && pos <= downLimit && wrapper.classList.add("gkt-sidebar-fixed");
+            !isDown && pos > upLimit && wrapper.classList.remove("gkt-sidebar-fixed");
+            last = scrollTop
+        }
+        f()
+        window.addEventListener("scroll", f)
+    })();
+</script>
+
+</main>
+    </div>
+    <style>
+    img#go-top {
+        position: fixed;
+        bottom: 100px;
+        width: 50px;
+        cursor: pointer;
+        z-index: 9999;
+    }
+</style>
+<img id="go-top" src="/icon/top.png" class="hidden-xs" style="display: none" />
+<script>
+    (function () {
+        var goTop = document.getElementById('go-top');
+        var mainContainer = document.querySelector('.main-container');
+        
+        goTop.addEventListener('click', function () {
+            window.scroll(0, 0);
+        }, false);
+        window.addEventListener('scroll', function () {
+            var right = document.body.offsetWidth - mainContainer.getBoundingClientRect().right;
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            goTop.style.right = right + 10 + 'px'
+            scrollTop > 700 && (goTop.style.display = "block");
+            scrollTop <= 700 && (goTop.style.display = "none");
+        });
+    })();
+</script>
+    <style>
+    #geektutu-click-img-container {
+        position: fixed;
+        left: 0;
+        top: 0;
+        text-align: center;
+        width: 100%;
+        display: none;
+        z-index: 9999;
+    }
+
+    #geektutu-click-img-container img {
+        object-fit: contain;
+        background: #eaecef;
+        padding: 15px;
+        border-radius: 10px;
+        height: auto;
+        width: auto;
+        vertical-align: middle;
+    }
+</style>
+
+
+<div id="geektutu-click-img-container">
+    <img src="" alt="Big Image">
+</div>
+
+<script>
+    (function () {
+        var container = document.querySelector('#geektutu-click-img-container')
+        var targetImg = container.querySelector('img')
+        var imgs = document.querySelectorAll('article img');
+        targetImg.addEventListener('click', function (e) {
+            container.style.display = 'none';
+            e && e.stopPropagation && e.stopPropagation();
+        }, false);
+
+        for (var i = 0; i < imgs.length; ++i) {
+            var img = imgs[i];
+            img.addEventListener('click', (function (src, rate) {
+                return function (e) {
+                    e && e.stopPropagation && e.stopPropagation();
+                    if (window.innerWidth < 980) {
+                        return
+                    }
+                    targetImg.style.height = targetImg.style.width = 'auto';
+                    if (window.innerWidth / window.innerHeight > rate) {
+                        targetImg.style.height = (window.innerHeight - 20) + 'px';
+                    } else {
+                        targetImg.style.width = (window.innerWidth - 20) + 'px';
+                    }
+                    container.style.height = window.innerHeight + 'px'
+                    container.style.lineHeight = window.innerHeight + 'px'
+                    container.style.display = 'block';
+                    targetImg.src = src;
+                };
+            }(img.src, img.width / img.height)), false)
+        }
+    })();
+</script>
+    <!-- Footer -->
+    <!-- Footer -->
+<style>
+    footer {
+        width: 100%;
+        line-height: 1.5;
+        padding: 20px;
+    }
+
+    footer a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .footer-hexo img {
+        height: 20px;
+        margin-bottom: -5px;
+    }
+
+    .footer-hexo a {
+        color: #337ab7;
+    }
+</style>
+<footer class="text-center col-xs-12">
+    <p>
+        <small>©2019 - 2022 - 肖邦 - </small>
+        <small>
+            <a target="_blank" rel="nofollow noopener" href="http://beian.miit.gov.cn/">临渊羡鱼，不如退而结网</a>
+        </small>
+    </p>
+    <p class="footer-hexo">
+        <!-- 但若直接使用或修改主题，请务必保留这段声明 -->
+        <small>Powered by <a target="_blank" href="https://hexo.io">Hexo</a> | Theme
+            <a target="_blank" href="https://geektutu.com">Geektutu</a>
+            <a target="_blank" rel="noopener" href="https://github.com/chopin11">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYGBgYHBgcICAcKCwoLCg8ODAwODxYQERAREBYiFRkVFRkVIh4kHhweJB42KiYmKjY+NDI0PkxERExfWl98fKcBBgYGBgcGBwgIBwoLCgsKDw4MDA4PFhAREBEQFiIVGRUVGRUiHiQeHB4kHjYqJiYqNj40MjQ+TERETF9aX3x8p//CABEIACIAUAMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAAAAQQFBwIDBgj/2gAIAQEAAAAA9KrHSgAYL5/z6zZGuJd12uugbhq3uKtmuRtix20IS7lTLAfAAAn/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAAAB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAxAAAAAAAf/EADEQAAICAQIEBQEGBwAAAAAAAAECAwQFAAYREhORBxQhUlQxQVFic5KxJDJCYYGC0f/aAAgBAQABPwCFHnjWUzuvN6hV4cANSRLGjO9yRVUcSzMoA7jVXJYe5N0a2dhmk9kc0bN2GvLN8mbuNeWb5M3ca8s3yZu415Y/Jm7jXlm+TN3H/NeVPyZu40vOk3TZywK8wJ+v3EHVM/wsI/Dq2lrxN3Nnca16eti8chSAIoMbzByhMwP14kHVfwIiSaF5c96J6kwwCOTnHsYk8uvCrdmQy1TI4rJuz3cZLyGR/wCd4+YoOf8AEpUjXitubLYPG4paFsUxcuiGe7yc5gTW3LW44szXmobsi3Dhmic2+Z4+vCVH9CpraPiQ+QvbgTJrPFBWd5YpWrmNIIEXiRO32Pqt4p7cnfHk18lFBdmEVW1LVdIZGOrniTt6plrWKaO69yCykDRxwF+LMAewB0Txtr+Sf31VI8tEPw62fZt7N3Humtbpzz13ucX6CGSWMSuzpLyD1eNgeUka3PuvHbaxq3biTMHfkiSNCS78CwU+3Xg7Vu3MhuTcU6cq3Zemn3Eh2dv8Lzcut+29x1atKbHYqLJUhLwyNMwiZ3j9yDWOxUOV3tgb+3No5LDx1pi9+aeIwRlNY6bc+Jv+IFGrhLxtXJZ7VKcw81diiAAEn0JOrkWZyNfbEr0tz27UGQgkuGzXdIIvyowq99bRxk9ffO/L81SZBPZgEEroQroIxxMZOgeNsfkn99QypHGqO4Vl9CDrN4LDZkwyzyyQ2IgRHZrzGCZVP1XnQglT9oOtw4LC7iqV6uRkZoYpxKFSQpzFRw4EjVRMfSrQ1qqwxQxKFjjTgFUD7BoWYR6iVe+mtxt9Zwf9teaj4AdccPu5tedX5A/VrzUR+sy/q1CwksF19VEfDj/cnQRW+qg66cfsXtrpx+xe2unH7F7a6cfsXtrpx+xe2unH7F7a6cfsXtoxx+xe2gAAOA1//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAgEBPwB//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAwEBPwB//9k="
+                    alt="Github Star">
+            </a>
+        </small>
+    </p>
+    <!-- 
+    <p>
+        <small>
+            <span id="busuanzi_container_site_pv">👁<span id="busuanzi_value_site_pv"></span></span> &nbsp;
+            <span id="busuanzi_container_page_pv">📚<span id="busuanzi_value_page_pv"></span></span>
+        </small>
+    </p>
+    
+     -->
+
+</footer>
+
+
+<script>
+    window.addEventListener('load', function () {
+        globalAddScript('//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js');
+    })
+</script>
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+    <script>
+        // 非本站网址，新开tab页签
+        (function () {
+            var stopBubble = function (e) {
+                e && e.stopPropagation && e.stopPropagation();
+            }
+            var links = document.querySelectorAll('a');
+            [].slice.call(links).forEach(function (item) {
+                if (item.href && item.href.indexOf(window.location.host) === -1) {
+                    item.target = '_blank'
+                }
+                // 阻止冒泡，不触发彩蛋。
+                item.addEventListener('click', stopBubble, false);
+            });
+            var article = document.querySelector('article');
+            article && article.addEventListener('click', stopBubble, false)
+        })();
+    </script>
+    
+</body>
+
+</html>

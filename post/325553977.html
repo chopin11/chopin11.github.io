@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<!-- Head tag -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  <meta name="baidu-site-verification" content="" />
+  <meta name="google-site-verification" content="" />
+  <meta name="msvalidate.01" content="" />
+  <meta name="360-site-verification" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- if page has tags, then add tags to keyword -->
+  
+  
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,keepalived,负载均衡,高可用,高可用,双机热备,keepalived,lvs,负载均衡">
+  <!-- page.description has higher priority -->
+  <meta name="description" content="这是一篇介绍 keepalived 的入门文章，从历史背景、应用场景、架构设计、实现原理等方面，深入浅出地讲解了 keepalived 是如何工作的。">
+  <link rel="shortcut icon" href="/img/favicon.ico">
+  <title>
+    
+    keepalived 快速入门介绍 | 快速入门 | 肖邦Linux
+    
+  </title>
+
+  <link rel="canonical" href="https://www.tcpdump.cn/post/325553977.html">
+  
+<link rel="stylesheet" href="/css/geektutu.css">
+
+  <!-- global function -->
+  <script>
+    window.globalAddScript = function (url, onload, onerror) {
+      var s = document.createElement('script');
+      s.src = url;
+      onload && (s.onload = onload);
+      onerror && (s.onerror = onerror);
+      document.body.appendChild(s);
+    }
+    window.globalAddCss = function (url) {
+      var s = document.createElement('link');
+      s.rel = 'stylesheet';
+      s.href = url;
+      document.body.appendChild(s);
+    }
+    window.getPosition = function (ele) {
+      var x = 0, y = 0;
+      while (ele) {
+        x += (ele.offsetLeft - ele.scrollLeft + ele.clientLeft);
+        y += (ele.offsetTop - ele.scrollTop + ele.clientTop);
+        ele = ele.offsetParent;
+      }
+      return { x: x, y: y };
+    }
+    window.getDom = function (str) { return document.querySelector(str) }
+  </script>
+  <!-- google ad -->
+  
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/feed.xml" title="肖邦Linux" type="application/rss+xml">
+</head>
+
+<body>
+    
+<header class="gkt-header col-xs-12 padding-0">
+    <div id="gkt-nav" class="gkt-header-container">
+        <a href="/" class="gkt-header-title float-left">
+            <img class="float-left" src="/img/favicon.ico" alt="">
+            <span>肖邦Linux</span>
+        </a>
+        <nav class="gkt-header-nav text-right">
+            <ul>
+                <li><a class="hidden-xs" href="/feed.xml">订阅</a></li>
+                <li><a href="/series/">专题</a></li>
+                <li><a href="/archives/">归档</a></li>
+                <li><a href="/post/link.html">友链</a></li>
+                <li><a href="/post/about.html">关于</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div id="gkt-cate-nav" class="gkt-header-container hidden-xs">
+        
+        <nav class="gkt-header-nav float-left">
+            <ul>
+                
+                
+                <li class="gkt-cate-name float-left active">
+                    <a class="float-left" href="/post/325553977.html">负载均衡</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1111606992.html">Linux基础</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/78358564.html">HTTPS</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1335797944.html">网络协议</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/55249683.html">工具效率</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+<div class="gkt-header-placeholder" style="height: 44px"></div>
+<div class="gkt-header-placeholder hidden-xs" style="height: 44px"></div>
+<script>
+    (function () {
+        window.addEventListener('scroll', function () {
+            if (window.innerWidth < 768) {
+                return;
+            }
+            var nav = document.querySelector('#gkt-nav');
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            scrollTop > 50 && (nav.classList.add('hide'));
+            scrollTop <= 50 && (nav.classList.remove('hide'));
+        });
+        var cateNavs = document.querySelectorAll('#gkt-cate-nav>nav>ul>li');
+        [].slice.call(cateNavs).forEach(function (item) {
+            var sub = item.querySelector('.gkt-sub-cate');
+            if (!sub) return;
+            item.addEventListener('mouseenter', function (e) { sub.style.display = 'block'; }, false);
+            item.addEventListener('mouseleave', function (e) { sub.style.display = 'none'; }, false);
+        })
+    })();
+</script>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Main Content -->
+<main class="col-xs-12 padding-0 markdown-it">
+    <!-- Post Container -->
+    
+    
+    <!-- Post Content -->
+<div class="float-left post-container box-shadow">
+    <div class="u-arrow-wrapper hidden-xs">
+        
+        <a class="float-left" href="/post/about.html"><i class="u-arrow-left"></i></a>
+        
+        
+        <a class="float-right" href="/post/2589298645.html"><i class="u-arrow-right"></i></a>
+        
+    </div>
+    <article class="col-xs-12">
+        <h1> keepalived 快速入门介绍 </h1>
+        
+        
+        <div class="hidden-lg hidden-md series_links">
+            <p> <strong> 负载均衡系列文章链接：</strong></p>
+            <ul>
+                
+                <li>
+                    <a href="/post/325553977.html">keepalived 快速入门介绍</a>
+                    <span class="post-item-date">(Jan 2, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2589298645.html">负载均衡 LVS 基本介绍</a>
+                    <span class="post-item-date">(Feb 4, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/1970613528.html">负载均衡 LVS 基本原理</a>
+                    <span class="post-item-date">(Mar 6, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3671532823.html">负载均衡 LVS 操作实践</a>
+                    <span class="post-item-date">(Apr 8, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2126991808.html">负载均衡 LVS 连接表</a>
+                    <span class="post-item-date">(May 10, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/522418658.html">负载均衡 LVS 调度算法</a>
+                    <span class="post-item-date">(Jun 12, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3360290171.html">负载均衡 LVS 主流程代码分析</a>
+                    <span class="post-item-date">(Jul 14, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/1229090889.html">负载均衡 LVS TOA 实现原理</a>
+                    <span class="post-item-date">(Aug 16, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2778281555.html">负载均衡 DPVS SNAT 功能介绍</a>
+                    <span class="post-item-date">(Sep 18, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3989527185.html">负载均衡 DPVS 路由子系统的实现</a>
+                    <span class="post-item-date">(Oct 20, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/4205823097.html">负载均衡 DPVS 邻居子系统的实现</a>
+                    <span class="post-item-date">(Nov 22, 2021)</span>
+                </li>
+                
+            </ul>
+        </div>
+        
+        
+        <div class="gkt-article-start"></div>
+        <p><img src="/img/golang.jpg" alt="Golang中文教程"></p>
+<blockquote>
+<p>keepalived 是一个与 LVS 息息相关的软件，最初就是为 LVS 而生的。它提供了负载均衡和高可用的框架，负载均衡功能是依赖于 IPVS 内核模块，高可用功能是通过 VRRP 协议实现的，两个功能可以独立使用。</p>
+</blockquote>
+<h2 id="LVS的使用"><a href="#LVS的使用" class="headerlink" title="LVS的使用"></a>LVS的使用</h2><p>负载均衡 LVS 是章文嵩博士在 1998 年开源的项目，算是国内最早的开源项目。LVS 是一个高性能的负载均衡器，能够很容易的实现分布式集群。LVS 在内核是以模块 ko 的形式存在，运行基于 netfilter 框架之上。所以集群服务规则的配置与操作是通过 LVS 提供用户工具 ipvsadm 进行的，比如我们可以执行如下命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ /sbin/modprobe ip_vs  <span class="comment"># 加载 ipvs 模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 TCP 80 的服务</span></span><br><span class="line">$ ipvsadm -A -t 182.18.100.16:80 -s rr</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为 TCP 80 添加 RS1 192.168.1.2</span></span><br><span class="line">$ ipvsadm -a -t 182.18.100.16:80 -r 192.168.1.2:80 -g -w 1</span><br><span class="line"><span class="comment"># 为 TCP 80 添加 RS2 192.168.1.3</span></span><br><span class="line">$ ipvsadm -a -t 182.18.100.16:80 -r 192.168.1.3:80 -g -w 1</span><br><span class="line"><span class="comment"># 这样就创建了一个 182.18.100.16:80 的虚拟服务器集群（后端可以是多个 RS）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果 RS1 宕机，我们需要将 RS1 从几种中摘掉</span></span><br><span class="line">ipvsadm -d -t 182.18.100.16:80 -r 192.168.1.2:80</span><br></pre></td></tr></table></figure>
+
+<p>我们可以通过 ipvsadm 工具来对负载均衡 LVS 进行各种服务变更的操作，包括 service 和 rs 的增删改查。ipvsadm 是 LVS 官方配套的工具，它是个用户态的应用程序，运行在用户空间，它是通过 <code>raw socket</code> 或 <code>netlink</code> 方式与内核 LVS 进行通信的，它与 LVS 之间的关系就类似 iptables 与 netfilter 之间的关系和位置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">用户：  ipvsadm</span><br><span class="line">          |</span><br><span class="line">          | (libipvs)</span><br><span class="line">----------+----------------------------</span><br><span class="line">          | (raw socket | netlink)</span><br><span class="line">          ↓</span><br><span class="line">内核：    LVS</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注：ipvsadm 是 LVS 服务规则配置的工具，iptables 也是防火墙规则配置的用户工具。</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h2><p>从配置操作上来看，ipvsadm 工具能够实现 service 和 rs 增删改查，看起来完全能够胜任，在简单的业务场景下，使用上也特别大的问题。但是我们实际生产环境中，不会就如此简单。服务不会只有这么少，rs 数量也会非常多，变更、升级、维护等操作也会很频繁，如果只通过 ipvsadm 方式操作，会有很多缺点</p>
+<ul>
+<li>配置不易管理</li>
+<li>操作效率低</li>
+<li>容易出错。</li>
+<li><strong>另外一个问题</strong>：LVS 服务后端有多个 RealServer 服务器，若某个 RS 异常宕机，LVS 仍然会将流量转发给异常 RS，这样就会导致服务的部分流量异常，这是一个不能够接受的问题。</li>
+</ul>
+<p>大概在 2001 年的时候，名叫 “Alexandre Cassen” 工程师开发了 keepalived 软件，大概专门为解决 LVS 配置管理问题。早期发布的 keepalived-0.2.x 版本支持配置文件以 “virtual_server” 的方式来配置服务规则。</p>
+<p>keepalived 除了解决配置管理维护问题，还提供了健康检查的功能：</p>
+<ul>
+<li>对每台 RS 服务器进行周期性的健康检查。</li>
+<li>如果某个 RS 异常宕机，自动会把异常服务器从服务列表中摘除。</li>
+<li>如果某个宕机的 RS 恢复正常后，也会自动把 RS 加入到服务列表中提供服务。</li>
+</ul>
+<blockquote>
+<p>到目前为止，keepalvied 解决了配置管理和健康检查的问题。在使用上，我们只需要在 Linux 服务器上安装 keepalvied ，通过配置 keepalived.conf 配置文件，启动 keepalived 程序，就可以正常使用 LVS 的负载均衡功能了，看起来好像是 keepalived 实现了负载均衡功能。所以导致很多新手搞不清楚 keepalived 与 LVS 之间的关系，忽略 IPVS 的存在。</p>
+</blockquote>
+<p>还存在另外一个问题，LVS 服务器存在单点故障的风险，也就是说 LVS 随时都有可能发生宕机故障，可恢复的时间存在不确定性，严重影响服务体验和可用性。keepalvied 在 0.4.x 版本中增加了高可用特性的支持，是通过 VRRP 协议实现的。我们使用两台 Linux 服务器分别 LVS + keepalived 环境，只有其中 1 台对外提供服务（配置 VIP），另外一台作为热备份，只有在 server1 服务器宕机或不可提供服务时，keepalived 会自动将 VIP 迁移到 server2 上，实现服务器的高可用。VIP 切换过程中是不需要人为干预的。</p>
+<h2 id="简单介绍"><a href="#简单介绍" class="headerlink" title="简单介绍"></a>简单介绍</h2><p>负载均衡是一种基于 IP 的流量转发，它可以提供多个虚拟的服务。在设计负载均衡拓扑时，负载均衡的可用性至关重要。</p>
+<p>keepalived 本质上是提供了负载均衡和高可用的两个基础框架。负载均衡框架依赖于 IPVS 内核模块（提供 4 层负载均衡），并对此实现了多种方式的健康检查，能够动态的维护和管理后端的服务器的健康状况。高可用是通过 VRRP 协议实现的，keepalived 的两种框架也可以独立使用，互不依赖。它提供的高可用功能可以为其它应用程序，如 nginx、haproxy、MySQL 等提供噶可用的解决方案。</p>
+<p>简单总结，keepalived 主要有如下 3 方面的功能：</p>
+<ul>
+<li>LVS 配置管理与操作</li>
+<li>LVS 后端服务器的健康检查</li>
+<li>通过 vrrp 实现高可用功能</li>
+</ul>
+<h2 id="软件设计"><a href="#软件设计" class="headerlink" title="软件设计"></a>软件设计</h2><p>keepalived 软件采用纯 C 进行编写的，该软件通过 IO 多路复用器提供了即时的网络设计。主要设计重点是所有组件之间的模块化，创建 core 库避免代码重复，实现安全可靠的代码，以确保生产环境的健壮性和稳定性。</p>
+<p><strong>（一）进程模型</strong></p>
+<p>为了确保健壮性和稳定性，keepalived 分为了 3 个进程：</p>
+<ul>
+<li>主进程：fork 两个子进程后，主要负责监控 2 个子进程，起到 WatchDog 作用。</li>
+<li>vrrp 进程</li>
+<li>checker 进程</li>
+</ul>
+<p><strong>（二）内核组件</strong></p>
+<p>keepalived 内核涉及到了如下 4 个组件：</p>
+<ul>
+<li><code>LVS Framework</code>：使用 getsockopt 和 setsockopt 方式与内核进行基础通信。</li>
+<li><code>Netfilter Framework</code>：IPVS 负载均衡代码框架。</li>
+<li><code>Netlink Interface</code>：在服务器网卡上设置 | 删除 VIP。</li>
+<li><code>Multicast</code>：VRRP 宣告消息是通过保留的组播地址（224.0.0.18）进行的。</li>
+</ul>
+<p><strong>（三）系统组件</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/lb008keepalived_software_design.png" alt="keepalived"></p>
+<ul>
+<li><strong>控制平面（Control Plane）</strong>。keepalived 主配置文件是 keepalived.conf，配置解析器与配置项以树层次结构组成，每个配置项都有相应的 handler ，支持 include 方式，在解析期间，配置信息会被转换为内部数据结构存储。</li>
+<li><strong>调度器（I/O Multiplexer）</strong>。所有的事件都是在进程内部执行的调度。它的 IO 模型使用的是 select，负责内部所有的任务。它并没有使用 Posix 线程，而是针对网络目的而优化的虚拟线程。</li>
+<li><strong>内存管理</strong>。该组件提供了通用的内存管理功能，可以在两种模式下使用：正常模式和调试模式。 使用debug_mode时，它提供了一种强大的方法来消除和跟踪内存的泄漏。</li>
+<li><strong>核心组件库</strong>。定义并提供了一些通用的、全局的库供系统程序使用。这些库包含：html 解析、like-list、timer、vector、字符串格式化、buffer dump、网络组件、daemon management、pid handing、TCP Layer4。</li>
+<li><strong>看门狗（WatchDog）</strong>。主进程负责监控 vrrp 和 checker 进程的健康状况。</li>
+<li><strong>Checker</strong>。是 keepalived 最重要的功能之一，检查 RS 健康状态，能够自动摘除和恢复后端服务器。</li>
+<li><strong>VRRP Stack</strong>。是 keepalived 重要的功能，通过 VRRP 协议实现的高可用功能。</li>
+<li><strong>SystemCall</strong>。提供了调用外部脚本的能力。</li>
+<li><strong>Netlink Reflector</strong>。keepalived 具有自己的网络接口表示形式，IP 地址和接口标志是通过内核 netlink 设置和监视的，用于设置 VIP。另一方面，能够将任何与接口相关的事件同步到 keepalived 相关数据结构中，因此任何其他应用程序对接口的操作在 keepalived 内部都能感知得到。</li>
+<li><strong>SMTP</strong>。主要是用于实现邮件通知机制。</li>
+<li><strong>IPVS Wrapper</strong>。主要用于 keepalived 向 IPVS 代码下发拓扑规则，它提供了 keepalived 数据与 IPVS 数据的转换，它使用 libipvs 保持与 IPVS 的通用集成。</li>
+<li><strong>IPVS</strong>。LVS 负载均衡的核心代码。</li>
+<li><strong>NETLINK</strong>。Netlink 用于在内核和用户空间进程之间传输信息。 它由一个用于用户空间进程的基于套接字的标准接口和一个用于内核模块的内部内核  API 组成。</li>
+<li><strong>Syslog</strong>。日志系统。</li>
+</ul>
+<p><strong>（四）健康检查框架</strong></p>
+<p>目前支持如下几种健康检查：</p>
+<ul>
+<li>TCP_CHECK</li>
+<li>HTTP_GET</li>
+<li>SSL_GET</li>
+<li>MISC_CHECK</li>
+</ul>
+<p><strong>（五）Failover（vrrp）框架</strong></p>
+<p>实现 FailOver 功能。</p>
+<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><p><strong>（一）、二进制安装方式</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ yum install keepalived       <span class="comment"># CentOS</span></span><br><span class="line">$ apt-get install keepalived   <span class="comment"># Ubuntu</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（二）、源码编译安装</strong></p>
+<ul>
+<li>安装依赖<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ yum install curl gcc openssl-devel libnl3-devel net-snmp-devel</span><br><span class="line"><span class="comment"># or</span></span><br><span class="line">$ apt-get install curl gcc libssl-dev libnl-3-dev libnl-genl-3-dev libsnmp-dev</span><br></pre></td></tr></table></figure></li>
+<li>编译安装<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ curl -O http://keepalived.org/software/keepalived-1.x.x.tar.gz</span><br><span class="line">$ tar zxf keepalived-1.x.x.tar.gz</span><br><span class="line">$ <span class="built_in">cd</span> keepalived-1.x.x</span><br><span class="line">$ ./configure --prefix=/usr/local/keepalived-1.x.x</span><br><span class="line">$ make &amp;&amp; make install</span><br></pre></td></tr></table></figure></li>
+<li>设置初始化脚本<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ln</span> -s /etc/rc.d/init.d/keepalived.init /etc/rc.d/rc3.d/S99keepalived</span><br><span class="line"><span class="comment"># or</span></span><br><span class="line">$ <span class="built_in">ln</span> -s /etc/init.d/keepalived.init /etc/rc2.d/S99keepalived</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="配置模板"><a href="#配置模板" class="headerlink" title="配置模板"></a>配置模板</h2><p><strong>（一）全局配置</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">global_defs &#123;</span><br><span class="line">    notification_email &#123;</span><br><span class="line">        email</span><br><span class="line">        email</span><br><span class="line">    &#125;</span><br><span class="line">    notification_email_from email</span><br><span class="line">    smtp_server host</span><br><span class="line">    smtp_connect_timeout num</span><br><span class="line">    lvs_id string</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（二）virtual server 配置</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">virtual_server (@IP PORT)|(fwmark num) &#123;</span><br><span class="line">    delay_loop num</span><br><span class="line">    lb_algo rr|wrr|lc|wlc|sh|dh|lblc</span><br><span class="line">    lb_kind NAT|DR|TUN</span><br><span class="line">    (nat_mask @IP)</span><br><span class="line">    persistence_timeout num</span><br><span class="line">    persistence_granularity @IP</span><br><span class="line">    virtualhost string</span><br><span class="line">    protocol TCP|UDP</span><br><span class="line"></span><br><span class="line">    sorry_server @IP PORT</span><br><span class="line">    real_server @IP PORT &#123;</span><br><span class="line">        weight num</span><br><span class="line">        TCP_CHECK &#123;</span><br><span class="line">            connect_port num</span><br><span class="line">            connect_timeout num</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    real_server @IP PORT &#123;</span><br><span class="line">        weight num</span><br><span class="line">        MISC_CHECK &#123;</span><br><span class="line">            misc_path /path_to_script/script.sh</span><br><span class="line">            (or misc_path “ /path_to_script/script.sh &lt;arg_list&gt;”)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>（三）VRRP 配置</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">vrrp_sync_group string &#123;</span><br><span class="line">    group &#123;</span><br><span class="line">        string</span><br><span class="line">        string</span><br><span class="line">    &#125;</span><br><span class="line">    notify_master /path_to_script/script_master.sh</span><br><span class="line">        (or notify_master “ /path_to_script/script_master.sh &lt;arg_list&gt;”)</span><br><span class="line">    notify_backup /path_to_script/script_backup.sh</span><br><span class="line">        (or notify_backup “/path_to_script/script_backup.sh &lt;arg_list&gt;”)</span><br><span class="line">    notify_fault /path_to_script/script_fault.sh</span><br><span class="line">        (or notify_fault “ /path_to_script/script_fault.sh &lt;arg_list&gt;”)</span><br><span class="line">&#125;</span><br><span class="line">vrrp_instance string &#123;</span><br><span class="line">    state MASTER|BACKUP</span><br><span class="line">    interface string</span><br><span class="line">    mcast_src_ip @IP</span><br><span class="line">    lvs_sync_daemon_interface string</span><br><span class="line">    virtual_router_id num</span><br><span class="line">    priority num</span><br><span class="line">    advert_int num</span><br><span class="line">    smtp_alert</span><br><span class="line">    authentication &#123;</span><br><span class="line">        auth_type PASS|AH</span><br><span class="line">        auth_pass string</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress &#123; # Block limited to 20 IP addresses</span><br><span class="line">        @IP</span><br><span class="line">        @IP</span><br><span class="line">        @IP</span><br><span class="line">    &#125;</span><br><span class="line">    virtual_ipaddress_excluded &#123; # Unlimited IP addresses</span><br><span class="line">        @IP</span><br><span class="line">        @IP</span><br><span class="line">        @IP</span><br><span class="line">    &#125;</span><br><span class="line">    notify_master /path_to_script/script_master.sh</span><br><span class="line">        (or notify_master “ /path_to_script/script_master.sh &lt;arg_list&gt;”)</span><br><span class="line">    notify_backup /path_to_script/script_backup.sh</span><br><span class="line">        (or notify_backup “ /path_to_script/script_backup.sh &lt;arg_list&gt;”)</span><br><span class="line">    notify_fault /path_to_script/script_fault.sh</span><br><span class="line">        (or notify_fault “ /path_to_script/script_fault.sh &lt;arg_list&gt;”)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="相关参数"><a href="#相关参数" class="headerlink" title="相关参数"></a>相关参数</h2><ul>
+<li>-f：指定配置文件</li>
+<li>-P：只运行 VRRP 子系统，不运行健康检查子系统。</li>
+<li>-C：只运行 Checker 子系统，不运行 VRRP 子系统。</li>
+<li>-l：日志消息打印到本地控制台。</li>
+<li>-D：详细的日志消息。</li>
+<li>-S：设置 syslog 设备，LOG_LOCAL[0-7]，默认是 LOG_DAEMON</li>
+<li>-V：keepalived 进程退出时，不删除 VIP</li>
+<li>-I：keepalived 进程退出时，不删除 IPVS 的拓扑规则</li>
+<li>-R：不要重新生成子进程。</li>
+<li>-n：不要设置 daemon 守护进程，在前台运行。</li>
+<li>-d：dump 配置文件数据。</li>
+<li>-p：指定 keepalived 进程 ID 文件</li>
+<li>-r：指定 vrrp 进程的 pidfile</li>
+<li>-c：指定 checker 进程的 pidfile</li>
+</ul>
+<p>启动守护进程：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ /etc/rc.d/init.d/keepalived.init start</span><br></pre></td></tr></table></figure>
+
+        
+<script src="/js/qrious.min.js"></script>
+
+
+        <hr style="margin-top: 2rem;">
+        <div>
+            
+            <p>
+                <span>专题: </span>
+                
+                <a href="/series/#负载均衡">
+                    <code key="负载均衡" class="post-label">负载均衡</code>
+                </a>
+                
+            </p>
+            
+            <p>
+                <span>本文发表于 2021-01-02，最后修改于 2022-04-16。</span>
+            </p>
+            <!-- 文章末尾的提示 start -->
+            
+            <p>
+                本站永久域名「 <a
+                        href="/post/325553977.html">www.tcpdump.cn</a>
+                    」，也可搜索「 肖邦Linux 」找到我。
+            </p>
+            
+            
+                
+            <!-- 文章末尾的提示 end -->
+        </div>
+        <hr />
+        <p name="pagination" style="font-size: 1.2em">
+    
+    <a class="float-left" href="/post/about.html">上一篇 « 留言板</a>
+    
+    
+    <a class="float-right" href="/post/2589298645.html">下一篇 » 负载均衡 LVS 基本介绍</a>
+    
+</p>
+    </article>
+    <!-- 赞赏 -->
+    <!--打赏-->
+
+<style>
+    #reward .reward-btn-wrapper {
+        width: 100px;
+        padding-top: 35px;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+
+    #reward .reward-btn {
+        padding: 2px 15px;
+        color: #fff;
+        background-color: #ea6f5a;
+        border-radius: 20px;
+    }
+
+    #reward .reward-code {
+        position: absolute;
+        top: -220px;
+        left: 50%;
+        display: none;
+        width: 360px;
+        height: 240px;
+        margin-left: -180px;
+        padding: 15px 20px;
+        border: 1px solid #e6e6e6;
+        background: #fff;
+        box-shadow: 0 1px 1px 1px #efefef;
+    }
+
+    #reward .reward-code:after,
+    #reward .reward-code:before {
+        position: absolute;
+        content: '';
+        border: 10px solid transparent
+    }
+
+    #reward .reward-code:after {
+        bottom: -19px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #fff
+    }
+
+    #reward .reward-code:before {
+        bottom: -20px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #e6e6e6
+    }
+
+    #reward .qr-code {
+        width: 50%;
+        float: left;
+        padding: 5px;
+    }
+
+    #reward .qr-code p {
+        margin-top: -6px;
+    }
+
+    #reward img {
+        transform: none;
+        -webkit-transform: none;
+        margin-left: 0;
+    }
+
+    #reward img[alt='i'] {
+        width: 20px;
+        height: 20px;
+        z-index: 2;
+        position: absolute;
+        margin: 65px 0 0 65px;
+    }
+
+    #reward img[alt="ali"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #0f9be0;
+    }
+
+    #reward img[alt="wechat"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #3db034;
+    }
+
+    #reward .reward-tip {
+        font-size: 1.2em;
+        margin-bottom: 0;
+        color: #ea6f5a;
+    }
+</style>
+<div id="reward" class="col-xs-12">
+    <div class="reward-btn-wrapper">
+        <div class="reward-btn text-center">赞赏支持</div>
+    </div>
+    <div class="reward-code text-center">
+        <p class="text-center reward-tip"><strong>请我吃胡萝卜 =^_^= </strong></p>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-ali" src="" alt="ali">
+            <p><small>支付宝</small></p>
+        </div>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-wechat" src="" alt="wechat">
+            <p><small>微信</small></p>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window, document) {
+        var aliQr = new QRious({ value: 'HTTPS://QR.ALIPAY.COM/FKX060337TUXBAX9LIFJE8' });
+        var wechatQr = new QRious({ value: 'wxp://f2f0qgGBlfD1nZXjvBjievxB0z0fc0W2sBq5' });
+        document.querySelector('#reward-ali').src = aliQr.toDataURL();
+        document.querySelector('#reward-wechat').src = wechatQr.toDataURL();
+
+        var rewardBtn = document.querySelector('#reward .reward-btn-wrapper');
+        var qrCode = document.querySelector('#reward .reward-code')
+        var activeFunc = function (e) {
+            qrCode.style.display = 'block';
+        }
+        var hideFunc = function (e) {
+            qrCode.style.display = 'none';
+        }
+
+        rewardBtn.addEventListener('mouseenter', activeFunc, false)
+        rewardBtn.addEventListener('mouseover', activeFunc, false)
+        rewardBtn.addEventListener('mouseleave', hideFunc, false)
+        qrCode.addEventListener('mouseenter', activeFunc, false)
+        qrCode.addEventListener('mouseover', activeFunc, false)
+        qrCode.addEventListener('mouseleave', hideFunc, false)
+    })(window, document);
+</script>
+
+    
+<div class="col-xs-12 text-center" style="margin-top: 30px;">
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://github.com/chopin11" title="Github"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/github.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://geektutu.com/feed.xml" title="RSS"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/rss.jpg" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie" title="知乎"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/zhihu.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://weibo.com/geektutu" title="微博"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/weibo.jpg" /></a>
+    
+</div>
+
+    <!-- 推荐阅读三篇文章 -->
+    <div class="col-xs-12">
+        <h3>推荐阅读</h3>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#HTTPS"
+                    title="HTTPS">HTTPS</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#OPENSSL"
+                    title="OPENSSL">OPENSSL</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#签发证书"
+                    title="签发证书">签发证书</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/3142807446.html" class="title">
+                使用 openssl 签发证书最佳实践
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2022-04-08，</span>
+                    <span class="hidden-xs">全文5222字，</span>
+                    <span>阅读约18分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#HTTPS"
+                    title="HTTPS">HTTPS</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#OPENSSL"
+                    title="OPENSSL">OPENSSL</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#签发证书"
+                    title="签发证书">签发证书</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/261015374.html" class="title">
+                使用 openssl 签发带扩展项 v3 证书
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2022-04-08，</span>
+                    <span class="hidden-xs">全文6390字，</span>
+                    <span>阅读约22分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/2589298645.html" class="title">
+                负载均衡 LVS 基本介绍
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-02-04，</span>
+                    <span class="hidden-xs">全文3012字，</span>
+                    <span>阅读约11分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+    </div>
+    <div class="col-xs-12">
+        <!-- 标签列表 -->
+        <!-- Featured Tags -->
+<style>
+    #featured-tag .post-tag-item {
+        font-size: 12px;
+        line-height: 30px;
+        display: inline-block;
+        height: 30px;
+        margin: 5px 0px;
+        padding: 0 7px;
+        color: #333;
+        border-radius: 15px;
+        background: #f6f6f6;
+    }
+
+    #featured-tag .post-tag-item:hover {
+        color: #337ab7;
+    }
+</style>
+<div id="featured-tag">
+    
+    <a class="post-tag-item" href="/tags/#keepalived" title="keepalived"
+        rel="1">#keepalived (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#负载均衡" title="负载均衡"
+        rel="9">#负载均衡 (9) </a>
+    
+    <a class="post-tag-item" href="/tags/#高可用" title="高可用"
+        rel="1">#高可用 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#dpvs" title="dpvs"
+        rel="3">#dpvs (3) </a>
+    
+    <a class="post-tag-item" href="/tags/#邻居" title="邻居"
+        rel="1">#邻居 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#linux" title="linux"
+        rel="1">#linux (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#HTTPS" title="HTTPS"
+        rel="8">#HTTPS (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#OPENSSL" title="OPENSSL"
+        rel="8">#OPENSSL (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#签发证书" title="签发证书"
+        rel="8">#签发证书 (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#路由" title="路由"
+        rel="1">#路由 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#lvs" title="lvs"
+        rel="7">#lvs (7) </a>
+    
+    <a class="post-tag-item" href="/tags/#TCP" title="TCP"
+        rel="1">#TCP (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#网络协议" title="网络协议"
+        rel="1">#网络协议 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#工具效率" title="工具效率"
+        rel="1">#工具效率 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#调度算法" title="调度算法"
+        rel="1">#调度算法 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#toa" title="toa"
+        rel="1">#toa (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#snat" title="snat"
+        rel="1">#snat (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#关于我" title="关于我"
+        rel="1">#关于我 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#友链" title="友链"
+        rel="1">#友链 (1) </a>
+    
+</div>
+    </div>
+    <!-- 评论 -->
+    
+    <div class="col-xs-12">
+        
+<div class="col-xs-12 padding-0">
+    <div id="gitalk-container">
+        <div class="gt-container text-center" style="margin-top: 50px;">
+            <button class="gt-btn gt-btn-public"><span class="gt-btn-text">去 Github 评论</span></button>
+        </div>
+    </div>
+    <div id="gitalk-related"></div>
+</div>
+
+<link rel="stylesheet" href="/css/gitalk.css">
+
+
+<script src="/js/gitalk.min.js"></script>
+
+<script>
+    window.addEventListener('load', function () {
+        function renderCommentUrl(data) {
+            var url = (data[window.location.pathname] || {}).url
+            url && getDom('#gitalk-container button').addEventListener('click', function (e) { window.open(url)})
+            url || (getDom('#gitalk-container').style.display = 'none')
+        }
+        const gitalk = new Gitalk({
+            clientID: 'c1fdd456a4caae5f7df0',
+            clientSecret: 'b2674451e21feae50520f99337ec15d2aebe7879',
+            accessToken: '513dc2f1e6df8c07a12fbf1547874f54679d9712',
+            repo: 'blog',
+            owner: 'geektutu',
+            admin: ['geektutu'],
+            id: window.location.pathname,
+            distractionFreeMode: false
+        });
+        fetch("https://api.github.com/user").then(function(resp){
+            gitalk.render('gitalk-container');
+        }).catch(function(e){
+            fetch('/tool/issues.json').then(function (r) { return r.json() }).then(renderCommentUrl).catch(function (e) { })
+        })
+        getDom('#gitalk-container').addEventListener('click', function (e) {
+            e && e.stopPropagation && e.stopPropagation();
+        });
+    })
+</script>
+<script>
+    window.addEventListener('load', function () {
+        function render(comments) {
+            var template = '<a href="${comment.url}?utm_source=gitalk" class="dis-item-url"><h3 class="dis-item-title">${comment.title}</h3>' +
+                '<p class="dis-item-des">${comment.count} 评论 ● ${comment.date}</p>' +
+                '<div class="dis-item-content"><img class="dis-item-img" src="${comment.icon}" alt="icon"><p><b><span class="dis-item-user">${comment.user}</span></b>&nbsp;——&nbsp;${comment.body}</p></div>' +
+                '</a>'
+
+            var wrapper = getDom('#gitalk-related');
+            comments = shuffle(comments);
+            comments.slice(0, 4).forEach(function (c) {
+                var div = document.createElement('div');
+                div.classList.add('dis-item');
+                div.innerHTML = template.replace("${comment.url}", c.url)
+                    .replace("${comment.title}", c.title)
+                    .replace("${comment.count}", c.count)
+                    .replace("${comment.date}", c.date)
+                    .replace("${comment.icon}", c.icon)
+                    .replace("${comment.user}", c.user)
+                    .replace("${comment.body}", c.body)
+                wrapper.appendChild(div)
+            })
+            var p = document.createElement('p')
+            p.innerHTML = '<a target="_blank" rel="noopener" href="https://geektutu.com/post/blog-experience-7.html">Gitalk Plus</a>';
+            p.classList.add('dis-divide');
+            wrapper.appendChild(p);
+            wrapper.classList.add('dis-wrapper')
+        }
+        function shuffle(a) {
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+        fetch('/tool/comments.json').then(function (r) { return r.json() }).then(render).catch(function (e) { })
+    })
+</script>
+
+    </div>
+    
+</div>
+<aside class="float-left gkt-sidebar hidden-xs hidden-sm">
+    <div style="clear: both"></div>
+    <div class="gkt-sidebar-wrapper">
+        <section class="box-shadow"><style>
+    .gkt-summary {
+        border: 1px solid #DDDDDD;
+        border-radius: 3px;
+        padding: 5px;
+        width: 100%;
+    }
+
+
+    .gkt-summary nav {
+        overflow: hidden;
+    }
+
+    .gkt-summary nav a {
+        display: inline-block;
+        text-align: center;
+        color: #333;
+        font-size: 12px;
+    }
+
+    .gkt-summary nav span {
+        display: block;
+    }
+
+    .gkt-summary nav .middle {
+        border-left: 1px solid #eaecef;
+        border-right: 1px solid #eaecef;
+    }
+
+    .gkt-summary .number {
+        font-weight: bold;
+    }
+
+    .gkt-summary .link-list {
+        margin-top: 5px;
+        margin-bottom: -5px;
+        padding-top: 7px;
+        border-top: 1px dashed #999;
+        display: flex;
+    }
+
+    .gkt-summary .link-list a {
+        flex: 1;
+    }
+
+    .gkt-summary .link-list img {
+        width: 25px;
+        height: 25px;
+    }
+</style>
+
+<div class="gkt-summary">
+    <nav>
+        <a href="/" class="col-xs-4">
+            <span class="number">24</span><span>文章</span>
+        </a>
+        <a href="/series" class="col-xs-4 middle">
+            <span class="number">5</span><span>专题</span>
+        </a>
+        <a href="/tags" class="col-xs-4">
+            <span class="number">19</span><span>标签</span>
+        </a>
+    </nav>
+
+    
+    <div class="link-list">
+        
+        <a target="_blank" rel="noopener" href="https://github.com/chopin11"><img src="/img/related_links/github.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://geektutu.com/feed.xml"><img src="/img/related_links/rss.jpg" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie"><img src="/img/related_links/zhihu.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://weibo.com/geektutu"><img src="/img/related_links/weibo.jpg" /></a>
+        
+    </div>
+    
+</div></section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>负载均衡</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/325553977.html"
+                        class="gkt-sidebar-active">keepalived 快速入门介绍</a>
+                    
+                    <!-- Table of Contents -->
+<div id="sidebar-toc">
+  <!-- TOC  -->
+  
+  
+  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#LVS%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">LVS的使用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98"><span class="toc-nav-text">解决问题</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D"><span class="toc-nav-text">简单介绍</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1"><span class="toc-nav-text">软件设计</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85"><span class="toc-nav-text">软件安装</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E6%A8%A1%E6%9D%BF"><span class="toc-nav-text">配置模板</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%9B%B8%E5%85%B3%E5%8F%82%E6%95%B0"><span class="toc-nav-text">相关参数</span></a></li></ol>
+  
+</div>
+
+<script>
+  (function () {
+    var h2 = document.querySelectorAll('article h2');
+    var h3 = document.querySelectorAll('article h3');
+    var linkList = document.querySelectorAll('#sidebar-toc a');
+
+    function findLinkElement(name) {
+      for (var i = 0; i < linkList.length; i++) {
+        var items = linkList[i].href.split('#');
+        if (items && items[items.length - 1] === encodeURIComponent(name)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function activeLink(titleList) {
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      for (var i = titleList.length - 1; i >= 0; i--) {
+        if (scrollTop - titleList[i].offsetTop > 0) {
+          var index = findLinkElement(titleList[i].id);
+          index != -1 && linkList[index].classList.add('gkt-sidebar-active');
+          break;
+        }
+      }
+    }
+
+    window.addEventListener("scroll", function (e) {
+      [].slice.call(linkList).forEach(function (link) {
+        link.classList.remove('gkt-sidebar-active');
+      })
+      activeLink(h2);
+    })
+  })();
+</script>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2589298645.html"
+                        class="">负载均衡 LVS 基本介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1970613528.html"
+                        class="">负载均衡 LVS 基本原理</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3671532823.html"
+                        class="">负载均衡 LVS 操作实践</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2126991808.html"
+                        class="">负载均衡 LVS 连接表</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/522418658.html"
+                        class="">负载均衡 LVS 调度算法</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3360290171.html"
+                        class="">负载均衡 LVS 主流程代码分析</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1229090889.html"
+                        class="">负载均衡 LVS TOA 实现原理</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2778281555.html"
+                        class="">负载均衡 DPVS SNAT 功能介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3989527185.html"
+                        class="">负载均衡 DPVS 路由子系统的实现</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/4205823097.html"
+                        class="">负载均衡 DPVS 邻居子系统的实现</a>
+                    
+                </li>
+                
+            </ul>
+        </section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>最近的文章</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/55249683.html">让浏览器快如飞的插件 vimium</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1335797944.html">经典的 TCP 三次握手问题</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1717622242.html">使用 openssl 操作证书的常见用法</a>
+                </li>
+                
+            </ul>
+        </section>
+        
+    </div>
+</aside>
+
+<script>
+    (function () {
+        function resizeUArrow() {
+            var s = getDom('.u-arrow-wrapper').style
+            var pc = getDom('.post-container')
+            s.left = getPosition(pc).x + 'px';
+            s.width = pc.clientWidth + 'px';
+        }
+        resizeUArrow()
+        window.addEventListener('resize', resizeUArrow);
+    })();
+</script>
+
+    
+
+<script>
+    (function () {
+        var ele = getDom('.gkt-sidebar-content')
+        if(!ele) return;
+        var wrapper = getDom('.gkt-sidebar-wrapper')
+        var last = 0
+        ele.style.maxHeight = ((window.innerHeight || 798) - 200) + 'px'
+        var f = function (e) {
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            var isDown = scrollTop > last;
+            var pos = getPosition(ele).y - scrollTop;
+            var downLimit = 50;
+            var upLimit = -100;
+            // uarrow.style.marginTop = scrollTop + 'px';
+            isDown && pos <= downLimit && wrapper.classList.add("gkt-sidebar-fixed");
+            !isDown && pos > upLimit && wrapper.classList.remove("gkt-sidebar-fixed");
+            last = scrollTop
+        }
+        f()
+        window.addEventListener("scroll", f)
+    })();
+</script>
+
+</main>
+    </div>
+    <style>
+    img#go-top {
+        position: fixed;
+        bottom: 100px;
+        width: 50px;
+        cursor: pointer;
+        z-index: 9999;
+    }
+</style>
+<img id="go-top" src="/icon/top.png" class="hidden-xs" style="display: none" />
+<script>
+    (function () {
+        var goTop = document.getElementById('go-top');
+        var mainContainer = document.querySelector('.main-container');
+        
+        goTop.addEventListener('click', function () {
+            window.scroll(0, 0);
+        }, false);
+        window.addEventListener('scroll', function () {
+            var right = document.body.offsetWidth - mainContainer.getBoundingClientRect().right;
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            goTop.style.right = right + 10 + 'px'
+            scrollTop > 700 && (goTop.style.display = "block");
+            scrollTop <= 700 && (goTop.style.display = "none");
+        });
+    })();
+</script>
+    <style>
+    #geektutu-click-img-container {
+        position: fixed;
+        left: 0;
+        top: 0;
+        text-align: center;
+        width: 100%;
+        display: none;
+        z-index: 9999;
+    }
+
+    #geektutu-click-img-container img {
+        object-fit: contain;
+        background: #eaecef;
+        padding: 15px;
+        border-radius: 10px;
+        height: auto;
+        width: auto;
+        vertical-align: middle;
+    }
+</style>
+
+
+<div id="geektutu-click-img-container">
+    <img src="" alt="Big Image">
+</div>
+
+<script>
+    (function () {
+        var container = document.querySelector('#geektutu-click-img-container')
+        var targetImg = container.querySelector('img')
+        var imgs = document.querySelectorAll('article img');
+        targetImg.addEventListener('click', function (e) {
+            container.style.display = 'none';
+            e && e.stopPropagation && e.stopPropagation();
+        }, false);
+
+        for (var i = 0; i < imgs.length; ++i) {
+            var img = imgs[i];
+            img.addEventListener('click', (function (src, rate) {
+                return function (e) {
+                    e && e.stopPropagation && e.stopPropagation();
+                    if (window.innerWidth < 980) {
+                        return
+                    }
+                    targetImg.style.height = targetImg.style.width = 'auto';
+                    if (window.innerWidth / window.innerHeight > rate) {
+                        targetImg.style.height = (window.innerHeight - 20) + 'px';
+                    } else {
+                        targetImg.style.width = (window.innerWidth - 20) + 'px';
+                    }
+                    container.style.height = window.innerHeight + 'px'
+                    container.style.lineHeight = window.innerHeight + 'px'
+                    container.style.display = 'block';
+                    targetImg.src = src;
+                };
+            }(img.src, img.width / img.height)), false)
+        }
+    })();
+</script>
+    <!-- Footer -->
+    <!-- Footer -->
+<style>
+    footer {
+        width: 100%;
+        line-height: 1.5;
+        padding: 20px;
+    }
+
+    footer a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .footer-hexo img {
+        height: 20px;
+        margin-bottom: -5px;
+    }
+
+    .footer-hexo a {
+        color: #337ab7;
+    }
+</style>
+<footer class="text-center col-xs-12">
+    <p>
+        <small>©2019 - 2022 - 肖邦 - </small>
+        <small>
+            <a target="_blank" rel="nofollow noopener" href="http://beian.miit.gov.cn/">临渊羡鱼，不如退而结网</a>
+        </small>
+    </p>
+    <p class="footer-hexo">
+        <!-- 但若直接使用或修改主题，请务必保留这段声明 -->
+        <small>Powered by <a target="_blank" href="https://hexo.io">Hexo</a> | Theme
+            <a target="_blank" href="https://geektutu.com">Geektutu</a>
+            <a target="_blank" rel="noopener" href="https://github.com/chopin11">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYGBgYHBgcICAcKCwoLCg8ODAwODxYQERAREBYiFRkVFRkVIh4kHhweJB42KiYmKjY+NDI0PkxERExfWl98fKcBBgYGBgcGBwgIBwoLCgsKDw4MDA4PFhAREBEQFiIVGRUVGRUiHiQeHB4kHjYqJiYqNj40MjQ+TERETF9aX3x8p//CABEIACIAUAMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAAAAQQFBwIDBgj/2gAIAQEAAAAA9KrHSgAYL5/z6zZGuJd12uugbhq3uKtmuRtix20IS7lTLAfAAAn/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAAAB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAxAAAAAAAf/EADEQAAICAQIEBQEGBwAAAAAAAAECAwQFAAYREhORBxQhUlQxQVFic5KxJDJCYYGC0f/aAAgBAQABPwCFHnjWUzuvN6hV4cANSRLGjO9yRVUcSzMoA7jVXJYe5N0a2dhmk9kc0bN2GvLN8mbuNeWb5M3ca8s3yZu415Y/Jm7jXlm+TN3H/NeVPyZu40vOk3TZywK8wJ+v3EHVM/wsI/Dq2lrxN3Nnca16eti8chSAIoMbzByhMwP14kHVfwIiSaF5c96J6kwwCOTnHsYk8uvCrdmQy1TI4rJuz3cZLyGR/wCd4+YoOf8AEpUjXitubLYPG4paFsUxcuiGe7yc5gTW3LW44szXmobsi3Dhmic2+Z4+vCVH9CpraPiQ+QvbgTJrPFBWd5YpWrmNIIEXiRO32Pqt4p7cnfHk18lFBdmEVW1LVdIZGOrniTt6plrWKaO69yCykDRxwF+LMAewB0Txtr+Sf31VI8tEPw62fZt7N3Humtbpzz13ucX6CGSWMSuzpLyD1eNgeUka3PuvHbaxq3biTMHfkiSNCS78CwU+3Xg7Vu3MhuTcU6cq3Zemn3Eh2dv8Lzcut+29x1atKbHYqLJUhLwyNMwiZ3j9yDWOxUOV3tgb+3No5LDx1pi9+aeIwRlNY6bc+Jv+IFGrhLxtXJZ7VKcw81diiAAEn0JOrkWZyNfbEr0tz27UGQgkuGzXdIIvyowq99bRxk9ffO/L81SZBPZgEEroQroIxxMZOgeNsfkn99QypHGqO4Vl9CDrN4LDZkwyzyyQ2IgRHZrzGCZVP1XnQglT9oOtw4LC7iqV6uRkZoYpxKFSQpzFRw4EjVRMfSrQ1qqwxQxKFjjTgFUD7BoWYR6iVe+mtxt9Zwf9teaj4AdccPu5tedX5A/VrzUR+sy/q1CwksF19VEfDj/cnQRW+qg66cfsXtrpx+xe2unH7F7a6cfsXtrpx+xe2unH7F7a6cfsXtoxx+xe2gAAOA1//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAgEBPwB//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAwEBPwB//9k="
+                    alt="Github Star">
+            </a>
+        </small>
+    </p>
+    <!-- 
+    <p>
+        <small>
+            <span id="busuanzi_container_site_pv">👁<span id="busuanzi_value_site_pv"></span></span> &nbsp;
+            <span id="busuanzi_container_page_pv">📚<span id="busuanzi_value_page_pv"></span></span>
+        </small>
+    </p>
+    
+     -->
+
+</footer>
+
+
+<script>
+    window.addEventListener('load', function () {
+        globalAddScript('//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js');
+    })
+</script>
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+    <script>
+        // 非本站网址，新开tab页签
+        (function () {
+            var stopBubble = function (e) {
+                e && e.stopPropagation && e.stopPropagation();
+            }
+            var links = document.querySelectorAll('a');
+            [].slice.call(links).forEach(function (item) {
+                if (item.href && item.href.indexOf(window.location.host) === -1) {
+                    item.target = '_blank'
+                }
+                // 阻止冒泡，不触发彩蛋。
+                item.addEventListener('click', stopBubble, false);
+            });
+            var article = document.querySelector('article');
+            article && article.addEventListener('click', stopBubble, false)
+        })();
+    </script>
+    
+</body>
+
+</html>

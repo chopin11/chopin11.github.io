@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<!-- Head tag -->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  <meta name="baidu-site-verification" content="" />
+  <meta name="google-site-verification" content="" />
+  <meta name="msvalidate.01" content="" />
+  <meta name="360-site-verification" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- if page has tags, then add tags to keyword -->
+  
+  
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,负载均衡,lvs,lvs,lb,负载均衡,高性能&#39;">
+  <!-- page.description has higher priority -->
+  <meta name="description" content="&#39;前面几篇文章分别是基本介绍、基础原理、操作实践几个方面来介绍了负载均衡 LVS 的一些知识。后边会继续从代码层面分析 lvs 的实现原理和细节。&#39;">
+  <link rel="shortcut icon" href="/img/favicon.ico">
+  <title>
+    
+    负载均衡 LVS 连接表 | 肖邦Linux
+    
+  </title>
+
+  <link rel="canonical" href="https://www.tcpdump.cn/post/2126991808.html">
+  
+<link rel="stylesheet" href="/css/geektutu.css">
+
+  <!-- global function -->
+  <script>
+    window.globalAddScript = function (url, onload, onerror) {
+      var s = document.createElement('script');
+      s.src = url;
+      onload && (s.onload = onload);
+      onerror && (s.onerror = onerror);
+      document.body.appendChild(s);
+    }
+    window.globalAddCss = function (url) {
+      var s = document.createElement('link');
+      s.rel = 'stylesheet';
+      s.href = url;
+      document.body.appendChild(s);
+    }
+    window.getPosition = function (ele) {
+      var x = 0, y = 0;
+      while (ele) {
+        x += (ele.offsetLeft - ele.scrollLeft + ele.clientLeft);
+        y += (ele.offsetTop - ele.scrollTop + ele.clientTop);
+        ele = ele.offsetParent;
+      }
+      return { x: x, y: y };
+    }
+    window.getDom = function (str) { return document.querySelector(str) }
+  </script>
+  <!-- google ad -->
+  
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/feed.xml" title="肖邦Linux" type="application/rss+xml">
+</head>
+
+<body>
+    
+<header class="gkt-header col-xs-12 padding-0">
+    <div id="gkt-nav" class="gkt-header-container">
+        <a href="/" class="gkt-header-title float-left">
+            <img class="float-left" src="/img/favicon.ico" alt="">
+            <span>肖邦Linux</span>
+        </a>
+        <nav class="gkt-header-nav text-right">
+            <ul>
+                <li><a class="hidden-xs" href="/feed.xml">订阅</a></li>
+                <li><a href="/series/">专题</a></li>
+                <li><a href="/archives/">归档</a></li>
+                <li><a href="/post/link.html">友链</a></li>
+                <li><a href="/post/about.html">关于</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div id="gkt-cate-nav" class="gkt-header-container hidden-xs">
+        
+        <nav class="gkt-header-nav float-left">
+            <ul>
+                
+                
+                <li class="gkt-cate-name float-left active">
+                    <a class="float-left" href="/post/325553977.html">负载均衡</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1111606992.html">Linux基础</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/78358564.html">HTTPS</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/1335797944.html">网络协议</a>
+                    
+                </li>
+                
+                <li class="gkt-cate-name float-left ">
+                    <a class="float-left" href="/post/55249683.html">工具效率</a>
+                    
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+<div class="gkt-header-placeholder" style="height: 44px"></div>
+<div class="gkt-header-placeholder hidden-xs" style="height: 44px"></div>
+<script>
+    (function () {
+        window.addEventListener('scroll', function () {
+            if (window.innerWidth < 768) {
+                return;
+            }
+            var nav = document.querySelector('#gkt-nav');
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            scrollTop > 50 && (nav.classList.add('hide'));
+            scrollTop <= 50 && (nav.classList.remove('hide'));
+        });
+        var cateNavs = document.querySelectorAll('#gkt-cate-nav>nav>ul>li');
+        [].slice.call(cateNavs).forEach(function (item) {
+            var sub = item.querySelector('.gkt-sub-cate');
+            if (!sub) return;
+            item.addEventListener('mouseenter', function (e) { sub.style.display = 'block'; }, false);
+            item.addEventListener('mouseleave', function (e) { sub.style.display = 'none'; }, false);
+        })
+    })();
+</script>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Main Content -->
+<main class="col-xs-12 padding-0 markdown-it">
+    <!-- Post Container -->
+    
+    
+    <!-- Post Content -->
+<div class="float-left post-container box-shadow">
+    <div class="u-arrow-wrapper hidden-xs">
+        
+        <a class="float-left" href="/post/3671532823.html"><i class="u-arrow-left"></i></a>
+        
+        
+        <a class="float-right" href="/post/522418658.html"><i class="u-arrow-right"></i></a>
+        
+    </div>
+    <article class="col-xs-12">
+        <h1> 负载均衡 LVS 连接表 </h1>
+        
+        
+        <div class="hidden-lg hidden-md series_links">
+            <p> <strong> 负载均衡系列文章链接：</strong></p>
+            <ul>
+                
+                <li>
+                    <a href="/post/325553977.html">keepalived 快速入门介绍</a>
+                    <span class="post-item-date">(Jan 2, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2589298645.html">负载均衡 LVS 基本介绍</a>
+                    <span class="post-item-date">(Feb 4, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/1970613528.html">负载均衡 LVS 基本原理</a>
+                    <span class="post-item-date">(Mar 6, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3671532823.html">负载均衡 LVS 操作实践</a>
+                    <span class="post-item-date">(Apr 8, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2126991808.html">负载均衡 LVS 连接表</a>
+                    <span class="post-item-date">(May 10, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/522418658.html">负载均衡 LVS 调度算法</a>
+                    <span class="post-item-date">(Jun 12, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3360290171.html">负载均衡 LVS 主流程代码分析</a>
+                    <span class="post-item-date">(Jul 14, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/1229090889.html">负载均衡 LVS TOA 实现原理</a>
+                    <span class="post-item-date">(Aug 16, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/2778281555.html">负载均衡 DPVS SNAT 功能介绍</a>
+                    <span class="post-item-date">(Sep 18, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/3989527185.html">负载均衡 DPVS 路由子系统的实现</a>
+                    <span class="post-item-date">(Oct 20, 2021)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/4205823097.html">负载均衡 DPVS 邻居子系统的实现</a>
+                    <span class="post-item-date">(Nov 22, 2021)</span>
+                </li>
+                
+            </ul>
+        </div>
+        
+        
+        <div class="gkt-article-start"></div>
+        <blockquote>
+<p>前面几篇文章分别是基本介绍、基础原理、操作实践几个方面来介绍了负载均衡 LVS 的一些知识。如果能够认真地把这几篇文章看完，理解并认真思考后应该会有所收获，至少能够掌握 LVS 的基础实现原理。</p>
+</blockquote>
+<p>后边会继续从代码层面分析 lvs 的实现原理和细节。其实不只开发人员需要懂代码，运维人员如果能够深入到代码层面，相信对原理的理解会更加透彻，而且对平时运维中的 troubleshoting 肯定有帮助。如果感兴趣的话，可以一起来学习和探索 lvs 的具体实现原理。</p>
+<h2 id="（一）连接表的概念作用"><a href="#（一）连接表的概念作用" class="headerlink" title="（一）连接表的概念作用"></a>（一）连接表的概念作用</h2><p>何为连接？我们知道 TCP 是面向连接的四层传输协议，一个 TCP 连接包括我们常说的五元组：src-IP、dst-IP、src-port、dst-port、protocol，也就是这 5 个元素来标识一个连接，能够代表唯一的会话。</p>
+<p>lvs 是个四层负载均衡转发器，负责将数据包转给后端的服务器。那具体是怎么转发的呢，它有自己的调度方式，根据调度规则将数据包转发给正确的后端 Server。但是有个问题，每个数据包都需要根据特有的调度规则来进行调度转发的吗？</p>
+<p>显然不是，因为每个 TCP 连接需要包含若干的数据包进行交互，如果每个 Packet 都按照调度规则来调度，比如按照 RR 模式来进行调度，那么该 TCP 连接相关的若干数据包则被轮询转发给了 N 个后端服务器，后端对这样的奇怪数据包是不感兴趣的（被无情丢弃），显然负载均衡需要将 TCP 连接的数据流的若干数据包转发至其中一台后端服务器上，而不是分散到多个服务器。</p>
+<p>因此，lvs 若想正确转发数据包，需要维护记录数据包五元组代表的连接信息，包括首次建立连接时调度的 RS。那么后续的同一个连接（会话）的数据包到来后，查询系统维护的连接信息，查到该连接后就能确定这条连接对应的 RS 服务器，最终将数据包正确转发给服务器，这样就完成了将一个 TCP 连接转发给后端服务器了。</p>
+<h2 id="（二）lvs-连接的基本结构"><a href="#（二）lvs-连接的基本结构" class="headerlink" title="（二）lvs 连接的基本结构"></a>（二）lvs 连接的基本结构</h2><p>我们来看下 lvs 代码中是如何用数据结构来表示一条连接信息的，它定义的 struct 结构如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ip_vs_conn</span> &#123;</span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">list_head</span>        c_list;          <span class="comment">/* 哈希链表头 */</span></span><br><span class="line">	u16                      af;		     <span class="comment">/* 协议族，代表 v4 或 v6 */</span></span><br><span class="line">	<span class="keyword">union</span> <span class="title class_">nf_inet_addr</span>       caddr;          <span class="comment">/* 客户端 IP 地址 */</span></span><br><span class="line">	<span class="keyword">union</span> <span class="title class_">nf_inet_addr</span>       vaddr;          <span class="comment">/* 客户端访问的 vip */</span></span><br><span class="line">	<span class="keyword">union</span> <span class="title class_">nf_inet_addr</span>       daddr;          <span class="comment">/* 后端 RS 服务器 IP 地址 */</span></span><br><span class="line">	__be16                   cport;          <span class="comment">/* 客户端请求源端口 */</span></span><br><span class="line">	__be16                   vport;          <span class="comment">/* 访问的业务端口，一般为 80 或 443 */</span></span><br><span class="line">	__be16                   dport;          <span class="comment">/* 后端服务器的端口，可以不同于 vport */</span></span><br><span class="line">	__u16                   protocol;        <span class="comment">/* 协议类型，如 TCP/UDP */</span></span><br><span class="line">    <span class="type">atomic_t</span>                refcnt;          <span class="comment">/* 引用计数 */</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">timer_list</span>	timer;		         <span class="comment">/* 连接对应的定时器 */</span></span><br><span class="line">	<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">long</span>	timeout;	     <span class="comment">/* 超时时间 */</span></span><br><span class="line">	<span class="type">spinlock_t</span>              lock;            <span class="comment">/* 状态转化时需要锁操作 */</span></span><br><span class="line">	<span class="keyword">volatile</span> __u16          flags;           <span class="comment">/* 标记位 */</span></span><br><span class="line">	<span class="keyword">volatile</span> __u16          state;           <span class="comment">/* 状态信息 */</span></span><br><span class="line">	<span class="keyword">volatile</span> __u16          old_state;       <span class="comment">/* 保存上一个状态 */</span></span><br><span class="line">	<span class="comment">/* Control members */</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">ip_vs_conn</span>       *control;        <span class="comment">/* Master control connection */</span></span><br><span class="line">	<span class="type">atomic_t</span>                n_control;       <span class="comment">/* Number of controlled ones */</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">ip_vs_dest</span>       *dest;           <span class="comment">/* 连接所调度的后端 RS */</span></span><br><span class="line">	<span class="type">atomic_t</span>                in_pkts;         <span class="comment">/* 连接中进来数据包计数 */</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">int</span> (*packet_xmit)(<span class="keyword">struct</span> sk_buff *skb, <span class="keyword">struct</span> ip_vs_conn *cp,</span><br><span class="line">                                       <span class="keyword">struct</span> ip_vs_protocol *pp);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">ip_vs_app</span>        *app;           <span class="comment">/* bound ip_vs_app object */</span></span><br><span class="line">	<span class="type">void</span>                    *app_data;      <span class="comment">/* Application private data */</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">ip_vs_seq</span>        in_seq;         <span class="comment">/* incoming seq. struct */</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">ip_vs_seq</span>        out_seq;        <span class="comment">/* outgoing seq. struct */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上述的结构体 <code>struct ip_vs_conn</code> 定义一个连接所需要多个字段元素，介绍下几个核心的字段：</p>
+<ul>
+<li><code>c_list</code>：哈希表头，用来组织链表的关键字段。</li>
+<li><code>caddr</code>：客户端 request 数据包的源 IP 地址。</li>
+<li><code>vaddr</code>：客户端 request 数据包的目的 IP 地址，一般是业务对外提供访问的 IP，称为 vip</li>
+<li><code>daddr</code>：连接新建时调度选择的一个后端 RS 服务器 IP 地址。</li>
+<li><code>cport</code>：客户端 request 数据包的源 port</li>
+<li><code>vport</code>：客户端 request 数据包的目标 port，一般业务端口为 80 或 443</li>
+<li><code>dport</code>：连接对应的后端 RS 服务器端口，NAT 转发模式支持不同于 vport</li>
+<li><code>protocol</code>：指的是四层传输协议，一般为 TCP 或 UDP</li>
+<li><code>state</code>：连接是会记录状态的，根据数据包的交互而变化。</li>
+<li><code>packet_xmit</code>：数据包发送的回调函数，不同的转发模式有不同的 xmit</li>
+</ul>
+<p>lvs 能够提供高并发的转发能力，需要维护很多这样的连接信息，把这些连接信息组织起来就形成了 **<code>连接表</code>**。</p>
+<h2 id="（三）连接表组织结构"><a href="#（三）连接表组织结构" class="headerlink" title="（三）连接表组织结构"></a>（三）连接表组织结构</h2><p>lvs 连接表设计时出于各方面的考虑，比如查找性能等，采用了典型的哈希表结构将多个 <code>连接</code> 组织为连接表，组织结构如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/lb011ipvshashtable.png" alt="ipvs hash table"></p>
+<p>如图，根据 <code>caddr</code>、<code>cport</code>、<code>proto</code> 关键字段按照某种计算方法进行计算，得到一个哈希值。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash = <span class="built_in">ip_vs_conn_hashkey</span>(cp-&gt;af, cp-&gt;protocol, &amp;cp-&gt;caddr, cp-&gt;cport);</span><br></pre></td></tr></table></figure>
+<p>然后与连接表大小 <code>IP_VS_CONN_TAB_MASK</code> 值求和，得到在 <code>0-255</code> 范围内的一个整数，对应到图中的某个具体的槽位（桶），当前位置设置为链表头，然后将连接条目作为一个元素结点挂在此处的链表上。同理，其他连接信息会按照同样的方式被挂在如图所示的哈希链表上。</p>
+<ul>
+<li>在需要查找连接表时，根据上述提到的相关字段计算出哈希值 hashkey，定位到具体的哈希桶位置，在该链表上遍历查找所要找的连接。</li>
+<li>可以看出，哈希表的尺寸越大，哈希值冲突的可能性就越小，也就是挂在一个桶上的连接数据越少，这样在查找时也就越高效。</li>
+<li>另外，虽然哈希表尺寸能够改善冲突的问题，不过设计出较好的哈希函数让连接能够均衡的分布在各个哈希桶里也很关键。</li>
+</ul>
+<h2 id="（四）连接表的新建"><a href="#（四）连接表的新建" class="headerlink" title="（四）连接表的新建"></a>（四）连接表的新建</h2><p>何时应该新建连接呢，对于 TCP 协议来说，只有客户端发起的 <code>syn</code> 数据包时才能够触发新建连接，相同连接会话的其他数据包到来时，只需要查找存在的连接表即可继续后续的转发工作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">dest = svc-&gt;scheduler-&gt;<span class="built_in">schedule</span>(svc, skb);</span><br><span class="line"><span class="keyword">if</span> (dest == <span class="literal">NULL</span>) &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 只有在成功调度可用的后端 RS 服务器后才去新建连接 */</span></span><br><span class="line">cp = <span class="built_in">ip_vs_conn_new</span>(svc-&gt;af, iph.protocol,</span><br><span class="line">		    &amp;iph.saddr, pptr[<span class="number">0</span>], &amp;iph.daddr, pptr[<span class="number">1</span>], &amp;dest-&gt;addr,</span><br><span class="line">		    dest-&gt;port ? dest-&gt;port : pptr[<span class="number">1</span>], <span class="number">0</span>, dest);</span><br></pre></td></tr></table></figure>
+<p>新建连接的整个过程比较简单，大概分为几个步骤：</p>
+<ol>
+<li>分配 <code>连接</code> 所需要的内存资源空间</li>
+<li>初始化链表相关字段</li>
+<li>设置注册定时器工作函数</li>
+<li>填充核心关键字段</li>
+<li>关联绑定调度到的后端 RS 服务器</li>
+<li>初始化状态、超时时间、绑定 xmit 函数</li>
+<li>准备就绪，将 new_conn 挂在全局的哈希表上</li>
+</ol>
+<p>到此新建连接完成，它的函数原型大概是这个样子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ip_vs_conn</span> * <span class="built_in">ip_vs_conn_new</span>(af, proto, caddr, cport, vaddr, vport, daddr, dport, flags, dest);</span><br></pre></td></tr></table></figure>
+
+<h2 id="（五）连接表的查找"><a href="#（五）连接表的查找" class="headerlink" title="（五）连接表的查找"></a>（五）连接表的查找</h2><p>新建连接后续的数据包到来是可以直接查找全局的连接表，找到该数据包所属的连接信息，也就能确定本次数据包需要转发给后端的哪一台 RS 服务器，通过相关操作后将数据包转发给连接所对应的 dest。</p>
+<p>我们知道 DR 模式的话，只有客户端请求的流量会经过 LVS 服务器，当请求数据到达时，查找到支持的协议后，就会调用如下函数进行查找</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ip_vs_conn</span> *<span class="built_in">ip_vs_conn_in_get</span>(af, protocol, s_addr, s_port, d_addr, d_port);</span><br></pre></td></tr></table></figure>
+<p>通过函数参数也可以知道，是根据这 5 元组来进行查找的，步骤如下：</p>
+<ol>
+<li>根据关键字段调用 <code>ip_vs_conn_hashkey</code> 函数计算 hashkey</li>
+<li>加锁操作，因为连接表是全局的，在多 cpu 架构下，为了保证原子性操作。</li>
+<li>在对应的哈希桶上 <code>ip_vs_conn_tab[hash]</code> 遍历链表，如果和参数的各字段都相同，则 hit</li>
+<li>找到 hit 后，unlock 解锁，返回</li>
+</ol>
+<p>如果是 NAT 模式的话，RS 的响应数据包也是会经过 LVS 服务器的，此时数据包的源 IP 是 RS 的 IP，目的 IP 是 VIP，因此需要使用另外一个函数来查找连接：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ip_vs_conn</span> *<span class="built_in">ip_vs_conn_out_get</span>(af, protocol, s_addr, s_port, d_addr, d_port);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>首先，函数除了名称不同外，参数完全相同，不过这里要注意到这些源目的 IP 和端口与连接表的对应关系。</li>
+<li>计算 hashkey 时，是通过 d_addr 和 d_port，也就是客户端请求数据包的源 IP 和源端口，这样计算出的 hashkey 和新建连接的值是相等的。</li>
+<li>遍历 <code>ip_vs_conn_tab[hash]</code> 哈希桶上的链表，字段对比时区别 IP 和 Port 的方向。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (d_addr == cp-&gt;caddr &amp;&amp;      <span class="comment">/* 反向数据：目的 IP 就是客户端 IP */</span></span><br><span class="line">    s_addr == cp-&gt;daddr &amp;&amp;      <span class="comment">/* 反向数据：源 IP 就是 RS 服务器 IP */</span></span><br><span class="line">    d_port == cp-&gt;cport &amp;&amp;      <span class="comment">/* 反向数据：目的端口是客户端 Port */</span></span><br><span class="line">    s_port == cp-&gt;cport)        <span class="comment">/* 反向数据：源端口是 RS 服务器 Port */</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="（六）连接表的过期"><a href="#（六）连接表的过期" class="headerlink" title="（六）连接表的过期"></a>（六）连接表的过期</h2><p>上述关于连接的新建和查找比较容易理解，就是常见的添加与删除操作。而连接的删除比较特殊些，特殊在删除连接的时机上。</p>
+<ul>
+<li>什么时候删除合适呢，我们不能简单地认为当连接彻底释放时删除就行。因为不是所有的连接在客户端和服务器间都能够正常的释放掉；如果某些连接没有正常释放，那么该连接就会长期一直残留在系统中，积累大量的无效连接，占用系统内存，影响系统性能。</li>
+<li>怎么解决呢，在 lvs 系统中为每个连接维护了状态机，在不同阶段的状态设置不同时间的定时器，如果超过定时器时间，连接就会调用 <code>ip_vs_conn_expire</code> 自动释放。各阶段状态的超时时间设置如下：</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> tcp_timeouts[IP_VS_TCP_S_LAST+<span class="number">1</span>] = &#123;</span><br><span class="line">    [IP_VS_TCP_S_NONE]		    =	<span class="number">2</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_ESTABLISHED]	=	<span class="number">15</span>*<span class="number">60</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_SYN_SENT]		=	<span class="number">2</span>*<span class="number">60</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_SYN_RECV]		=	<span class="number">1</span>*<span class="number">60</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_FIN_WAIT]		=	<span class="number">2</span>*<span class="number">60</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_TIME_WAIT]		=	<span class="number">2</span>*<span class="number">60</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_CLOSE]		    =	<span class="number">10</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_CLOSE_WAIT]	=	<span class="number">60</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_LAST_ACK]		=	<span class="number">30</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_LISTEN]		=	<span class="number">2</span>*<span class="number">60</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_SYNACK]		=	<span class="number">120</span>*HZ,</span><br><span class="line">    [IP_VS_TCP_S_LAST]		    =	<span class="number">2</span>*HZ,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上表可以看到，不同状态设置的超时时间不一样。比如 <code>ESTABLISHED</code> 状态设置时间比较长，可能你会担心如果 TCP 是长连接，输出传输要很长时间怎么办呢？其实是没有问题的，只要在 <code>ESTABLISHED</code> 状态超时时间范围内有数据包交互，就更会调用 <code>ip_vs_conn_put</code> 更新超时时间，也就是说在这个超时范围内只要有数据包（类似心跳）经过就不会中断释放掉连接。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 连接过期处理函数</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">ip_vs_conn_expire</span><span class="params">(<span class="type">unsigned</span> <span class="type">long</span> data)</span></span>;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>从哈希表中摘除该连接信息 <code>ip_vs_conn_unhash</code></li>
+<li>删除定时器</li>
+<li>删除与 dest 绑定 <code>ip_vs_unbind_dest</code></li>
+<li>释放内存资源</li>
+</ol>
+<p>当然 lvs 也提供了立即释放连接的接口函数 <code>ip_vs_conn_expire_now</code> 直接将 timeout 设置为 0 ，相当于直接调用到了 <code>ip_vs_conn_expire</code> 函数。</p>
+<h2 id="（七）连接表的锁"><a href="#（七）连接表的锁" class="headerlink" title="（七）连接表的锁"></a>（七）连接表的锁</h2><p>我们现在生产环境使用的服务器都是多核处理器，在 lvs 转发处理逻辑中需要频繁的查连接表，由于连接表是全局的一张表结构，绝大部分时间 N 个 cpu 会同时操作（包括查找、新建和删除）连接表，这样会导致连接表不一致的问题。因此，每个 cpu 对连接表进行相关操作时需要加上相应的 ReadLock 或 WriteLock，才能保证连接表的原子性操作。</p>
+<ul>
+<li><strong>全局锁操作</strong>。假如我们为连接表定义一个全局锁，每个 cpu 在对连接表做读写操作时，都需要先加锁，获取锁后进行相关操作，操作完毕再释放锁资源。这样在高并发的业务场景下，同一时刻锁只能被一个 cpu 占用，因此各 cpu 之间对锁的竞争会非常严重，导致整体 lvs 性能会随着 cpu 个数增加而逐渐下降。</li>
+<li><strong>局部锁优化</strong>。lvs 在设计上没有使用全局的锁，而是根据连接表的哈希结构，为 N 个哈希桶设置一个 Lock，这里的 N 为 256，也就是 256 个桶使用一个锁，总共有 4096 个哈希桶。如果有 16 个 cpu 的话，那么同一时间内平均每个 cpu 都可能占有一个锁，从系统整体上看，cpu 对锁操作的竞争就会大大减弱，提高了系统整体的转发能力。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">void</span> <span class="title">ct_read_lock</span><span class="params">(<span class="type">unsigned</span> key)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">read_lock</span>(&amp;__ip_vs_conntbl_lock_array[key&amp;CT_LOCKARRAY_MASK].l);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// CT_LOCKARRAY_MASK = 16</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>为每个桶绑定一个锁，进一步优化</strong>。局部优化能够很大程度上提高系统性能，同样思路，系统资源允许的情况下，我们可以为每个哈希桶分配设置一个 “锁”，那么各 cpu 之间锁竞争就会变得更小啦，系统性能肯定会有更好地优化。</li>
+<li><strong>无锁化，每个 cpu 一张连接表</strong>。既然每个 cpu 都要访问连接表，且会引起锁的竞争恶化，为何不给每个 cpu 维护一张连接表，每个 cpu 只维护自己相关数据连接组成的连接表，每个 cpu 读写 连接表时互不干扰，这样就实现无锁化，完美的避开了锁。<ul>
+<li>很多公司维护的私有版本 lvs 都做过类似方面的优化，每个 cpu 一张连接表</li>
+<li>对于 DR 模式来说，能够较容易实现，因为只有入的流量，网卡按照 4 元组哈希，同一个数据流肯定会打到同一个 cpu 上去</li>
+<li>对于 NAT 模式来说，就比较麻烦不好处理，因为 NAT 回包还会经过 lvs，回包到达 lvs 网卡时，按照 4 元哈希后，数据包可能到达网卡队列 2 了，而近来的请求数据包到达网卡队列 1 了，那么同一个连接的数据包不在同个 cpu 上就会出现异常现象了，因为回包到达的 cpu 无法处理该数据包（没有连接信息）。</li>
+</ul>
+</li>
+</ul>
+<h2 id="（八）连接表可以如何优化"><a href="#（八）连接表可以如何优化" class="headerlink" title="（八）连接表可以如何优化"></a>（八）连接表可以如何优化</h2><p>对于上边的内容是有些可以优化的空间的：</p>
+<ul>
+<li>连接表哈希桶数量可以增加，如果内存空间允许的话（一般内存不是啥大问题），这样可以减少哈希冲突，让每个哈希桶中挂载的数据尽可能的少，这样在查找遍历链表时效率会大大提高。</li>
+<li>连接表的老化时间，每个状态阶段都有设置固定时间的老化时间，我们可以适当缩小 <code>IP_VS_TCP_S_ESTABLISHED</code> 等状态的超时时间，这样能够让连接表老化的更快，这样能够支持的并发连接数也能够有所提高。</li>
+<li>连接表关于锁的优化，即使不做成 per-cpu 方式的连接表，也可以适当优化，让每个哈希桶设置单独的锁，这样一定程度上能够减少锁竞争带来的性能损耗。</li>
+</ul>
+<p>上述几点也是一般程序优化经常使用的方式，也在想这么个问题，为何处理内核态的 lvs 没有再进一步做优化呢？猜想可能是这样的，Linux 本身是一个非常通用的操作系统，面向的是大众用户，需要支持运行各种服务，而 lvs 只是 Linux 冰山一角的功能，如果优化程度太高，会占用系统过多的资源，这可能不是 Linux 所希望的，不过内核原版 lvs 性能也能够满足大部分中小企业的需求。</p>
+<blockquote>
+<p>简单总结，连接表的核心功能就是起到 <code>连接追踪</code>，包括两方面内容：连接保持和连接老化。</p>
+</blockquote>
+
+        
+<script src="/js/qrious.min.js"></script>
+
+
+        <hr style="margin-top: 2rem;">
+        <div>
+            
+            <p>
+                <span>专题: </span>
+                
+                <a href="/series/#负载均衡">
+                    <code key="负载均衡" class="post-label">负载均衡</code>
+                </a>
+                
+            </p>
+            
+            <p>
+                <span>本文发表于 2021-05-10，最后修改于 2022-04-16。</span>
+            </p>
+            <!-- 文章末尾的提示 start -->
+            
+            <p>
+                本站永久域名「 <a
+                        href="/post/2126991808.html">www.tcpdump.cn</a>
+                    」，也可搜索「 肖邦Linux 」找到我。
+            </p>
+            
+            
+                
+            <!-- 文章末尾的提示 end -->
+        </div>
+        <hr />
+        <p name="pagination" style="font-size: 1.2em">
+    
+    <a class="float-left" href="/post/3671532823.html">上一篇 « 负载均衡 LVS 操作实践</a>
+    
+    
+    <a class="float-right" href="/post/522418658.html">下一篇 » 负载均衡 LVS 调度算法</a>
+    
+</p>
+    </article>
+    <!-- 赞赏 -->
+    <!--打赏-->
+
+<style>
+    #reward .reward-btn-wrapper {
+        width: 100px;
+        padding-top: 35px;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+
+    #reward .reward-btn {
+        padding: 2px 15px;
+        color: #fff;
+        background-color: #ea6f5a;
+        border-radius: 20px;
+    }
+
+    #reward .reward-code {
+        position: absolute;
+        top: -220px;
+        left: 50%;
+        display: none;
+        width: 360px;
+        height: 240px;
+        margin-left: -180px;
+        padding: 15px 20px;
+        border: 1px solid #e6e6e6;
+        background: #fff;
+        box-shadow: 0 1px 1px 1px #efefef;
+    }
+
+    #reward .reward-code:after,
+    #reward .reward-code:before {
+        position: absolute;
+        content: '';
+        border: 10px solid transparent
+    }
+
+    #reward .reward-code:after {
+        bottom: -19px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #fff
+    }
+
+    #reward .reward-code:before {
+        bottom: -20px;
+        left: 50%;
+        margin-left: -10px;
+        border-top-color: #e6e6e6
+    }
+
+    #reward .qr-code {
+        width: 50%;
+        float: left;
+        padding: 5px;
+    }
+
+    #reward .qr-code p {
+        margin-top: -6px;
+    }
+
+    #reward img {
+        transform: none;
+        -webkit-transform: none;
+        margin-left: 0;
+    }
+
+    #reward img[alt='i'] {
+        width: 20px;
+        height: 20px;
+        z-index: 2;
+        position: absolute;
+        margin: 65px 0 0 65px;
+    }
+
+    #reward img[alt="ali"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #0f9be0;
+    }
+
+    #reward img[alt="wechat"] {
+        width: 100%;
+        box-sizing: border-box;
+        border: 5px solid #3db034;
+    }
+
+    #reward .reward-tip {
+        font-size: 1.2em;
+        margin-bottom: 0;
+        color: #ea6f5a;
+    }
+</style>
+<div id="reward" class="col-xs-12">
+    <div class="reward-btn-wrapper">
+        <div class="reward-btn text-center">赞赏支持</div>
+    </div>
+    <div class="reward-code text-center">
+        <p class="text-center reward-tip"><strong>请我吃胡萝卜 =^_^= </strong></p>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-ali" src="" alt="ali">
+            <p><small>支付宝</small></p>
+        </div>
+        <div class="qr-code">
+            <img src="/img/favicon.ico" alt="i">
+            <img id="reward-wechat" src="" alt="wechat">
+            <p><small>微信</small></p>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window, document) {
+        var aliQr = new QRious({ value: 'HTTPS://QR.ALIPAY.COM/FKX060337TUXBAX9LIFJE8' });
+        var wechatQr = new QRious({ value: 'wxp://f2f0qgGBlfD1nZXjvBjievxB0z0fc0W2sBq5' });
+        document.querySelector('#reward-ali').src = aliQr.toDataURL();
+        document.querySelector('#reward-wechat').src = wechatQr.toDataURL();
+
+        var rewardBtn = document.querySelector('#reward .reward-btn-wrapper');
+        var qrCode = document.querySelector('#reward .reward-code')
+        var activeFunc = function (e) {
+            qrCode.style.display = 'block';
+        }
+        var hideFunc = function (e) {
+            qrCode.style.display = 'none';
+        }
+
+        rewardBtn.addEventListener('mouseenter', activeFunc, false)
+        rewardBtn.addEventListener('mouseover', activeFunc, false)
+        rewardBtn.addEventListener('mouseleave', hideFunc, false)
+        qrCode.addEventListener('mouseenter', activeFunc, false)
+        qrCode.addEventListener('mouseover', activeFunc, false)
+        qrCode.addEventListener('mouseleave', hideFunc, false)
+    })(window, document);
+</script>
+
+    
+<div class="col-xs-12 text-center" style="margin-top: 30px;">
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://github.com/chopin11" title="Github"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/github.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://geektutu.com/feed.xml" title="RSS"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/rss.jpg" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie" title="知乎"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/zhihu.png" /></a>
+    
+    <a style="display:inline-block;" target="_blank" rel="noopener" href="https://weibo.com/geektutu" title="微博"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/weibo.jpg" /></a>
+    
+</div>
+
+    <!-- 推荐阅读三篇文章 -->
+    <div class="col-xs-12">
+        <h3>推荐阅读</h3>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#HTTPS"
+                    title="HTTPS">HTTPS</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#OPENSSL"
+                    title="OPENSSL">OPENSSL</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#签发证书"
+                    title="签发证书">签发证书</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/3934410168.html" class="title">
+                使用 openssl 签发多级 CA 的证书
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2022-04-08，</span>
+                    <span class="hidden-xs">全文4693字，</span>
+                    <span>阅读约16分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#dpvs"
+                    title="dpvs">dpvs</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#邻居"
+                    title="邻居">邻居</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/4205823097.html" class="title">
+                负载均衡 DPVS 邻居子系统的实现
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-11-22，</span>
+                    <span class="hidden-xs">全文5535字，</span>
+                    <span>阅读约19分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('/img/golang.jpg')"></div>
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/3360290171.html" class="title">
+                负载均衡 LVS 主流程代码分析
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-07-14，</span>
+                    <span class="hidden-xs">全文14415字，</span>
+                    <span>阅读约49分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+    </div>
+    <div class="col-xs-12">
+        <!-- 标签列表 -->
+        <!-- Featured Tags -->
+<style>
+    #featured-tag .post-tag-item {
+        font-size: 12px;
+        line-height: 30px;
+        display: inline-block;
+        height: 30px;
+        margin: 5px 0px;
+        padding: 0 7px;
+        color: #333;
+        border-radius: 15px;
+        background: #f6f6f6;
+    }
+
+    #featured-tag .post-tag-item:hover {
+        color: #337ab7;
+    }
+</style>
+<div id="featured-tag">
+    
+    <a class="post-tag-item" href="/tags/#keepalived" title="keepalived"
+        rel="1">#keepalived (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#负载均衡" title="负载均衡"
+        rel="9">#负载均衡 (9) </a>
+    
+    <a class="post-tag-item" href="/tags/#高可用" title="高可用"
+        rel="1">#高可用 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#dpvs" title="dpvs"
+        rel="3">#dpvs (3) </a>
+    
+    <a class="post-tag-item" href="/tags/#邻居" title="邻居"
+        rel="1">#邻居 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#linux" title="linux"
+        rel="1">#linux (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#HTTPS" title="HTTPS"
+        rel="8">#HTTPS (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#OPENSSL" title="OPENSSL"
+        rel="8">#OPENSSL (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#签发证书" title="签发证书"
+        rel="8">#签发证书 (8) </a>
+    
+    <a class="post-tag-item" href="/tags/#路由" title="路由"
+        rel="1">#路由 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#lvs" title="lvs"
+        rel="7">#lvs (7) </a>
+    
+    <a class="post-tag-item" href="/tags/#TCP" title="TCP"
+        rel="1">#TCP (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#网络协议" title="网络协议"
+        rel="1">#网络协议 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#工具效率" title="工具效率"
+        rel="1">#工具效率 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#调度算法" title="调度算法"
+        rel="1">#调度算法 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#toa" title="toa"
+        rel="1">#toa (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#snat" title="snat"
+        rel="1">#snat (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#关于我" title="关于我"
+        rel="1">#关于我 (1) </a>
+    
+    <a class="post-tag-item" href="/tags/#友链" title="友链"
+        rel="1">#友链 (1) </a>
+    
+</div>
+    </div>
+    <!-- 评论 -->
+    
+    <div class="col-xs-12">
+        
+<div class="col-xs-12 padding-0">
+    <div id="gitalk-container">
+        <div class="gt-container text-center" style="margin-top: 50px;">
+            <button class="gt-btn gt-btn-public"><span class="gt-btn-text">去 Github 评论</span></button>
+        </div>
+    </div>
+    <div id="gitalk-related"></div>
+</div>
+
+<link rel="stylesheet" href="/css/gitalk.css">
+
+
+<script src="/js/gitalk.min.js"></script>
+
+<script>
+    window.addEventListener('load', function () {
+        function renderCommentUrl(data) {
+            var url = (data[window.location.pathname] || {}).url
+            url && getDom('#gitalk-container button').addEventListener('click', function (e) { window.open(url)})
+            url || (getDom('#gitalk-container').style.display = 'none')
+        }
+        const gitalk = new Gitalk({
+            clientID: 'c1fdd456a4caae5f7df0',
+            clientSecret: 'b2674451e21feae50520f99337ec15d2aebe7879',
+            accessToken: '513dc2f1e6df8c07a12fbf1547874f54679d9712',
+            repo: 'blog',
+            owner: 'geektutu',
+            admin: ['geektutu'],
+            id: window.location.pathname,
+            distractionFreeMode: false
+        });
+        fetch("https://api.github.com/user").then(function(resp){
+            gitalk.render('gitalk-container');
+        }).catch(function(e){
+            fetch('/tool/issues.json').then(function (r) { return r.json() }).then(renderCommentUrl).catch(function (e) { })
+        })
+        getDom('#gitalk-container').addEventListener('click', function (e) {
+            e && e.stopPropagation && e.stopPropagation();
+        });
+    })
+</script>
+<script>
+    window.addEventListener('load', function () {
+        function render(comments) {
+            var template = '<a href="${comment.url}?utm_source=gitalk" class="dis-item-url"><h3 class="dis-item-title">${comment.title}</h3>' +
+                '<p class="dis-item-des">${comment.count} 评论 ● ${comment.date}</p>' +
+                '<div class="dis-item-content"><img class="dis-item-img" src="${comment.icon}" alt="icon"><p><b><span class="dis-item-user">${comment.user}</span></b>&nbsp;——&nbsp;${comment.body}</p></div>' +
+                '</a>'
+
+            var wrapper = getDom('#gitalk-related');
+            comments = shuffle(comments);
+            comments.slice(0, 4).forEach(function (c) {
+                var div = document.createElement('div');
+                div.classList.add('dis-item');
+                div.innerHTML = template.replace("${comment.url}", c.url)
+                    .replace("${comment.title}", c.title)
+                    .replace("${comment.count}", c.count)
+                    .replace("${comment.date}", c.date)
+                    .replace("${comment.icon}", c.icon)
+                    .replace("${comment.user}", c.user)
+                    .replace("${comment.body}", c.body)
+                wrapper.appendChild(div)
+            })
+            var p = document.createElement('p')
+            p.innerHTML = '<a target="_blank" rel="noopener" href="https://geektutu.com/post/blog-experience-7.html">Gitalk Plus</a>';
+            p.classList.add('dis-divide');
+            wrapper.appendChild(p);
+            wrapper.classList.add('dis-wrapper')
+        }
+        function shuffle(a) {
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+        fetch('/tool/comments.json').then(function (r) { return r.json() }).then(render).catch(function (e) { })
+    })
+</script>
+
+    </div>
+    
+</div>
+<aside class="float-left gkt-sidebar hidden-xs hidden-sm">
+    <div style="clear: both"></div>
+    <div class="gkt-sidebar-wrapper">
+        <section class="box-shadow"><style>
+    .gkt-summary {
+        border: 1px solid #DDDDDD;
+        border-radius: 3px;
+        padding: 5px;
+        width: 100%;
+    }
+
+
+    .gkt-summary nav {
+        overflow: hidden;
+    }
+
+    .gkt-summary nav a {
+        display: inline-block;
+        text-align: center;
+        color: #333;
+        font-size: 12px;
+    }
+
+    .gkt-summary nav span {
+        display: block;
+    }
+
+    .gkt-summary nav .middle {
+        border-left: 1px solid #eaecef;
+        border-right: 1px solid #eaecef;
+    }
+
+    .gkt-summary .number {
+        font-weight: bold;
+    }
+
+    .gkt-summary .link-list {
+        margin-top: 5px;
+        margin-bottom: -5px;
+        padding-top: 7px;
+        border-top: 1px dashed #999;
+        display: flex;
+    }
+
+    .gkt-summary .link-list a {
+        flex: 1;
+    }
+
+    .gkt-summary .link-list img {
+        width: 25px;
+        height: 25px;
+    }
+</style>
+
+<div class="gkt-summary">
+    <nav>
+        <a href="/" class="col-xs-4">
+            <span class="number">24</span><span>文章</span>
+        </a>
+        <a href="/series" class="col-xs-4 middle">
+            <span class="number">5</span><span>专题</span>
+        </a>
+        <a href="/tags" class="col-xs-4">
+            <span class="number">19</span><span>标签</span>
+        </a>
+    </nav>
+
+    
+    <div class="link-list">
+        
+        <a target="_blank" rel="noopener" href="https://github.com/chopin11"><img src="/img/related_links/github.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://geektutu.com/feed.xml"><img src="/img/related_links/rss.jpg" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie"><img src="/img/related_links/zhihu.png" /></a>
+        
+        <a target="_blank" rel="noopener" href="https://weibo.com/geektutu"><img src="/img/related_links/weibo.jpg" /></a>
+        
+    </div>
+    
+</div></section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>负载均衡</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/325553977.html"
+                        class="">keepalived 快速入门介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2589298645.html"
+                        class="">负载均衡 LVS 基本介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1970613528.html"
+                        class="">负载均衡 LVS 基本原理</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3671532823.html"
+                        class="">负载均衡 LVS 操作实践</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2126991808.html"
+                        class="gkt-sidebar-active">负载均衡 LVS 连接表</a>
+                    
+                    <!-- Table of Contents -->
+<div id="sidebar-toc">
+  <!-- TOC  -->
+  
+  
+  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%EF%BC%88%E4%B8%80%EF%BC%89%E8%BF%9E%E6%8E%A5%E8%A1%A8%E7%9A%84%E6%A6%82%E5%BF%B5%E4%BD%9C%E7%94%A8"><span class="toc-nav-text">（一）连接表的概念作用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%EF%BC%88%E4%BA%8C%EF%BC%89lvs-%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-nav-text">（二）lvs 连接的基本结构</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%EF%BC%88%E4%B8%89%EF%BC%89%E8%BF%9E%E6%8E%A5%E8%A1%A8%E7%BB%84%E7%BB%87%E7%BB%93%E6%9E%84"><span class="toc-nav-text">（三）连接表组织结构</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%EF%BC%88%E5%9B%9B%EF%BC%89%E8%BF%9E%E6%8E%A5%E8%A1%A8%E7%9A%84%E6%96%B0%E5%BB%BA"><span class="toc-nav-text">（四）连接表的新建</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%EF%BC%88%E4%BA%94%EF%BC%89%E8%BF%9E%E6%8E%A5%E8%A1%A8%E7%9A%84%E6%9F%A5%E6%89%BE"><span class="toc-nav-text">（五）连接表的查找</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%EF%BC%88%E5%85%AD%EF%BC%89%E8%BF%9E%E6%8E%A5%E8%A1%A8%E7%9A%84%E8%BF%87%E6%9C%9F"><span class="toc-nav-text">（六）连接表的过期</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%EF%BC%88%E4%B8%83%EF%BC%89%E8%BF%9E%E6%8E%A5%E8%A1%A8%E7%9A%84%E9%94%81"><span class="toc-nav-text">（七）连接表的锁</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%EF%BC%88%E5%85%AB%EF%BC%89%E8%BF%9E%E6%8E%A5%E8%A1%A8%E5%8F%AF%E4%BB%A5%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96"><span class="toc-nav-text">（八）连接表可以如何优化</span></a></li></ol>
+  
+</div>
+
+<script>
+  (function () {
+    var h2 = document.querySelectorAll('article h2');
+    var h3 = document.querySelectorAll('article h3');
+    var linkList = document.querySelectorAll('#sidebar-toc a');
+
+    function findLinkElement(name) {
+      for (var i = 0; i < linkList.length; i++) {
+        var items = linkList[i].href.split('#');
+        if (items && items[items.length - 1] === encodeURIComponent(name)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function activeLink(titleList) {
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      for (var i = titleList.length - 1; i >= 0; i--) {
+        if (scrollTop - titleList[i].offsetTop > 0) {
+          var index = findLinkElement(titleList[i].id);
+          index != -1 && linkList[index].classList.add('gkt-sidebar-active');
+          break;
+        }
+      }
+    }
+
+    window.addEventListener("scroll", function (e) {
+      [].slice.call(linkList).forEach(function (link) {
+        link.classList.remove('gkt-sidebar-active');
+      })
+      activeLink(h2);
+    })
+  })();
+</script>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/522418658.html"
+                        class="">负载均衡 LVS 调度算法</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3360290171.html"
+                        class="">负载均衡 LVS 主流程代码分析</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1229090889.html"
+                        class="">负载均衡 LVS TOA 实现原理</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/2778281555.html"
+                        class="">负载均衡 DPVS SNAT 功能介绍</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3989527185.html"
+                        class="">负载均衡 DPVS 路由子系统的实现</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/4205823097.html"
+                        class="">负载均衡 DPVS 邻居子系统的实现</a>
+                    
+                </li>
+                
+            </ul>
+        </section>
+        
+        
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>最近的文章</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/55249683.html">让浏览器快如飞的插件 vimium</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1335797944.html">经典的 TCP 三次握手问题</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1717622242.html">使用 openssl 操作证书的常见用法</a>
+                </li>
+                
+            </ul>
+        </section>
+        
+    </div>
+</aside>
+
+<script>
+    (function () {
+        function resizeUArrow() {
+            var s = getDom('.u-arrow-wrapper').style
+            var pc = getDom('.post-container')
+            s.left = getPosition(pc).x + 'px';
+            s.width = pc.clientWidth + 'px';
+        }
+        resizeUArrow()
+        window.addEventListener('resize', resizeUArrow);
+    })();
+</script>
+
+    
+
+<script>
+    (function () {
+        var ele = getDom('.gkt-sidebar-content')
+        if(!ele) return;
+        var wrapper = getDom('.gkt-sidebar-wrapper')
+        var last = 0
+        ele.style.maxHeight = ((window.innerHeight || 798) - 200) + 'px'
+        var f = function (e) {
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            var isDown = scrollTop > last;
+            var pos = getPosition(ele).y - scrollTop;
+            var downLimit = 50;
+            var upLimit = -100;
+            // uarrow.style.marginTop = scrollTop + 'px';
+            isDown && pos <= downLimit && wrapper.classList.add("gkt-sidebar-fixed");
+            !isDown && pos > upLimit && wrapper.classList.remove("gkt-sidebar-fixed");
+            last = scrollTop
+        }
+        f()
+        window.addEventListener("scroll", f)
+    })();
+</script>
+
+</main>
+    </div>
+    <style>
+    img#go-top {
+        position: fixed;
+        bottom: 100px;
+        width: 50px;
+        cursor: pointer;
+        z-index: 9999;
+    }
+</style>
+<img id="go-top" src="/icon/top.png" class="hidden-xs" style="display: none" />
+<script>
+    (function () {
+        var goTop = document.getElementById('go-top');
+        var mainContainer = document.querySelector('.main-container');
+        
+        goTop.addEventListener('click', function () {
+            window.scroll(0, 0);
+        }, false);
+        window.addEventListener('scroll', function () {
+            var right = document.body.offsetWidth - mainContainer.getBoundingClientRect().right;
+            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            goTop.style.right = right + 10 + 'px'
+            scrollTop > 700 && (goTop.style.display = "block");
+            scrollTop <= 700 && (goTop.style.display = "none");
+        });
+    })();
+</script>
+    <style>
+    #geektutu-click-img-container {
+        position: fixed;
+        left: 0;
+        top: 0;
+        text-align: center;
+        width: 100%;
+        display: none;
+        z-index: 9999;
+    }
+
+    #geektutu-click-img-container img {
+        object-fit: contain;
+        background: #eaecef;
+        padding: 15px;
+        border-radius: 10px;
+        height: auto;
+        width: auto;
+        vertical-align: middle;
+    }
+</style>
+
+
+<div id="geektutu-click-img-container">
+    <img src="" alt="Big Image">
+</div>
+
+<script>
+    (function () {
+        var container = document.querySelector('#geektutu-click-img-container')
+        var targetImg = container.querySelector('img')
+        var imgs = document.querySelectorAll('article img');
+        targetImg.addEventListener('click', function (e) {
+            container.style.display = 'none';
+            e && e.stopPropagation && e.stopPropagation();
+        }, false);
+
+        for (var i = 0; i < imgs.length; ++i) {
+            var img = imgs[i];
+            img.addEventListener('click', (function (src, rate) {
+                return function (e) {
+                    e && e.stopPropagation && e.stopPropagation();
+                    if (window.innerWidth < 980) {
+                        return
+                    }
+                    targetImg.style.height = targetImg.style.width = 'auto';
+                    if (window.innerWidth / window.innerHeight > rate) {
+                        targetImg.style.height = (window.innerHeight - 20) + 'px';
+                    } else {
+                        targetImg.style.width = (window.innerWidth - 20) + 'px';
+                    }
+                    container.style.height = window.innerHeight + 'px'
+                    container.style.lineHeight = window.innerHeight + 'px'
+                    container.style.display = 'block';
+                    targetImg.src = src;
+                };
+            }(img.src, img.width / img.height)), false)
+        }
+    })();
+</script>
+    <!-- Footer -->
+    <!-- Footer -->
+<style>
+    footer {
+        width: 100%;
+        line-height: 1.5;
+        padding: 20px;
+    }
+
+    footer a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .footer-hexo img {
+        height: 20px;
+        margin-bottom: -5px;
+    }
+
+    .footer-hexo a {
+        color: #337ab7;
+    }
+</style>
+<footer class="text-center col-xs-12">
+    <p>
+        <small>©2019 - 2022 - 肖邦 - </small>
+        <small>
+            <a target="_blank" rel="nofollow noopener" href="http://beian.miit.gov.cn/">临渊羡鱼，不如退而结网</a>
+        </small>
+    </p>
+    <p class="footer-hexo">
+        <!-- 但若直接使用或修改主题，请务必保留这段声明 -->
+        <small>Powered by <a target="_blank" href="https://hexo.io">Hexo</a> | Theme
+            <a target="_blank" href="https://geektutu.com">Geektutu</a>
+            <a target="_blank" rel="noopener" href="https://github.com/chopin11">
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYGBgYHBgcICAcKCwoLCg8ODAwODxYQERAREBYiFRkVFRkVIh4kHhweJB42KiYmKjY+NDI0PkxERExfWl98fKcBBgYGBgcGBwgIBwoLCgsKDw4MDA4PFhAREBEQFiIVGRUVGRUiHiQeHB4kHjYqJiYqNj40MjQ+TERETF9aX3x8p//CABEIACIAUAMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAAAAQQFBwIDBgj/2gAIAQEAAAAA9KrHSgAYL5/z6zZGuJd12uugbhq3uKtmuRtix20IS7lTLAfAAAn/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAAAB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAxAAAAAAAf/EADEQAAICAQIEBQEGBwAAAAAAAAECAwQFAAYREhORBxQhUlQxQVFic5KxJDJCYYGC0f/aAAgBAQABPwCFHnjWUzuvN6hV4cANSRLGjO9yRVUcSzMoA7jVXJYe5N0a2dhmk9kc0bN2GvLN8mbuNeWb5M3ca8s3yZu415Y/Jm7jXlm+TN3H/NeVPyZu40vOk3TZywK8wJ+v3EHVM/wsI/Dq2lrxN3Nnca16eti8chSAIoMbzByhMwP14kHVfwIiSaF5c96J6kwwCOTnHsYk8uvCrdmQy1TI4rJuz3cZLyGR/wCd4+YoOf8AEpUjXitubLYPG4paFsUxcuiGe7yc5gTW3LW44szXmobsi3Dhmic2+Z4+vCVH9CpraPiQ+QvbgTJrPFBWd5YpWrmNIIEXiRO32Pqt4p7cnfHk18lFBdmEVW1LVdIZGOrniTt6plrWKaO69yCykDRxwF+LMAewB0Txtr+Sf31VI8tEPw62fZt7N3Humtbpzz13ucX6CGSWMSuzpLyD1eNgeUka3PuvHbaxq3biTMHfkiSNCS78CwU+3Xg7Vu3MhuTcU6cq3Zemn3Eh2dv8Lzcut+29x1atKbHYqLJUhLwyNMwiZ3j9yDWOxUOV3tgb+3No5LDx1pi9+aeIwRlNY6bc+Jv+IFGrhLxtXJZ7VKcw81diiAAEn0JOrkWZyNfbEr0tz27UGQgkuGzXdIIvyowq99bRxk9ffO/L81SZBPZgEEroQroIxxMZOgeNsfkn99QypHGqO4Vl9CDrN4LDZkwyzyyQ2IgRHZrzGCZVP1XnQglT9oOtw4LC7iqV6uRkZoYpxKFSQpzFRw4EjVRMfSrQ1qqwxQxKFjjTgFUD7BoWYR6iVe+mtxt9Zwf9teaj4AdccPu5tedX5A/VrzUR+sy/q1CwksF19VEfDj/cnQRW+qg66cfsXtrpx+xe2unH7F7a6cfsXtrpx+xe2unH7F7a6cfsXtoxx+xe2gAAOA1//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAgEBPwB//8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAwEBPwB//9k="
+                    alt="Github Star">
+            </a>
+        </small>
+    </p>
+    <!-- 
+    <p>
+        <small>
+            <span id="busuanzi_container_site_pv">👁<span id="busuanzi_value_site_pv"></span></span> &nbsp;
+            <span id="busuanzi_container_page_pv">📚<span id="busuanzi_value_page_pv"></span></span>
+        </small>
+    </p>
+    
+     -->
+
+</footer>
+
+
+<script>
+    window.addEventListener('load', function () {
+        globalAddScript('//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js');
+    })
+</script>
+
+<!-- Baidu Tongji -->
+
+
+
+
+
+    <script>
+        // 非本站网址，新开tab页签
+        (function () {
+            var stopBubble = function (e) {
+                e && e.stopPropagation && e.stopPropagation();
+            }
+            var links = document.querySelectorAll('a');
+            [].slice.call(links).forEach(function (item) {
+                if (item.href && item.href.indexOf(window.location.host) === -1) {
+                    item.target = '_blank'
+                }
+                // 阻止冒泡，不触发彩蛋。
+                item.addEventListener('click', stopBubble, false);
+            });
+            var article = document.querySelector('article');
+            article && article.addEventListener('click', stopBubble, false)
+        })();
+    </script>
+    
+</body>
+
+</html>
