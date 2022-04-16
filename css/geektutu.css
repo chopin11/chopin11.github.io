@@ -948,6 +948,8 @@ th {
   border-radius: 3px;
   color: #24292e;
   font-size: 0.9em;
+  background-color: #f8f8f8;
+  color: #f82375;
 }
 .markdown-it code::before,
 .markdown-it code::after {
@@ -990,7 +992,12 @@ th {
   border-bottom: 1px solid #eaecef;
 }
 .markdown-it h2 {
+  font-weight: bold;
+  color: #00bfa5;
   font-size: 1.5em;
+}
+.markdown-it em {
+  color: #6200ea;
 }
 .markdown-it h3 {
   font-size: 1.25em;
@@ -1079,6 +1086,7 @@ th {
   content: normal;
 }
 .markdown-it strong {
+  color: #00bfa5;
   font-weight: 600;
 }
 .markdown-it svg:not(:root) {
