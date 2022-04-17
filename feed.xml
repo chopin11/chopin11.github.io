@@ -373,9 +373,9 @@
       <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
-      
       <category domain="https://www.tcpdump.cn/tags/dpvs/">dpvs</category>
+      
+      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       <category domain="https://www.tcpdump.cn/tags/snat/">snat</category>
       
@@ -617,7 +617,7 @@
       <guid>https://www.tcpdump.cn/post/link.html</guid>
       <pubDate>Mon, 03 Jul 2017 03:51:24 GMT</pubDate>
       
-      <description>极客兔兔的友情链接</description>
+      <description>肖邦Linux的友情链接</description>
       
       
       <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
