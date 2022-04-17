@@ -15,17 +15,17 @@
   <!-- if page has tags, then add tags to keyword -->
   
   
-  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,HTTPS,OPENSSL,签发证书,证书,openssl,https,签发证书,RSA">
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,收藏,">
   <!-- page.description has higher priority -->
-  <meta name="description" content="上文中我们使用 openssl 生成了自签发证书，而实际应用或测试场景下，需要使用单独的 CA 来签发证书，更符合真实的流程。本文分享的内容就是，如何使用 openssl 签发根 CA 证书和 RSA 证书。">
+  <meta name="description" content="收藏优质资源">
   <link rel="shortcut icon" href="/img/icon.png">
   <title>
     
-    使用 openssl 签发 RSA 证书 | 肖邦Linux
+    收藏优质资源 | 肖邦Linux
     
   </title>
 
-  <link rel="canonical" href="https://www.tcpdump.cn/post/3965235630.html">
+  <link rel="canonical" href="https://www.tcpdump.cn/post/fav.html">
   
 <link rel="stylesheet" href="/css/geektutu.css">
 
@@ -95,7 +95,7 @@
                     
                 </li>
                 
-                <li class="gkt-cate-name float-left active">
+                <li class="gkt-cate-name float-left ">
                     <a class="float-left" href="/post/78358564.html">HTTPS</a>
                     
                 </li>
@@ -152,130 +152,41 @@
 <div class="float-left post-container box-shadow">
     <div class="u-arrow-wrapper hidden-xs">
         
-        <a class="float-left" href="/post/78358564.html"><i class="u-arrow-left"></i></a>
+        <a class="float-left" href="/post/link.html"><i class="u-arrow-left"></i></a>
         
         
-        <a class="float-right" href="/post/2813878042.html"><i class="u-arrow-right"></i></a>
+        <a class="float-right" href="/post/about.html"><i class="u-arrow-right"></i></a>
         
     </div>
     <article class="col-xs-12">
-        <h1> 使用 openssl 签发 RSA 证书 </h1>
+        <h1> 收藏优质资源 </h1>
         
-        
-        <div class="hidden-lg hidden-md series_links">
-            <p> <strong> HTTPS系列文章链接：</strong></p>
-            <ul>
-                
-                <li>
-                    <a href="/post/78358564.html">使用 openssl 创建自签名证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/3965235630.html">使用 openssl 签发 RSA 证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/2813878042.html">使用 openssl 签发 ECC 证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/3934410168.html">使用 openssl 签发多级 CA 的证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/261015374.html">使用 openssl 签发带扩展项 v3 证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/1380760434.html">使用 openssl 签发支持 SAN 证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/3142807446.html">使用 openssl 签发证书最佳实践</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/1717622242.html">使用 openssl 操作证书的常见用法</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-            </ul>
-        </div>
         
         
         <div class="gkt-article-start"></div>
-        <blockquote>
-<p>上文中我们使用 <code>openssl</code> 生成了自签发证书，而实际应用或测试场景下，需要使用单独的 <code>CA</code> 来签发证书，更符合真实的流程。本文分享的内容就是，如何使用 <code>openssl</code> 签发根 <code>CA</code> 证书和 <code>RSA</code> 证书。</p>
-</blockquote>
-<p>主要先介绍如何使用 openssl 工具来签发根 CA 证书，然后使用根 CA 签发 RSA 服务器证书。</p>
-<h2 id="创建-CA-证书"><a href="#创建-CA-证书" class="headerlink" title="创建 CA 证书"></a>创建 CA 证书</h2><p>首先，我们需要先创建一个 <code>CA</code> 证书，使用它来签发服务器证书，而不是自签名证书。这次我们使用 <code>RSA</code> 私钥文件来生成根 <code>CA</code> 证书</p>
-<p>先准备好工作环境，包括工作目录和配置文件，需要准备 <code>openssl</code> 所使用的配置文件，详情如下</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">pwd</span></span><br><span class="line">/root/tls</span><br><span class="line">$ <span class="built_in">cat</span> openssl.cnf</span><br><span class="line">[ req ]</span><br><span class="line">distinguished_name      = req_distinguished_name</span><br><span class="line">prompt = no</span><br><span class="line">[ req_distinguished_name ]</span><br><span class="line">C = CN</span><br><span class="line">ST = BJ</span><br><span class="line">L = BJ</span><br><span class="line">O = DZ</span><br><span class="line">OU = C</span><br><span class="line">CN = tcpdump.cn</span><br><span class="line">[ v3_ca ]</span><br><span class="line">subjectKeyIdentifier=<span class="built_in">hash</span></span><br><span class="line">authorityKeyIdentifier=keyid:always,issuer</span><br><span class="line">basicConstraints = critical,CA:<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+        <style> article th:first-child { width: 160px; } </style>
 
-<p><strong>（一）创建 CA 私钥</strong></p>
-<p>使用 <code>openssl</code> 命令创建 <code>RSA</code> 私钥文件</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ openssl genrsa -out rootca.key 2048</span><br></pre></td></tr></table></figure>
-
-<p><strong>（二）生成 CA 证书</strong></p>
-<p>接着，使用上述的私钥文件来生成 CA 证书 <code>rootca.pem</code></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ openssl req -new -x509 -key rootca.key -out rootca.pem -days 365 -config openssl.cnf -extensions v3_ca</span><br></pre></td></tr></table></figure>
-
-<p>生成证书后，可以通过 <code>x509</code> 命令查看证书内容，以及证书所使用的签名算法</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -noout -text -<span class="keyword">in</span> rootca.pem | grep -i algorithm</span><br><span class="line">Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">Public Key Algorithm: rsaEncryption</span><br><span class="line">Signature Algorithm: sha256WithRSAEncryption</span><br></pre></td></tr></table></figure>
-
-<p><strong>（三）验证 CA 证书与私钥文件</strong></p>
-<p>如果你想验证一个证书与私钥是否匹配，可以按照下述方法，先从证书中获取公钥信息</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -noout -pubkey -<span class="keyword">in</span> rootca.pem</span><br><span class="line">-----BEGIN PUBLIC KEY-----</span><br><span class="line">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm8bueyNiS/JGe23i5uHI</span><br><span class="line">WexVObCWnVaFY/eTbtoz/dVrqmn2Oz9LuP/fejA6pQmiSpR6bSjYzZRpnvnw8ga6</span><br><span class="line">0twL/xi+bxX/AsWzD9YURY3RXYAdeqZB+pVozcqiMX61jrPjCHAxHO/5K8tzmibB</span><br><span class="line">nUFdHH0g0iT8HJ7dkl/Wmkw1WTH9XN3vNw7/99ZMkd7cZQKJx9UWv0dAAa7cBKmP</span><br><span class="line">MFO4XrItPBzBlbl3y5bYxZ5Bl5F+QouLS82Sf1lzKJzPk1FTbLhtn+wZxe7JjAPm</span><br><span class="line">7/MMMHfCBry6tR3RM0a1MZ7wByPF088xr+6zzZBWCugN+xxDMdo0xb4g9rKbgvuy</span><br><span class="line">pQIDAQAB</span><br><span class="line">-----END PUBLIC KEY-----</span><br></pre></td></tr></table></figure>
-
-<p>同样，可以从私钥文件中读取公钥信息</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ openssl pkey -pubout -<span class="keyword">in</span> rootca.key</span><br><span class="line">-----BEGIN PUBLIC KEY-----</span><br><span class="line">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm8bueyNiS/JGe23i5uHI</span><br><span class="line">WexVObCWnVaFY/eTbtoz/dVrqmn2Oz9LuP/fejA6pQmiSpR6bSjYzZRpnvnw8ga6</span><br><span class="line">0twL/xi+bxX/AsWzD9YURY3RXYAdeqZB+pVozcqiMX61jrPjCHAxHO/5K8tzmibB</span><br><span class="line">nUFdHH0g0iT8HJ7dkl/Wmkw1WTH9XN3vNw7/99ZMkd7cZQKJx9UWv0dAAa7cBKmP</span><br><span class="line">MFO4XrItPBzBlbl3y5bYxZ5Bl5F+QouLS82Sf1lzKJzPk1FTbLhtn+wZxe7JjAPm</span><br><span class="line">7/MMMHfCBry6tR3RM0a1MZ7wByPF088xr+6zzZBWCugN+xxDMdo0xb4g9rKbgvuy</span><br><span class="line">pQIDAQAB</span><br><span class="line">-----END PUBLIC KEY-----</span><br></pre></td></tr></table></figure>
-
-<p>从上述命令输出，可以看到公钥完全一样，说明证书和私钥是匹配的。</p>
-<h2 id="创建服务器证书"><a href="#创建服务器证书" class="headerlink" title="创建服务器证书"></a>创建服务器证书</h2><p>接下来，我们使用 RSA 私钥来创建服务器证书</p>
-<p><strong>（一）创建私钥</strong></p>
-<p>先来创建服务器的 RSA 私钥文件</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ openssl genrsa -out server.key 2048</span><br></pre></td></tr></table></figure>
-
-<p><strong>（二）创建证书签名请求</strong></p>
-<p>生成证书签名请求所需要的用户信息，我们依然从 <code>openssl.cnf</code> 文件中读取</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ openssl req -new -key server.key -out server.csr -sha256 -config openssl.cnf</span><br></pre></td></tr></table></figure>
-
-<p><strong>（三）创建服务器证书</strong></p>
-<p>现在就可以使用根 CA 证书，来签发 RSA 服务器证书</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -req -<span class="keyword">in</span> server.csr -CA rootca.pem -CAkey rootca.key -out server.pem -CAcreateserial -CAserial serial -days 365 -sha256</span><br></pre></td></tr></table></figure>
-
-<p><strong>（四）验证服务器证书</strong></p>
-<p>生成服务器证书后，可以使用根 CA 证书来验证服务器证书是否有效</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ openssl verify -CAfile rootca.pem server.pem</span><br><span class="line">server.pem: OK</span><br></pre></td></tr></table></figure>
-
-<p>同样，可以查看服务器证书的签名算法，来确认是使用的 RSA 私钥文件</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -noout -text -<span class="keyword">in</span> server.pem | grep -i algorithm</span><br><span class="line">Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">Public Key Algorithm: rsaEncryption</span><br><span class="line">Signature Algorithm: sha256WithRSAEncryption</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置证书访问"><a href="#配置证书访问" class="headerlink" title="配置证书访问"></a>配置证书访问</h2><p>签发完证书后，可以通过 nginx 或 apache 服务配置，来验证证书的有效性。当然还可以通过 <code>openssl</code> 来模拟 <em>https</em> 服务，用来验证自签名证书的有效性。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ openssl s_server -accept 4433 -key server.key -cert server.pem -www</span><br><span class="line">ACCEPT</span><br></pre></td></tr></table></figure>
-
-<p>打开另一个终端，作为客户端来测试</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ curl --cacert rootca.pem https://www.tcpdump.cn:4433 --resolve <span class="string">&quot;www.tcpdump.cn:4433:127.0.0.1&quot;</span></span><br><span class="line">... <span class="comment"># 正常访问</span></span><br></pre></td></tr></table></figure>
-
-<p>选项 <code>--cacert</code> 指定了根 CA 证书，用来验证服务器证书，<code>--resolve</code> 用于本地域名测试，非常方便。</p>
-<p>验证通过，访问正常。</p>
-<h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><p>如果通过如下命令进行测试访问，curl 命令行是会报错的</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl --cacert rootca.pem https://127.0.0.1:4433 -H <span class="string">&quot;Host: www.tcpdump.cn&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>你可能会有疑问，之前测试 HTTP 不就可以的吗？</p>
-<blockquote>
-<p><strong>解答如下：</strong></p>
-<p><em>1.</em> 服务器证书校验是在 <code>TLS</code> 握手期间进行的，这时还没有解析到 <code>HTTP</code> 层面 <code>Host</code> 字段，<code>TLS</code> 是看不到 <code>-H</code> 指定的域名</p>
-<p><em>2.</em> <code>--resolve</code> 选项是模拟 DNS 解析的缓存，会把域名信息通过 SNI 字段传递给服务器的；</p>
-<p><em>3.</em> 当然也可以通过绑定 <code>/etc/hosts</code> 方式</p>
-</blockquote>
+<h2 id="优质博客"><a href="#优质博客" class="headerlink" title="优质博客"></a>优质博客</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://coolshell.cn/">酷壳</a></td>
+<td>网名左耳朵耗子，陈皓老师</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://geektutu.com/">极客兔兔</a></td>
+<td>致力于分享有趣的技术实践</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://blog.golangstack.com/">Go语言-坤哥</a></td>
+<td>专注分享 Go 语言相关内容</td>
+</tr>
+</tbody></table>
+<br>
 
         
 <script src="/js/qrious.min.js"></script>
@@ -285,22 +196,13 @@
         <div>
             
             <p>
-                <span>专题: </span>
-                
-                <a href="/series/#HTTPS">
-                    <code key="HTTPS" class="post-label">HTTPS</code>
-                </a>
-                
-            </p>
-            
-            <p>
-                <span>本文发表于 2022-04-08，最后修改于 2022-04-16。</span>
+                <span>本文发表于 2017-07-03，最后修改于 2022-04-17。</span>
             </p>
             <!-- 文章末尾的提示 start -->
             
             <p>
                 本站永久域名「 <a
-                        href="/post/3965235630.html">www.tcpdump.cn</a>
+                        href="/post/fav.html">www.tcpdump.cn</a>
                     」，也可搜索「 肖邦Linux 」找到我。
             </p>
             
@@ -311,10 +213,10 @@
         <hr />
         <p name="pagination" style="font-size: 1.2em">
     
-    <a class="float-left" href="/post/78358564.html">上一篇 « 使用 openssl 创建自签名证书</a>
+    <a class="float-left" href="/post/link.html">上一篇 « 友情链接</a>
     
     
-    <a class="float-right" href="/post/2813878042.html">下一篇 » 使用 openssl 签发 ECC 证书</a>
+    <a class="float-right" href="/post/about.html">下一篇 » 留言板</a>
     
 </p>
     </article>
@@ -496,14 +398,14 @@
                 
                 
             </div>
-            <a href="/post/3934410168.html" class="title">
-                使用 openssl 签发多级 CA 的证书
+            <a href="/post/3142807446.html" class="title">
+                使用 openssl 签发证书最佳实践
             </a>
             <p class="text-gray">
                 <small>
                     <span>发表于2022-04-08，</span>
-                    <span class="hidden-xs">全文4693字，</span>
-                    <span>阅读约16分钟</span>
+                    <span class="hidden-xs">全文5222字，</span>
+                    <span>阅读约18分钟</span>
                 </small>
             </p>
         </div>
@@ -523,24 +425,20 @@
                     title="负载均衡">负载均衡</a>
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#dpvs"
-                    title="dpvs">dpvs</a>
-                <span>/</span>
-                
-                <a class="text-gray" href="/tags/#snat"
-                    title="snat">snat</a>
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/2778281555.html" class="title">
-                负载均衡 DPVS SNAT 功能介绍
+            <a href="/post/1970613528.html" class="title">
+                负载均衡 LVS 基本原理
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2021-09-18，</span>
-                    <span class="hidden-xs">全文7761字，</span>
-                    <span>阅读约26分钟</span>
+                    <span>发表于2021-03-06，</span>
+                    <span class="hidden-xs">全文6810字，</span>
+                    <span>阅读约23分钟</span>
                 </small>
             </p>
         </div>
@@ -556,20 +454,20 @@
                 
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#关于我"
-                    title="关于我">关于我</a>
+                <a class="text-gray" href="/tags/#收藏"
+                    title="收藏">收藏</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/about.html" class="title">
-                留言板
+            <a href="/post/fav.html" class="title">
+                收藏优质资源
             </a>
             <p class="text-gray">
                 <small>
                     <span>发表于2017-07-03，</span>
-                    <span class="hidden-xs">全文936字，</span>
-                    <span>阅读约4分钟</span>
+                    <span class="hidden-xs">全文492字，</span>
+                    <span>阅读约2分钟</span>
                 </small>
             </p>
         </div>
@@ -663,90 +561,6 @@
     </div>
     <!-- 评论 -->
     
-    <div class="col-xs-12">
-        
-<div class="col-xs-12 padding-0">
-    <div id="gitalk-container">
-        <div class="gt-container text-center" style="margin-top: 50px;">
-            <button class="gt-btn gt-btn-public"><span class="gt-btn-text">去 Github 评论</span></button>
-        </div>
-    </div>
-    <div id="gitalk-related"></div>
-</div>
-
-<link rel="stylesheet" href="/css/gitalk.css">
-
-
-<script src="/js/gitalk.min.js"></script>
-
-<script>
-    window.addEventListener('load', function () {
-        function renderCommentUrl(data) {
-            var url = (data[window.location.pathname] || {}).url
-            url && getDom('#gitalk-container button').addEventListener('click', function (e) { window.open(url)})
-            url || (getDom('#gitalk-container').style.display = 'none')
-        }
-        const gitalk = new Gitalk({
-            clientID: '03fc618319525989f942',
-            clientSecret: '6c8d8f219e914bc85a22766f478f1b7dec6586d7',
-            accessToken: '',
-            repo: 'blog-comment',
-            owner: 'chopin11',
-            admin: ['chopin11'],
-            id: window.location.pathname,
-            distractionFreeMode: false
-        });
-        fetch("https://api.github.com/user").then(function(resp){
-            gitalk.render('gitalk-container');
-        }).catch(function(e){
-            fetch('/tool/issues.json').then(function (r) { return r.json() }).then(renderCommentUrl).catch(function (e) { })
-        })
-        getDom('#gitalk-container').addEventListener('click', function (e) {
-            e && e.stopPropagation && e.stopPropagation();
-        });
-    })
-</script>
-<script>
-    window.addEventListener('load', function () {
-        function render(comments) {
-            var template = '<a href="${comment.url}?utm_source=gitalk" class="dis-item-url"><h3 class="dis-item-title">${comment.title}</h3>' +
-                '<p class="dis-item-des">${comment.count} 评论 ● ${comment.date}</p>' +
-                '<div class="dis-item-content"><img class="dis-item-img" src="${comment.icon}" alt="icon"><p><b><span class="dis-item-user">${comment.user}</span></b>&nbsp;——&nbsp;${comment.body}</p></div>' +
-                '</a>'
-
-            var wrapper = getDom('#gitalk-related');
-            comments = shuffle(comments);
-            comments.slice(0, 4).forEach(function (c) {
-                var div = document.createElement('div');
-                div.classList.add('dis-item');
-                div.innerHTML = template.replace("${comment.url}", c.url)
-                    .replace("${comment.title}", c.title)
-                    .replace("${comment.count}", c.count)
-                    .replace("${comment.date}", c.date)
-                    .replace("${comment.icon}", c.icon)
-                    .replace("${comment.user}", c.user)
-                    .replace("${comment.body}", c.body)
-                wrapper.appendChild(div)
-            })
-            var p = document.createElement('p')
-            p.innerHTML = '<a target="_blank" rel="noopener" href="https://geektutu.com/post/blog-experience-7.html">Gitalk Plus</a>';
-            p.classList.add('dis-divide');
-            wrapper.appendChild(p);
-            wrapper.classList.add('dis-wrapper')
-        }
-        function shuffle(a) {
-            for (var i = a.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
-            return a;
-        }
-        fetch('/tool/comments.json').then(function (r) { return r.json() }).then(render).catch(function (e) { })
-    })
-</script>
-
-    </div>
-    
 </div>
 <aside class="float-left gkt-sidebar hidden-xs hidden-sm">
     <div style="clear: both"></div>
@@ -831,106 +645,6 @@
 </div></section>
         
         
-        <section class="gkt-sidebar-content box-shadow">
-            <strong>HTTPS</strong>
-            <ul>
-                
-                <li>
-                    <a href="/post/78358564.html"
-                        class="">使用 openssl 创建自签名证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/3965235630.html"
-                        class="gkt-sidebar-active">使用 openssl 签发 RSA 证书</a>
-                    
-                    <!-- Table of Contents -->
-<div id="sidebar-toc">
-  <!-- TOC  -->
-  
-  
-  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA-CA-%E8%AF%81%E4%B9%A6"><span class="toc-nav-text">创建 CA 证书</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%81%E4%B9%A6"><span class="toc-nav-text">创建服务器证书</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AE%E8%AF%81%E4%B9%A6%E8%AE%BF%E9%97%AE"><span class="toc-nav-text">配置证书访问</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%80%9D%E8%80%83"><span class="toc-nav-text">思考</span></a></li></ol>
-  
-</div>
-
-<script>
-  (function () {
-    var h2 = document.querySelectorAll('article h2');
-    var h3 = document.querySelectorAll('article h3');
-    var linkList = document.querySelectorAll('#sidebar-toc a');
-
-    function findLinkElement(name) {
-      for (var i = 0; i < linkList.length; i++) {
-        var items = linkList[i].href.split('#');
-        if (items && items[items.length - 1] === encodeURIComponent(name)) {
-          return i;
-        }
-      }
-      return -1;
-    }
-
-    function activeLink(titleList) {
-      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      for (var i = titleList.length - 1; i >= 0; i--) {
-        if (scrollTop - titleList[i].offsetTop > 0) {
-          var index = findLinkElement(titleList[i].id);
-          index != -1 && linkList[index].classList.add('gkt-sidebar-active');
-          break;
-        }
-      }
-    }
-
-    window.addEventListener("scroll", function (e) {
-      [].slice.call(linkList).forEach(function (link) {
-        link.classList.remove('gkt-sidebar-active');
-      })
-      activeLink(h2);
-    })
-  })();
-</script>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/2813878042.html"
-                        class="">使用 openssl 签发 ECC 证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/3934410168.html"
-                        class="">使用 openssl 签发多级 CA 的证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/261015374.html"
-                        class="">使用 openssl 签发带扩展项 v3 证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1380760434.html"
-                        class="">使用 openssl 签发支持 SAN 证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/3142807446.html"
-                        class="">使用 openssl 签发证书最佳实践</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1717622242.html"
-                        class="">使用 openssl 操作证书的常见用法</a>
-                    
-                </li>
-                
-            </ul>
-        </section>
-        
         
         <section class="gkt-sidebar-content box-shadow">
             <strong>最近的文章</strong>
@@ -946,6 +660,34 @@
                 
                 <li>
                     <a href="/post/1717622242.html">使用 openssl 操作证书的常见用法</a>
+                </li>
+                
+                <li>
+                    <a href="/post/3142807446.html">使用 openssl 签发证书最佳实践</a>
+                </li>
+                
+                <li>
+                    <a href="/post/1380760434.html">使用 openssl 签发支持 SAN 证书</a>
+                </li>
+                
+                <li>
+                    <a href="/post/261015374.html">使用 openssl 签发带扩展项 v3 证书</a>
+                </li>
+                
+                <li>
+                    <a href="/post/3934410168.html">使用 openssl 签发多级 CA 的证书</a>
+                </li>
+                
+                <li>
+                    <a href="/post/2813878042.html">使用 openssl 签发 ECC 证书</a>
+                </li>
+                
+                <li>
+                    <a href="/post/3965235630.html">使用 openssl 签发 RSA 证书</a>
+                </li>
+                
+                <li>
+                    <a href="/post/78358564.html">使用 openssl 创建自签名证书</a>
                 </li>
                 
             </ul>
