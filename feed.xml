@@ -4,15 +4,15 @@
   xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>肖邦Linux</title>
-    <link>https://www.tcpdump.cn/</link>
+    <link>https://tcpdump.cn/</link>
     
     <image>
-      <url>https://www.tcpdump.cn/img/icon.png</url>
+      <url>https://tcpdump.cn/img/icon.png</url>
       <title>肖邦Linux</title>
-      <link>https://www.tcpdump.cn/</link>
+      <link>https://tcpdump.cn/</link>
     </image>
     
-    <atom:link href="https://www.tcpdump.cn/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://tcpdump.cn/feed.xml" rel="self" type="application/rss+xml"/>
     
     <description>肖邦Linux的博客，致力于分享一些技术教程和有趣的技术实践，包括但不限于 Go 语言/golang, Python, tensorflow, 分布式, 机器学习相关的内容。也可以通过搜索肖邦Linux,tcpdump 找到我。</description>
     <pubDate>Sat, 16 Apr 2022 15:32:37 GMT</pubDate>
@@ -20,636 +20,636 @@
     
     <item>
       <title>让浏览器快如飞的插件 vimium</title>
-      <link>https://www.tcpdump.cn/post/55249683.html</link>
-      <guid>https://www.tcpdump.cn/post/55249683.html</guid>
+      <link>https://tcpdump.cn/post/55249683.html</link>
+      <guid>https://tcpdump.cn/post/55249683.html</guid>
       <pubDate>Sun, 10 Apr 2022 12:12:12 GMT</pubDate>
       
       <description>Chrome 浏览器有很多好用的插件，如果能够运用的好的话，可以极大的提高工作效率。今天来推荐一个非常好用的插件，使用熟练之后，从此在 Chrome 浏览器上的绝大部分操作都不需要使用鼠标，让你键指如飞，实在是装逼的利器。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E5%B7%A5%E5%85%B7%E6%95%88%E7%8E%87/">工具效率</category>
+      <category domain="https://tcpdump.cn/categories/%E5%B7%A5%E5%85%B7%E6%95%88%E7%8E%87/">工具效率</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E5%B7%A5%E5%85%B7%E6%95%88%E7%8E%87/">工具效率</category>
+      <category domain="https://tcpdump.cn/tags/%E5%B7%A5%E5%85%B7%E6%95%88%E7%8E%87/">工具效率</category>
       
       
-      <comments>https://www.tcpdump.cn/post/55249683.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/55249683.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>经典的 TCP 三次握手问题</title>
-      <link>https://www.tcpdump.cn/post/1335797944.html</link>
-      <guid>https://www.tcpdump.cn/post/1335797944.html</guid>
+      <link>https://tcpdump.cn/post/1335797944.html</link>
+      <guid>https://tcpdump.cn/post/1335797944.html</guid>
       <pubDate>Sat, 09 Apr 2022 11:38:34 GMT</pubDate>
       
       <description>TCP 的三次握手和四次挥手，可以说是老生常谈的经典问题了，通常也作为各大公司常见的面试考题，具有一定的水平区分度。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">网络协议</category>
+      <category domain="https://tcpdump.cn/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">网络协议</category>
       
-      <category domain="https://www.tcpdump.cn/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/%E9%9D%A2%E8%AF%95/">面试</category>
-      
-      
-      <category domain="https://www.tcpdump.cn/tags/TCP/">TCP</category>
-      
-      <category domain="https://www.tcpdump.cn/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">网络协议</category>
+      <category domain="https://tcpdump.cn/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/%E9%9D%A2%E8%AF%95/">面试</category>
       
       
-      <comments>https://www.tcpdump.cn/post/1335797944.html#disqus_thread</comments>
+      <category domain="https://tcpdump.cn/tags/TCP/">TCP</category>
+      
+      <category domain="https://tcpdump.cn/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">网络协议</category>
+      
+      
+      <comments>https://tcpdump.cn/post/1335797944.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>使用 openssl 操作证书的常见用法</title>
-      <link>https://www.tcpdump.cn/post/1717622242.html</link>
-      <guid>https://www.tcpdump.cn/post/1717622242.html</guid>
+      <link>https://tcpdump.cn/post/1717622242.html</link>
+      <guid>https://tcpdump.cn/post/1717622242.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:28:23 GMT</pubDate>
       
       <description>通过这几篇 openssl 签发证书的学习和实践，相信你一定能感受到 openssl 命令行的强大。它还有很多其它强大的功能，待我们取学习和发掘。本文的目标是总结 openssl 关于证书的常见操作和使用方法。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
       
-      <category domain="https://www.tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
+      <category domain="https://tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
       
       
-      <comments>https://www.tcpdump.cn/post/1717622242.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/1717622242.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>使用 openssl 签发证书最佳实践</title>
-      <link>https://www.tcpdump.cn/post/3142807446.html</link>
-      <guid>https://www.tcpdump.cn/post/3142807446.html</guid>
+      <link>https://tcpdump.cn/post/3142807446.html</link>
+      <guid>https://tcpdump.cn/post/3142807446.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:26:39 GMT</pubDate>
       
       <description>通过之前的文章，我们学习了如何使用 openssl 签发各种类型的证书。其中涉及很多概念，RSA 证书、ECC 证书、根 CA 证书、中间 CA 证书、证书链、自签名证书、证书扩展、SAN 证书。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
       
-      <category domain="https://www.tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
+      <category domain="https://tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
       
       
-      <comments>https://www.tcpdump.cn/post/3142807446.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/3142807446.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>使用 openssl 签发支持 SAN 证书</title>
-      <link>https://www.tcpdump.cn/post/1380760434.html</link>
-      <guid>https://www.tcpdump.cn/post/1380760434.html</guid>
+      <link>https://tcpdump.cn/post/1380760434.html</link>
+      <guid>https://tcpdump.cn/post/1380760434.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:23:40 GMT</pubDate>
       
       <description>在早期的 x509 证书中，每个证书包含一个域名，校验方使用证书 subject 属性的 *CN* 值，后来证书可以包括多个域名，校验的标准变更为判断证书的 SAN 扩展，该扩展可以包含多个域名。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
       
-      <category domain="https://www.tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
+      <category domain="https://tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
       
       
-      <comments>https://www.tcpdump.cn/post/1380760434.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/1380760434.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>使用 openssl 签发带扩展项 v3 证书</title>
-      <link>https://www.tcpdump.cn/post/261015374.html</link>
-      <guid>https://www.tcpdump.cn/post/261015374.html</guid>
+      <link>https://tcpdump.cn/post/261015374.html</link>
+      <guid>https://tcpdump.cn/post/261015374.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:20:37 GMT</pubDate>
       
       <description>之前我们创建的服务器证书，默认情况都是 v1 版本的证书。现在主流的证书版本是 v3，最重要的特性就是支持扩展。扩展的支持，除了能够灵活扩展新的功能外，最重要是可以严格控制证书的使用。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
       
-      <category domain="https://www.tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
+      <category domain="https://tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
       
       
-      <comments>https://www.tcpdump.cn/post/261015374.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/261015374.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>使用 openssl 签发多级 CA 的证书</title>
-      <link>https://www.tcpdump.cn/post/3934410168.html</link>
-      <guid>https://www.tcpdump.cn/post/3934410168.html</guid>
+      <link>https://tcpdump.cn/post/3934410168.html</link>
+      <guid>https://tcpdump.cn/post/3934410168.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:18:40 GMT</pubDate>
       
       <description>前边两篇文章中所签发的证书，都是使用根 CA 直接签发的。在实际生产环境中，证书一般都不是由根 CA 直接签发的，而是由中间 CA 机构进行签发。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
       
-      <category domain="https://www.tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
+      <category domain="https://tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
       
       
-      <comments>https://www.tcpdump.cn/post/3934410168.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/3934410168.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>使用 openssl 签发 ECC 证书</title>
-      <link>https://www.tcpdump.cn/post/2813878042.html</link>
-      <guid>https://www.tcpdump.cn/post/2813878042.html</guid>
+      <link>https://tcpdump.cn/post/2813878042.html</link>
+      <guid>https://tcpdump.cn/post/2813878042.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:16:25 GMT</pubDate>
       
       <description>ECC 是一种类似于 RSA 的非对称加密算法，它的优势是，可以使用更短的密钥达到更高的安全强度，再说简单点，就是 ECC 性能更好。数据显示，密钥长度为 224 的 ECC，安全强度相当于 RSA 的 2048 密钥强度。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
       
-      <category domain="https://www.tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
+      <category domain="https://tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
       
       
-      <comments>https://www.tcpdump.cn/post/2813878042.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/2813878042.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>使用 openssl 签发 RSA 证书</title>
-      <link>https://www.tcpdump.cn/post/3965235630.html</link>
-      <guid>https://www.tcpdump.cn/post/3965235630.html</guid>
+      <link>https://tcpdump.cn/post/3965235630.html</link>
+      <guid>https://tcpdump.cn/post/3965235630.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:13:38 GMT</pubDate>
       
       <description>上文中我们使用 openssl 生成了自签发证书，而实际应用或测试场景下，需要使用单独的 CA 来签发证书，更符合真实的流程。本文分享的内容就是，如何使用 openssl 签发根 CA 证书和 RSA 证书。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
       
-      <category domain="https://www.tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
+      <category domain="https://tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
       
       
-      <comments>https://www.tcpdump.cn/post/3965235630.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/3965235630.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>使用 openssl 创建自签名证书</title>
-      <link>https://www.tcpdump.cn/post/78358564.html</link>
-      <guid>https://www.tcpdump.cn/post/78358564.html</guid>
+      <link>https://tcpdump.cn/post/78358564.html</link>
+      <guid>https://tcpdump.cn/post/78358564.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:05:21 GMT</pubDate>
       
       <description>做开发的朋友，对 openssl 肯定都不陌生，功能非常强大，加密算法、摘要算法、密钥生成、证书管理、TLS 协议，无所不能。接下来的几篇文章，以如何使用 openssl 签发证书为主题，总结常见的用法。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
       
-      <category domain="https://www.tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
+      <category domain="https://tcpdump.cn/tags/%E7%AD%BE%E5%8F%91%E8%AF%81%E4%B9%A6/">签发证书</category>
       
       
-      <comments>https://www.tcpdump.cn/post/78358564.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/78358564.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>写给 Linux 初学者的一封信</title>
-      <link>https://www.tcpdump.cn/post/1111606992.html</link>
-      <guid>https://www.tcpdump.cn/post/1111606992.html</guid>
+      <link>https://tcpdump.cn/post/1111606992.html</link>
+      <guid>https://tcpdump.cn/post/1111606992.html</guid>
       <pubDate>Mon, 03 Jan 2022 13:51:37 GMT</pubDate>
       
       <description>这篇文章是写给 Linux 初学者的，我会分享一些作为初学者应该知道的一些东西，这些内容都是作者从事 Linux 开发工作多年的心得体会，相信会对初学者有所帮助。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/Linux%E5%9F%BA%E7%A1%80/">Linux基础</category>
+      <category domain="https://tcpdump.cn/categories/Linux%E5%9F%BA%E7%A1%80/">Linux基础</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/linux/">linux</category>
+      <category domain="https://tcpdump.cn/tags/linux/">linux</category>
       
       
-      <comments>https://www.tcpdump.cn/post/1111606992.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/1111606992.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 DPVS 邻居子系统的实现</title>
-      <link>https://www.tcpdump.cn/post/4205823097.html</link>
-      <guid>https://www.tcpdump.cn/post/4205823097.html</guid>
+      <link>https://tcpdump.cn/post/4205823097.html</link>
+      <guid>https://tcpdump.cn/post/4205823097.html</guid>
       <pubDate>Mon, 22 Nov 2021 05:35:34 GMT</pubDate>
       
       <description>数据包从服务器转发的下一跳，一般情况下是网关（路由器）或者是同网段目标服务器，数据包需要将目标 MAC 地址设置为下一跳网卡 MAC 地址。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/dpvs/">dpvs</category>
+      <category domain="https://tcpdump.cn/tags/dpvs/">dpvs</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E9%82%BB%E5%B1%85/">邻居</category>
+      <category domain="https://tcpdump.cn/tags/%E9%82%BB%E5%B1%85/">邻居</category>
       
       
-      <comments>https://www.tcpdump.cn/post/4205823097.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/4205823097.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 DPVS 路由子系统的实现</title>
-      <link>https://www.tcpdump.cn/post/3989527185.html</link>
-      <guid>https://www.tcpdump.cn/post/3989527185.html</guid>
+      <link>https://tcpdump.cn/post/3989527185.html</link>
+      <guid>https://tcpdump.cn/post/3989527185.html</guid>
       <pubDate>Wed, 20 Oct 2021 05:33:06 GMT</pubDate>
       
       <description>Linux 网络栈最重要的目标之一就是转发流量，尤其对核心路由器来说更是如此。Linux 路由子系统负责转发数据包和维护转发数据库。本篇文章先简单介绍 Linux 系统下路由系统，然后总结 DPVS 中路由模块的实现。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/dpvs/">dpvs</category>
+      <category domain="https://tcpdump.cn/tags/dpvs/">dpvs</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B7%AF%E7%94%B1/">路由</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B7%AF%E7%94%B1/">路由</category>
       
       
-      <comments>https://www.tcpdump.cn/post/3989527185.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/3989527185.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 DPVS SNAT 功能介绍</title>
-      <link>https://www.tcpdump.cn/post/2778281555.html</link>
-      <guid>https://www.tcpdump.cn/post/2778281555.html</guid>
+      <link>https://tcpdump.cn/post/2778281555.html</link>
+      <guid>https://tcpdump.cn/post/2778281555.html</guid>
       <pubDate>Sat, 18 Sep 2021 05:30:34 GMT</pubDate>
       
       <description>我们已经知道 DPVS 是一个基于 DPDK 的高性能负载均衡器，它能够支持 DR、FNAT、NAT 等工作模式。另外支持还能够支持 SNAT 功能，实现原理和 FNAT 很相似，因此也具备高性能的特点。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/dpvs/">dpvs</category>
+      <category domain="https://tcpdump.cn/tags/dpvs/">dpvs</category>
       
-      <category domain="https://www.tcpdump.cn/tags/snat/">snat</category>
+      <category domain="https://tcpdump.cn/tags/snat/">snat</category>
       
       
-      <comments>https://www.tcpdump.cn/post/2778281555.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/2778281555.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 LVS TOA 实现原理</title>
-      <link>https://www.tcpdump.cn/post/1229090889.html</link>
-      <guid>https://www.tcpdump.cn/post/1229090889.html</guid>
+      <link>https://tcpdump.cn/post/1229090889.html</link>
+      <guid>https://tcpdump.cn/post/1229090889.html</guid>
       <pubDate>Mon, 16 Aug 2021 05:25:18 GMT</pubDate>
       
       <description>我们知道 FullNat 模式的特点，比如跨机房、可运维性强等优势。不过会存在一个问题，在后端服务器上，应用程序能够获取到的请求源 IP 是 lvs 的 LocalIP，并不是真实客户端的 ClientIP。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/lvs/">lvs</category>
+      <category domain="https://tcpdump.cn/tags/lvs/">lvs</category>
       
-      <category domain="https://www.tcpdump.cn/tags/toa/">toa</category>
+      <category domain="https://tcpdump.cn/tags/toa/">toa</category>
       
       
-      <comments>https://www.tcpdump.cn/post/1229090889.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/1229090889.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 LVS 主流程代码分析</title>
-      <link>https://www.tcpdump.cn/post/3360290171.html</link>
-      <guid>https://www.tcpdump.cn/post/3360290171.html</guid>
+      <link>https://tcpdump.cn/post/3360290171.html</link>
+      <guid>https://tcpdump.cn/post/3360290171.html</guid>
       <pubDate>Wed, 14 Jul 2021 05:23:23 GMT</pubDate>
       
       <description>前边系统介绍了 lvs 的两个核心概念连接表和调度算法，它们是 lvs 的核心内容，是其实现的原理基础。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/lvs/">lvs</category>
+      <category domain="https://tcpdump.cn/tags/lvs/">lvs</category>
       
       
-      <comments>https://www.tcpdump.cn/post/3360290171.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/3360290171.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 LVS 调度算法</title>
-      <link>https://www.tcpdump.cn/post/522418658.html</link>
-      <guid>https://www.tcpdump.cn/post/522418658.html</guid>
+      <link>https://tcpdump.cn/post/522418658.html</link>
+      <guid>https://tcpdump.cn/post/522418658.html</guid>
       <pubDate>Sat, 12 Jun 2021 05:21:06 GMT</pubDate>
       
       <description>在前边简单总结了连接表相关的内容，连接表贯穿了 lvs 核心主流程，而这篇内容来介绍 lvs 的另一核心内容，就是调度算法。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/lvs/">lvs</category>
+      <category domain="https://tcpdump.cn/tags/lvs/">lvs</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/">调度算法</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95/">调度算法</category>
       
       
-      <comments>https://www.tcpdump.cn/post/522418658.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/522418658.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 LVS 连接表</title>
-      <link>https://www.tcpdump.cn/post/2126991808.html</link>
-      <guid>https://www.tcpdump.cn/post/2126991808.html</guid>
+      <link>https://tcpdump.cn/post/2126991808.html</link>
+      <guid>https://tcpdump.cn/post/2126991808.html</guid>
       <pubDate>Mon, 10 May 2021 05:15:39 GMT</pubDate>
       
       <description>&#39;前面几篇文章分别是基本介绍、基础原理、操作实践几个方面来介绍了负载均衡 LVS 的一些知识。后边会继续从代码层面分析 lvs 的实现原理和细节。&#39;</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/lvs/">lvs</category>
+      <category domain="https://tcpdump.cn/tags/lvs/">lvs</category>
       
       
-      <comments>https://www.tcpdump.cn/post/2126991808.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/2126991808.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 LVS 操作实践</title>
-      <link>https://www.tcpdump.cn/post/3671532823.html</link>
-      <guid>https://www.tcpdump.cn/post/3671532823.html</guid>
+      <link>https://tcpdump.cn/post/3671532823.html</link>
+      <guid>https://tcpdump.cn/post/3671532823.html</guid>
       <pubDate>Thu, 08 Apr 2021 05:11:25 GMT</pubDate>
       
       <description>通过之前的内容我们大概对 LVS 有了直观认识，理解了 LVS 的一些基本工作原理。这篇文章通过实践操作的方式，搭建实际测试环境，一步一步配置 LVS 的几种模式。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/lvs/">lvs</category>
+      <category domain="https://tcpdump.cn/tags/lvs/">lvs</category>
       
       
-      <comments>https://www.tcpdump.cn/post/3671532823.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/3671532823.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 LVS 基本原理</title>
-      <link>https://www.tcpdump.cn/post/1970613528.html</link>
-      <guid>https://www.tcpdump.cn/post/1970613528.html</guid>
+      <link>https://tcpdump.cn/post/1970613528.html</link>
+      <guid>https://tcpdump.cn/post/1970613528.html</guid>
       <pubDate>Sat, 06 Mar 2021 05:08:43 GMT</pubDate>
       
       <description>本文主要从内核数据包是如何流动的方向出发，来介绍负载均衡 LVS 的基本工作原理。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/lvs/">lvs</category>
+      <category domain="https://tcpdump.cn/tags/lvs/">lvs</category>
       
       
-      <comments>https://www.tcpdump.cn/post/1970613528.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/1970613528.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>负载均衡 LVS 基本介绍</title>
-      <link>https://www.tcpdump.cn/post/2589298645.html</link>
-      <guid>https://www.tcpdump.cn/post/2589298645.html</guid>
+      <link>https://tcpdump.cn/post/2589298645.html</link>
+      <guid>https://tcpdump.cn/post/2589298645.html</guid>
       <pubDate>Thu, 04 Feb 2021 04:58:45 GMT</pubDate>
       
       <description>负载均衡在高流量场景下，扮演着非常重要的角色，一般是处于企业流量的入口位置，重要性不言而喻。本文先从基本概念触发，带大家先理解负载均衡的基础概念、应用场景。这是一个系列文章，会围绕负载均衡的很多方面进行展开分享，欢迎大家关注和阅读。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/lvs/">lvs</category>
+      <category domain="https://tcpdump.cn/tags/lvs/">lvs</category>
       
       
-      <comments>https://www.tcpdump.cn/post/2589298645.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/2589298645.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>keepalived 快速入门介绍</title>
-      <link>https://www.tcpdump.cn/post/325553977.html</link>
-      <guid>https://www.tcpdump.cn/post/325553977.html</guid>
+      <link>https://tcpdump.cn/post/325553977.html</link>
+      <guid>https://tcpdump.cn/post/325553977.html</guid>
       <pubDate>Sat, 02 Jan 2021 04:47:56 GMT</pubDate>
       
       <description>这是一篇介绍 keepalived 的入门文章，从历史背景、应用场景、架构设计、实现原理等方面，深入浅出地讲解了 keepalived 是如何工作的。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
-      <category domain="https://www.tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://www.tcpdump.cn/tags/keepalived/">keepalived</category>
+      <category domain="https://tcpdump.cn/tags/keepalived/">keepalived</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
-      <category domain="https://www.tcpdump.cn/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/">高可用</category>
+      <category domain="https://tcpdump.cn/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/">高可用</category>
       
       
-      <comments>https://www.tcpdump.cn/post/325553977.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/325553977.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>留言板</title>
-      <link>https://www.tcpdump.cn/post/about.html</link>
-      <guid>https://www.tcpdump.cn/post/about.html</guid>
+      <link>https://tcpdump.cn/post/about.html</link>
+      <guid>https://tcpdump.cn/post/about.html</guid>
       <pubDate>Mon, 03 Jul 2017 03:51:24 GMT</pubDate>
       
       <description>肖邦Linux的小站，致力于分享一些技术教程和有趣的技术实践。</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E5%85%B3%E4%BA%8E%E6%88%91/">关于我</category>
+      <category domain="https://tcpdump.cn/tags/%E5%85%B3%E4%BA%8E%E6%88%91/">关于我</category>
       
       
-      <comments>https://www.tcpdump.cn/post/about.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/about.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>收藏优质资源</title>
-      <link>https://www.tcpdump.cn/post/fav.html</link>
-      <guid>https://www.tcpdump.cn/post/fav.html</guid>
+      <link>https://tcpdump.cn/post/fav.html</link>
+      <guid>https://tcpdump.cn/post/fav.html</guid>
       <pubDate>Mon, 03 Jul 2017 03:51:24 GMT</pubDate>
       
       <description>收藏优质资源</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E6%94%B6%E8%97%8F/">收藏</category>
+      <category domain="https://tcpdump.cn/tags/%E6%94%B6%E8%97%8F/">收藏</category>
       
       
-      <comments>https://www.tcpdump.cn/post/fav.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/fav.html#disqus_thread</comments>
       
     </item>
     
     <item>
       <title>友情链接</title>
-      <link>https://www.tcpdump.cn/post/link.html</link>
-      <guid>https://www.tcpdump.cn/post/link.html</guid>
+      <link>https://tcpdump.cn/post/link.html</link>
+      <guid>https://tcpdump.cn/post/link.html</guid>
       <pubDate>Mon, 03 Jul 2017 03:51:24 GMT</pubDate>
       
       <description>肖邦Linux的友情链接</description>
       
       
-      <enclosure url="https://www.tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
       
       
       
       
-      <category domain="https://www.tcpdump.cn/tags/%E5%8F%8B%E9%93%BE/">友链</category>
+      <category domain="https://tcpdump.cn/tags/%E5%8F%8B%E9%93%BE/">友链</category>
       
       
-      <comments>https://www.tcpdump.cn/post/link.html#disqus_thread</comments>
+      <comments>https://tcpdump.cn/post/link.html#disqus_thread</comments>
       
     </item>
     

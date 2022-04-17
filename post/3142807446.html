@@ -25,7 +25,7 @@
     
   </title>
 
-  <link rel="canonical" href="https://www.tcpdump.cn/post/3142807446.html">
+  <link rel="canonical" href="https://tcpdump.cn/post/3142807446.html">
   
 <link rel="stylesheet" href="/css/geektutu.css">
 
@@ -216,7 +216,7 @@
 </blockquote>
 <p>由于之前的文章是为了突出重点，说清楚具体某个特性或功能，每篇文章只涉及到了其中一部分内容，比较分散。本文分享的目的就是把这些特性和功能整合起来，形成完整的操作手册，便于读者查阅参考，也算是一篇 <em>使用 openssl 签发证书</em> 的最佳实践吧。</p>
 <h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>为了操作简单，使用 openssl 签发证书时，使用的所有配置都是 openss.cnf 文件，所以下边事先准备了一个非常完善的配置清单</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[ req ]</span></span><br><span class="line"><span class="attr">distinguished_name</span> = req_distinguished_name</span><br><span class="line"><span class="attr">prompt</span> = <span class="literal">no</span></span><br><span class="line"><span class="section">[ req_distinguished_name ]</span></span><br><span class="line"><span class="attr">C</span> = CN</span><br><span class="line"><span class="attr">ST</span> = BJ</span><br><span class="line"><span class="attr">L</span> = BJ</span><br><span class="line"><span class="attr">O</span> = DZ</span><br><span class="line"><span class="attr">OU</span> = C</span><br><span class="line"><span class="attr">CN</span> = rsa-root-ca</span><br><span class="line"><span class="section">[ v3_ca ]</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">true</span></span><br><span class="line"><span class="section">[ v3_ica ]</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">true</span>,pathlen:<span class="number">0</span></span><br><span class="line"><span class="attr">keyUsage</span> = critical,digitalSignature,cRLSign,keyCertSign</span><br><span class="line"><span class="section">[ v3_server ]</span></span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">false</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">keyUsage</span> = digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment</span><br><span class="line"><span class="attr">extendedKeyUsage</span> = serverAuth</span><br><span class="line"><span class="attr">subjectAltName</span> = @alt_names</span><br><span class="line"><span class="section">[ v3_client ]</span></span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">false</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">keyUsage</span> = digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment</span><br><span class="line"><span class="attr">extendedKeyUsage</span> = clientAuth</span><br><span class="line"><span class="attr">subjectAltName</span> = @alt_names</span><br><span class="line"><span class="section">[ alt_names ]</span></span><br><span class="line"><span class="attr">IP.1</span> = <span class="number">10.10</span>.<span class="number">10.10</span></span><br><span class="line"><span class="attr">IP.2</span> = <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line"><span class="attr">DNS.1</span> = www.tcpdump.cn</span><br><span class="line"><span class="attr">DNS.2</span> = *.tcpdump.cn</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[ req ]</span></span><br><span class="line"><span class="attr">distinguished_name</span> = req_distinguished_name</span><br><span class="line"><span class="attr">prompt</span> = <span class="literal">no</span></span><br><span class="line"><span class="section">[ req_distinguished_name ]</span></span><br><span class="line"><span class="attr">C</span> = CN</span><br><span class="line"><span class="attr">ST</span> = BJ</span><br><span class="line"><span class="attr">L</span> = BJ</span><br><span class="line"><span class="attr">O</span> = DZ</span><br><span class="line"><span class="attr">OU</span> = C</span><br><span class="line"><span class="attr">CN</span> = rsa-root-ca</span><br><span class="line"><span class="section">[ v3_ca ]</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">true</span></span><br><span class="line"><span class="section">[ v3_ica ]</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">true</span>,pathlen:<span class="number">0</span></span><br><span class="line"><span class="attr">keyUsage</span> = critical,digitalSignature,cRLSign,keyCertSign</span><br><span class="line"><span class="section">[ v3_server ]</span></span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">false</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">keyUsage</span> = digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment</span><br><span class="line"><span class="attr">extendedKeyUsage</span> = serverAuth</span><br><span class="line"><span class="attr">subjectAltName</span> = @alt_names</span><br><span class="line"><span class="section">[ v3_client ]</span></span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">false</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">keyUsage</span> = digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment</span><br><span class="line"><span class="attr">extendedKeyUsage</span> = clientAuth</span><br><span class="line"><span class="attr">subjectAltName</span> = @alt_names</span><br><span class="line"><span class="section">[ alt_names ]</span></span><br><span class="line"><span class="attr">IP.1</span> = <span class="number">10.10</span>.<span class="number">10.10</span></span><br><span class="line"><span class="attr">IP.2</span> = <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line"><span class="attr">DNS.1</span> = tcpdump.cn</span><br><span class="line"><span class="attr">DNS.2</span> = *.tcpdump.cn</span><br></pre></td></tr></table></figure>
 
 <h2 id="签发-RSA-证书"><a href="#签发-RSA-证书" class="headerlink" title="签发 RSA 证书"></a>签发 RSA 证书</h2><p>使用上述配置，签发 2048 的 RSA 证书，大概内容包括：根CA、中间CA、服务器证书、客户端证书</p>
 <p><strong>（一）根 CA 证书</strong></p>
@@ -226,7 +226,7 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/CN =.*/CN = rsa-inter-ca/&quot;</span> openssl.cnf</span><br><span class="line">$ openssl genrsa -out rsa-inter-ca.key 2048</span><br><span class="line">$ openssl req -new -sha256 -config openssl.cnf -key rsa-inter-ca.key -out rsa-inter-ca.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> rsa-inter-ca.csr -CA rsa-root-ca.pem -CAkey rsa-root-ca.key -out rsa-inter-ca.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile openssl.cnf -extensions v3_ica</span><br></pre></td></tr></table></figure>
 
 <p><strong>（三）服务器证书</strong></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/CN =.*/CN = www.tcpdump.cn/&quot;</span> openssl.cnf</span><br><span class="line">$ openssl genrsa -out rsa-server.key 2048</span><br><span class="line">$ openssl req -new -sha256 -config openssl.cnf -key rsa-server.key -out rsa-server.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> rsa-server.csr -CA rsa-inter-ca.pem -CAkey rsa-inter-ca.key -out rsa-server.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile openssl.cnf -extensions v3_server</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/CN =.*/CN = tcpdump.cn/&quot;</span> openssl.cnf</span><br><span class="line">$ openssl genrsa -out rsa-server.key 2048</span><br><span class="line">$ openssl req -new -sha256 -config openssl.cnf -key rsa-server.key -out rsa-server.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> rsa-server.csr -CA rsa-inter-ca.pem -CAkey rsa-inter-ca.key -out rsa-server.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile openssl.cnf -extensions v3_server</span><br></pre></td></tr></table></figure>
 
 <p><strong>（四）客户端证书</strong></p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/CN =.*/CN = myclient/&quot;</span> openssl.cnf</span><br><span class="line">$ openssl genrsa -out rsa-client.key 2048</span><br><span class="line">$ openssl req -new -sha256 -config openssl.cnf -key rsa-client.key -out rsa-client.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> rsa-client.csr -CA rsa-inter-ca.pem -CAkey rsa-inter-ca.key -out rsa-client.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile openssl.cnf -extensions v3_client</span><br></pre></td></tr></table></figure>
@@ -239,7 +239,7 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/CN =.*/CN = ecc-inter-ca/&quot;</span> openssl.cnf</span><br><span class="line">$ openssl ecparam -genkey -out ecc-inter-ca.key -name prime256v1</span><br><span class="line">$ openssl req -new -sha256 -config openssl.cnf -key ecc-inter-ca.key -out ecc-inter-ca.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> ecc-inter-ca.csr -CA ecc-root-ca.pem -CAkey ecc-root-ca.key -out ecc-inter-ca.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile openssl.cnf -extensions v3_ica</span><br></pre></td></tr></table></figure>
 
 <p><strong>（三）服务器证书</strong></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/CN =.*/CN = www.tcpdump.cn/&quot;</span> openssl.cnf</span><br><span class="line">$ openssl ecparam -genkey -out ecc-server.key -name prime256v1</span><br><span class="line">$ openssl req -new -sha256 -config openssl.cnf -key ecc-server.key -out ecc-server.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> ecc-server.csr -CA ecc-inter-ca.pem -CAkey ecc-inter-ca.key -out ecc-server.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile openssl.cnf -extensions v3_server</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/CN =.*/CN = tcpdump.cn/&quot;</span> openssl.cnf</span><br><span class="line">$ openssl ecparam -genkey -out ecc-server.key -name prime256v1</span><br><span class="line">$ openssl req -new -sha256 -config openssl.cnf -key ecc-server.key -out ecc-server.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> ecc-server.csr -CA ecc-inter-ca.pem -CAkey ecc-inter-ca.key -out ecc-server.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile openssl.cnf -extensions v3_server</span><br></pre></td></tr></table></figure>
 
 <p><strong>（四）客户端证书</strong></p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/CN =.*/CN = myclient/&quot;</span> openssl.cnf</span><br><span class="line">$ openssl ecparam -genkey -out ecc-client.key -name prime256v1</span><br><span class="line">$ openssl req -new -sha256 -config openssl.cnf -key ecc-client.key -out ecc-client.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> ecc-client.csr -CA ecc-inter-ca.pem -CAkey ecc-inter-ca.key -out ecc-client.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile openssl.cnf -extensions v3_client</span><br></pre></td></tr></table></figure>
@@ -264,13 +264,13 @@
             </p>
             
             <p>
-                <span>本文发表于 2022-04-08，最后修改于 2022-04-16。</span>
+                <span>本文发表于 2022-04-08，最后修改于 2022-04-17。</span>
             </p>
             <!-- 文章末尾的提示 start -->
             
             <p>
                 本站永久域名「 <a
-                        href="/post/3142807446.html">www.tcpdump.cn</a>
+                        href="/post/3142807446.html">tcpdump.cn</a>
                     」，也可搜索「 肖邦Linux 」找到我。
             </p>
             
@@ -431,7 +431,7 @@
     
     <a style="display:inline-block;" target="_blank" rel="noopener" href="https://github.com/chopin11" title="Github"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/github.png" /></a>
     
-    <a style="display:inline-block;" href="https://www.tcpdump.cn/feed.xml" title="RSS"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/rss.jpg" /></a>
+    <a style="display:inline-block;" href="https://tcpdump.cn/feed.xml" title="RSS"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/rss.jpg" /></a>
     
     <a style="display:inline-block;" target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie" title="知乎"><img style="padding:5px;width:30px;margin-left:0;transform:none;-webkit-transform:none;" src="/img/related_links/zhihu.png" /></a>
     
@@ -466,14 +466,14 @@
                 
                 
             </div>
-            <a href="/post/261015374.html" class="title">
-                使用 openssl 签发带扩展项 v3 证书
+            <a href="/post/3142807446.html" class="title">
+                使用 openssl 签发证书最佳实践
             </a>
             <p class="text-gray">
                 <small>
                     <span>发表于2022-04-08，</span>
-                    <span class="hidden-xs">全文6390字，</span>
-                    <span>阅读约22分钟</span>
+                    <span class="hidden-xs">全文5210字，</span>
+                    <span>阅读约18分钟</span>
                 </small>
             </p>
         </div>
@@ -503,14 +503,14 @@
                 
                 
             </div>
-            <a href="/post/78358564.html" class="title">
-                使用 openssl 创建自签名证书
+            <a href="/post/2813878042.html" class="title">
+                使用 openssl 签发 ECC 证书
             </a>
             <p class="text-gray">
                 <small>
                     <span>发表于2022-04-08，</span>
-                    <span class="hidden-xs">全文4042字，</span>
-                    <span>阅读约14分钟</span>
+                    <span class="hidden-xs">全文4291字，</span>
+                    <span>阅读约15分钟</span>
                 </small>
             </p>
         </div>
@@ -526,20 +526,28 @@
                 
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#linux"
-                    title="linux">linux</a>
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#调度算法"
+                    title="调度算法">调度算法</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/1111606992.html" class="title">
-                写给 Linux 初学者的一封信
+            <a href="/post/522418658.html" class="title">
+                负载均衡 LVS 调度算法
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2022-01-03，</span>
-                    <span class="hidden-xs">全文5425字，</span>
-                    <span>阅读约19分钟</span>
+                    <span>发表于2021-06-12，</span>
+                    <span class="hidden-xs">全文9501字，</span>
+                    <span>阅读约32分钟</span>
                 </small>
             </p>
         </div>
@@ -790,7 +798,7 @@
         
         <a target="_blank" rel="noopener" href="https://github.com/chopin11"><img src="/img/related_links/github.png" /></a>
         
-        <a href="https://www.tcpdump.cn/feed.xml"><img src="/img/related_links/rss.jpg" /></a>
+        <a href="https://tcpdump.cn/feed.xml"><img src="/img/related_links/rss.jpg" /></a>
         
         <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/gzdaijie"><img src="/img/related_links/zhihu.png" /></a>
         
