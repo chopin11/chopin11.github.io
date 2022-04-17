@@ -990,6 +990,8 @@ th {
   margin-bottom: 20px;
   font-size: 2em;
   border-bottom: 1px solid #eaecef;
+  border-bottom-style: dashed;
+  color: #00bfa5;
 }
 .markdown-it h2 {
   font-weight: bold;
@@ -1021,6 +1023,7 @@ th {
   border: 0;
   border-bottom: 1px solid #dfe2e5;
   width: 100%;
+  border-bottom-style: dashed;
 }
 .markdown-it hr::before {
   display: table;
@@ -1504,8 +1507,9 @@ main {
   margin-right: 6px;
 }
 .gkt-header-title {
+  font-weight: bold;
   font-size: 20px;
-  color: rgba(255,255,255,0.9);
+  color: #00bfa5;
 }
 .gkt-header-nav li {
   margin-bottom: 0;
@@ -1519,15 +1523,16 @@ main {
 .gkt-header-nav a {
   padding: 0 5px;
   font-size: 18px;
-  color: #b2bbbd;
-  fill: #b2bbbd;
+  color: #fff;
+  fill: #fff;
 }
 .gkt-cate-name>a {
   padding: 0 10px;
+  color: #fff;
 }
 .gkt-header a:hover,
 .gkt-cate-name.active>a {
-  color: #fff;
+  color: #459ae9;
 }
 .gkt-sub-cate {
   display: none;
