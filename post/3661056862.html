@@ -15,17 +15,17 @@
   <!-- if page has tags, then add tags to keyword -->
   
   
-  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,收藏,">
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,Go语言,切片,copy">
   <!-- page.description has higher priority -->
-  <meta name="description" content="收藏优质资源">
+  <meta name="description" content="今天要聊的是 Go 语言内置的 copy() 函数，它的主要作用是把源切片的元素拷贝至目标切片中。">
   <link rel="shortcut icon" href="/img/icon.png">
   <title>
     
-    收藏优质资源 | 肖邦Linux
+    Go语言内置函数copy复制切片 | 肖邦Linux
     
   </title>
 
-  <link rel="canonical" href="https://tcpdump.cn/post/fav.html">
+  <link rel="canonical" href="https://tcpdump.cn/post/3661056862.html">
   
 <link rel="stylesheet" href="/css/geektutu.css">
 
@@ -115,7 +115,7 @@
                     
                 </li>
                 
-                <li class="gkt-cate-name float-left ">
+                <li class="gkt-cate-name float-left active">
                     <a class="float-left" href="/post/3661056862.html">Go语言</a>
                     
                 </li>
@@ -157,41 +157,43 @@
 <div class="float-left post-container box-shadow">
     <div class="u-arrow-wrapper hidden-xs">
         
-        <a class="float-left" href="/post/link.html"><i class="u-arrow-left"></i></a>
+        <a class="float-left" href="/post/55249683.html"><i class="u-arrow-left"></i></a>
         
-        
-        <a class="float-right" href="/post/about.html"><i class="u-arrow-right"></i></a>
         
     </div>
     <article class="col-xs-12">
-        <h1> 收藏优质资源 </h1>
+        <h1> Go语言内置函数copy复制切片 </h1>
         
+        
+        <div class="hidden-lg hidden-md series_links">
+            <p> <strong> Go语言系列文章链接：</strong></p>
+            <ul>
+                
+                <li>
+                    <a href="/post/3661056862.html">Go语言内置函数copy复制切片</a>
+                    <span class="post-item-date">(Apr 22, 2022)</span>
+                </li>
+                
+            </ul>
+        </div>
         
         
         <div class="gkt-article-start"></div>
-        <style> article th:first-child { width: 160px; } </style>
+        <blockquote>
+<p>今天要聊的是 Go 语言内置的 <code>copy()</code> 函数，它的主要作用是把源切片的元素拷贝至目标切片中。</p>
+</blockquote>
+<p>起初只看函数的名称，本以为是一个通用的函数，可以拷贝常见的基本数据类型。实际上 <code>copy()</code> 函数只能用于切片的拷贝，有点小失望了。</p>
+<p>为什么会写这篇文章呢？今天在写 bug 时，要实现切片的拷贝，便查看官方文档发现 Go 本身就提供了拷贝函数。用法看似很简单，于是乎就用了起来，中间遇到了不少问题，跟自己臆想的不太一样，所以特来总结一下，希望看到文章的你少走一些弯路。</p>
+<p>我们从一些实验代码来边看边聊</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> s1 []<span class="type">string</span></span><br><span class="line">s2 := []<span class="type">string</span>&#123;<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>&#125;</span><br><span class="line"><span class="comment">// copy 函数很简单，第一个参数是目的切片，第二个参数是源切片</span></span><br><span class="line"><span class="comment">// s1是目的切片，s2是源切片，所以是要将s2拷贝s1</span></span><br><span class="line"><span class="built_in">copy</span>(s1, s2)</span><br><span class="line">fmt.Println(s1) <span class="comment">// 结果：[]</span></span><br></pre></td></tr></table></figure>
+<p>执行拷贝 <code>copy()</code> 函数后，s1 仍然为 <code>[]</code> 空切片。这是因为，切片 dst 需要先初始化长度，不是只定义类型就能将 s2 完全复制到 s1 中。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">s1 := <span class="built_in">make</span>([]<span class="type">string</span>, <span class="number">3</span>)</span><br><span class="line">s2 := []<span class="type">string</span>&#123;<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>&#125;</span><br><span class="line"><span class="built_in">copy</span>(s1, s2)</span><br><span class="line">fmt.Println(s1) <span class="comment">// 结果：[1 2 3]</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="优质博客"><a href="#优质博客" class="headerlink" title="优质博客"></a>优质博客</h2><table>
-<thead>
-<tr>
-<th>名称</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><a target="_blank" rel="noopener" href="https://coolshell.cn/">酷壳</a></td>
-<td>网名左耳朵耗子，陈皓老师</td>
-</tr>
-<tr>
-<td><a target="_blank" rel="noopener" href="https://geektutu.com/">极客兔兔</a></td>
-<td>致力于分享有趣的技术实践</td>
-</tr>
-<tr>
-<td><a target="_blank" rel="noopener" href="https://blog.golangstack.com/">Go语言-坤哥</a></td>
-<td>专注分享 Go 语言相关内容</td>
-</tr>
-</tbody></table>
-<br>
+<p>上边代码中，切片 s1 长度为 3，而源切片 s2 长度为 5，结果只拷贝到 s1 中 3 个元素。所以，如果目的切片长度小于源切片长度，<code>copy()</code> 只会拷贝部分元素。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">s2 := []<span class="type">string</span>&#123;<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>&#125;</span><br><span class="line">s1 := <span class="built_in">make</span>([]<span class="type">string</span>, <span class="built_in">len</span>(s2))</span><br><span class="line">ret := <span class="built_in">copy</span>(s1, s2)</span><br><span class="line">fmt.Printf(<span class="string">&quot;len = %d s1 = %+v\n&quot;</span>, ret, s1)</span><br><span class="line"><span class="comment">// 结果：len = 5 s1 = [1 2 3 4 5]</span></span><br></pre></td></tr></table></figure>
+
+<p>如果希望将 s2 完全拷贝到 s1 中，上述代码才是正确的拷贝姿势，<code>copy()</code> 函数会返回成功拷贝的元素的个数。</p>
+<p>两个切片的拷贝，其实通过循环复制切片元素也很简单，所以总感觉 <code>copy</code> 函数有些蹩脚，但使用起来总比自己实现要方便多了。</p>
 
         
 <script src="/js/qrious.min.js"></script>
@@ -201,13 +203,22 @@
         <div>
             
             <p>
-                <span>本文发表于 2017-07-03，最后修改于 2022-04-19。</span>
+                <span>专题: </span>
+                
+                <a href="/series/#Go语言">
+                    <code key="Go语言" class="post-label">Go语言</code>
+                </a>
+                
+            </p>
+            
+            <p>
+                <span>本文发表于 2022-04-22，最后修改于 2022-04-22。</span>
             </p>
             <!-- 文章末尾的提示 start -->
             
             <p>
                 本站永久域名「 <a
-                        href="/post/fav.html">tcpdump.cn</a>
+                        href="/post/3661056862.html">tcpdump.cn</a>
                     」，也可搜索「 肖邦Linux 」找到我。
             </p>
             
@@ -218,10 +229,8 @@
         <hr />
         <p name="pagination" style="font-size: 1.2em">
     
-    <a class="float-left" href="/post/link.html">上一篇 « 友情链接</a>
+    <a class="float-left" href="/post/55249683.html">上一篇 « 让浏览器快如飞的插件 vimium</a>
     
-    
-    <a class="float-right" href="/post/about.html">下一篇 » 留言板</a>
     
 </p>
     </article>
@@ -403,14 +412,14 @@
                 
                 
             </div>
-            <a href="/post/261015374.html" class="title">
-                使用 openssl 签发带扩展项 v3 证书
+            <a href="/post/3934410168.html" class="title">
+                使用 openssl 签发多级 CA 的证书
             </a>
             <p class="text-gray">
                 <small>
                     <span>发表于2022-04-08，</span>
-                    <span class="hidden-xs">全文6384字，</span>
-                    <span>阅读约22分钟</span>
+                    <span class="hidden-xs">全文4669字，</span>
+                    <span>阅读约16分钟</span>
                 </small>
             </p>
         </div>
@@ -426,20 +435,28 @@
                 
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#linux"
-                    title="linux">linux</a>
+                <a class="text-gray" href="/tags/#HTTPS"
+                    title="HTTPS">HTTPS</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#OPENSSL"
+                    title="OPENSSL">OPENSSL</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#签发证书"
+                    title="签发证书">签发证书</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/1111606992.html" class="title">
-                写给 Linux 初学者的一封信
+            <a href="/post/2813878042.html" class="title">
+                使用 openssl 签发 ECC 证书
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2022-01-03，</span>
-                    <span class="hidden-xs">全文5423字，</span>
-                    <span>阅读约19分钟</span>
+                    <span>发表于2022-04-08，</span>
+                    <span class="hidden-xs">全文4289字，</span>
+                    <span>阅读约15分钟</span>
                 </small>
             </p>
         </div>
@@ -453,30 +470,26 @@
             <div class="hidden-xs">
                 
                 
-                <span>/</span>
-                
-                <a class="text-gray" href="/tags/#负载均衡"
-                    title="负载均衡">负载均衡</a>
                 <span>/</span>
                 
                 <a class="text-gray" href="/tags/#dpvs"
                     title="dpvs">dpvs</a>
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#snat"
-                    title="snat">snat</a>
+                <a class="text-gray" href="/tags/#邻居"
+                    title="邻居">邻居</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/2778281555.html" class="title">
-                负载均衡 DPVS SNAT 功能介绍
+            <a href="/post/4205823097.html" class="title">
+                负载均衡 DPVS 邻居子系统的实现
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2021-09-18，</span>
-                    <span class="hidden-xs">全文7759字，</span>
-                    <span>阅读约26分钟</span>
+                    <span>发表于2021-11-22，</span>
+                    <span class="hidden-xs">全文5533字，</span>
+                    <span>阅读约19分钟</span>
                 </small>
             </p>
         </div>
@@ -573,6 +586,90 @@
     </div>
     <!-- 评论 -->
     
+    <div class="col-xs-12">
+        
+<div class="col-xs-12 padding-0">
+    <div id="gitalk-container">
+        <div class="gt-container text-center" style="margin-top: 50px;">
+            <button class="gt-btn gt-btn-public"><span class="gt-btn-text">去 Github 评论</span></button>
+        </div>
+    </div>
+    <div id="gitalk-related"></div>
+</div>
+
+<link rel="stylesheet" href="/css/gitalk.css">
+
+
+<script src="/js/gitalk.min.js"></script>
+
+<script>
+    window.addEventListener('load', function () {
+        function renderCommentUrl(data) {
+            var url = (data[window.location.pathname] || {}).url
+            url && getDom('#gitalk-container button').addEventListener('click', function (e) { window.open(url)})
+            url || (getDom('#gitalk-container').style.display = 'none')
+        }
+        const gitalk = new Gitalk({
+            clientID: '03fc618319525989f942',
+            clientSecret: '6c8d8f219e914bc85a22766f478f1b7dec6586d7',
+            accessToken: '',
+            repo: 'blog-comment',
+            owner: 'chopin11',
+            admin: ['chopin11'],
+            id: window.location.pathname,
+            distractionFreeMode: false
+        });
+        fetch("https://api.github.com/user").then(function(resp){
+            gitalk.render('gitalk-container');
+        }).catch(function(e){
+            fetch('/tool/issues.json').then(function (r) { return r.json() }).then(renderCommentUrl).catch(function (e) { })
+        })
+        getDom('#gitalk-container').addEventListener('click', function (e) {
+            e && e.stopPropagation && e.stopPropagation();
+        });
+    })
+</script>
+<script>
+    window.addEventListener('load', function () {
+        function render(comments) {
+            var template = '<a href="${comment.url}?utm_source=gitalk" class="dis-item-url"><h3 class="dis-item-title">${comment.title}</h3>' +
+                '<p class="dis-item-des">${comment.count} 评论 ● ${comment.date}</p>' +
+                '<div class="dis-item-content"><img class="dis-item-img" src="${comment.icon}" alt="icon"><p><b><span class="dis-item-user">${comment.user}</span></b>&nbsp;——&nbsp;${comment.body}</p></div>' +
+                '</a>'
+
+            var wrapper = getDom('#gitalk-related');
+            comments = shuffle(comments);
+            comments.slice(0, 4).forEach(function (c) {
+                var div = document.createElement('div');
+                div.classList.add('dis-item');
+                div.innerHTML = template.replace("${comment.url}", c.url)
+                    .replace("${comment.title}", c.title)
+                    .replace("${comment.count}", c.count)
+                    .replace("${comment.date}", c.date)
+                    .replace("${comment.icon}", c.icon)
+                    .replace("${comment.user}", c.user)
+                    .replace("${comment.body}", c.body)
+                wrapper.appendChild(div)
+            })
+            var p = document.createElement('p')
+            p.innerHTML = '<a target="_blank" rel="noopener" href="https://geektutu.com/post/blog-experience-7.html">Gitalk Plus</a>';
+            p.classList.add('dis-divide');
+            wrapper.appendChild(p);
+            wrapper.classList.add('dis-wrapper')
+        }
+        function shuffle(a) {
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+        fetch('/tool/comments.json').then(function (r) { return r.json() }).then(render).catch(function (e) { })
+    })
+</script>
+
+    </div>
+    
 </div>
 <aside class="float-left gkt-sidebar hidden-xs hidden-sm">
     <div style="clear: both"></div>
@@ -657,6 +754,62 @@
 </div></section>
         
         
+        <section class="gkt-sidebar-content box-shadow">
+            <strong>Go语言</strong>
+            <ul>
+                
+                <li>
+                    <a href="/post/3661056862.html"
+                        class="gkt-sidebar-active">Go语言内置函数copy复制切片</a>
+                    
+                    <!-- Table of Contents -->
+<div id="sidebar-toc">
+  <!-- TOC  -->
+  
+  
+</div>
+
+<script>
+  (function () {
+    var h2 = document.querySelectorAll('article h2');
+    var h3 = document.querySelectorAll('article h3');
+    var linkList = document.querySelectorAll('#sidebar-toc a');
+
+    function findLinkElement(name) {
+      for (var i = 0; i < linkList.length; i++) {
+        var items = linkList[i].href.split('#');
+        if (items && items[items.length - 1] === encodeURIComponent(name)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function activeLink(titleList) {
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      for (var i = titleList.length - 1; i >= 0; i--) {
+        if (scrollTop - titleList[i].offsetTop > 0) {
+          var index = findLinkElement(titleList[i].id);
+          index != -1 && linkList[index].classList.add('gkt-sidebar-active');
+          break;
+        }
+      }
+    }
+
+    window.addEventListener("scroll", function (e) {
+      [].slice.call(linkList).forEach(function (link) {
+        link.classList.remove('gkt-sidebar-active');
+      })
+      activeLink(h2);
+    })
+  })();
+</script>
+                    
+                </li>
+                
+            </ul>
+        </section>
+        
         
         <section class="gkt-sidebar-content box-shadow">
             <strong>最近的文章</strong>
@@ -672,34 +825,6 @@
                 
                 <li>
                     <a href="/post/1335797944.html">经典的 TCP 三次握手问题</a>
-                </li>
-                
-                <li>
-                    <a href="/post/1717622242.html">使用 openssl 操作证书的常见用法</a>
-                </li>
-                
-                <li>
-                    <a href="/post/3142807446.html">使用 openssl 签发证书最佳实践</a>
-                </li>
-                
-                <li>
-                    <a href="/post/1380760434.html">使用 openssl 签发支持 SAN 证书</a>
-                </li>
-                
-                <li>
-                    <a href="/post/261015374.html">使用 openssl 签发带扩展项 v3 证书</a>
-                </li>
-                
-                <li>
-                    <a href="/post/3934410168.html">使用 openssl 签发多级 CA 的证书</a>
-                </li>
-                
-                <li>
-                    <a href="/post/2813878042.html">使用 openssl 签发 ECC 证书</a>
-                </li>
-                
-                <li>
-                    <a href="/post/3965235630.html">使用 openssl 签发 RSA 证书</a>
                 </li>
                 
             </ul>
