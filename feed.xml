@@ -15,7 +15,7 @@
     <atom:link href="https://tcpdump.cn/feed.xml" rel="self" type="application/rss+xml"/>
     
     <description>肖邦Linux的博客，致力于分享一些技术教程和有趣的技术实践，包括但不限于 Go 语言/golang, Python, tensorflow, 分布式, 机器学习相关的内容。也可以通过搜索肖邦Linux,tcpdump 找到我。</description>
-    <pubDate>Thu, 21 Apr 2022 16:09:40 GMT</pubDate>
+    <pubDate>Thu, 21 Apr 2022 16:30:47 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
@@ -27,7 +27,7 @@
       <description>今天要聊的是 Go 语言内置的 copy() 函数，它的主要作用是把源切片的元素拷贝至目标切片中。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -50,7 +50,7 @@
       <description>Chrome 浏览器有很多好用的插件，如果能够运用的好的话，可以极大的提高工作效率。今天来推荐一个非常好用的插件，使用熟练之后，从此在 Chrome 浏览器上的绝大部分操作都不需要使用鼠标，让你键指如飞，实在是装逼的利器。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -73,7 +73,7 @@
       <description>TCP 的三次握手和四次挥手，可以说是老生常谈的经典问题了，通常也作为各大公司常见的面试考题，具有一定的水平区分度。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -100,7 +100,7 @@
       <description>通过这几篇 openssl 签发证书的学习和实践，相信你一定能感受到 openssl 命令行的强大。它还有很多其它强大的功能，待我们取学习和发掘。本文的目标是总结 openssl 关于证书的常见操作和使用方法。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -127,7 +127,7 @@
       <description>通过之前的文章，我们学习了如何使用 openssl 签发各种类型的证书。其中涉及很多概念，RSA 证书、ECC 证书、根 CA 证书、中间 CA 证书、证书链、自签名证书、证书扩展、SAN 证书。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -154,7 +154,7 @@
       <description>在早期的 x509 证书中，每个证书包含一个域名，校验方使用证书 subject 属性的 *CN* 值，后来证书可以包括多个域名，校验的标准变更为判断证书的 SAN 扩展，该扩展可以包含多个域名。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -181,7 +181,7 @@
       <description>之前我们创建的服务器证书，默认情况都是 v1 版本的证书。现在主流的证书版本是 v3，最重要的特性就是支持扩展。扩展的支持，除了能够灵活扩展新的功能外，最重要是可以严格控制证书的使用。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -208,7 +208,7 @@
       <description>前边两篇文章中所签发的证书，都是使用根 CA 直接签发的。在实际生产环境中，证书一般都不是由根 CA 直接签发的，而是由中间 CA 机构进行签发。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -235,7 +235,7 @@
       <description>ECC 是一种类似于 RSA 的非对称加密算法，它的优势是，可以使用更短的密钥达到更高的安全强度，再说简单点，就是 ECC 性能更好。数据显示，密钥长度为 224 的 ECC，安全强度相当于 RSA 的 2048 密钥强度。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -262,7 +262,7 @@
       <description>上文中我们使用 openssl 生成了自签发证书，而实际应用或测试场景下，需要使用单独的 CA 来签发证书，更符合真实的流程。本文分享的内容就是，如何使用 openssl 签发根 CA 证书和 RSA 证书。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -289,7 +289,7 @@
       <description>做开发的朋友，对 openssl 肯定都不陌生，功能非常强大，加密算法、摘要算法、密钥生成、证书管理、TLS 协议，无所不能。接下来的几篇文章，以如何使用 openssl 签发证书为主题，总结常见的用法。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -316,7 +316,7 @@
       <description>这篇文章是写给 Linux 初学者的，我会分享一些作为初学者应该知道的一些东西，这些内容都是作者从事 Linux 开发工作多年的心得体会，相信会对初学者有所帮助。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -339,7 +339,7 @@
       <description>数据包从服务器转发的下一跳，一般情况下是网关（路由器）或者是同网段目标服务器，数据包需要将目标 MAC 地址设置为下一跳网卡 MAC 地址。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -364,7 +364,7 @@
       <description>Linux 网络栈最重要的目标之一就是转发流量，尤其对核心路由器来说更是如此。Linux 路由子系统负责转发数据包和维护转发数据库。本篇文章先简单介绍 Linux 系统下路由系统，然后总结 DPVS 中路由模块的实现。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -389,7 +389,7 @@
       <description>我们已经知道 DPVS 是一个基于 DPDK 的高性能负载均衡器，它能够支持 DR、FNAT、NAT 等工作模式。另外支持还能够支持 SNAT 功能，实现原理和 FNAT 很相似，因此也具备高性能的特点。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -416,7 +416,7 @@
       <description>我们知道 FullNat 模式的特点，比如跨机房、可运维性强等优势。不过会存在一个问题，在后端服务器上，应用程序能够获取到的请求源 IP 是 lvs 的 LocalIP，并不是真实客户端的 ClientIP。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -443,7 +443,7 @@
       <description>前边系统介绍了 lvs 的两个核心概念连接表和调度算法，它们是 lvs 的核心内容，是其实现的原理基础。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -468,7 +468,7 @@
       <description>在前边简单总结了连接表相关的内容，连接表贯穿了 lvs 核心主流程，而这篇内容来介绍 lvs 的另一核心内容，就是调度算法。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -495,7 +495,7 @@
       <description>前面几篇文章分别是基本介绍、基础原理、操作实践几个方面来介绍了负载均衡 LVS 的一些知识。后边会继续从代码层面分析 lvs 的实现原理和细节。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -520,7 +520,7 @@
       <description>通过之前的内容我们大概对 LVS 有了直观认识，理解了 LVS 的一些基本工作原理。这篇文章通过实践操作的方式，搭建实际测试环境，一步一步配置 LVS 的几种模式。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -545,7 +545,7 @@
       <description>本文主要从内核数据包是如何流动的方向出发，来介绍负载均衡 LVS 的基本工作原理。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -570,7 +570,7 @@
       <description>负载均衡在高流量场景下，扮演着非常重要的角色，一般是处于企业流量的入口位置，重要性不言而喻。本文先从基本概念触发，带大家先理解负载均衡的基础概念、应用场景。这是一个系列文章，会围绕负载均衡的很多方面进行展开分享，欢迎大家关注和阅读。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -595,7 +595,7 @@
       <description>这是一篇介绍 keepalived 的入门文章，从历史背景、应用场景、架构设计、实现原理等方面，深入浅出地讲解了 keepalived 是如何工作的。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -622,7 +622,7 @@
       <description>肖邦Linux的小站，致力于分享一些技术教程和有趣的技术实践。</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -643,7 +643,7 @@
       <description>收藏优质资源</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
@@ -664,7 +664,7 @@
       <description>肖邦Linux的友情链接</description>
       
       
-      <enclosure url="https://tcpdump.cn/img/golang.jpg" type="image"/>
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
       
       
       
