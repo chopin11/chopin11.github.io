@@ -15,17 +15,17 @@
   <!-- if page has tags, then add tags to keyword -->
   
   
-  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,Go语言,切片,copy">
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,Go语言,math,随机数,crypto">
   <!-- page.description has higher priority -->
-  <meta name="description" content="今天要聊的是 Go 语言内置的 copy() 函数，它的主要作用是把源切片的元素拷贝至目标切片中。">
+  <meta name="description" content="在日常开发中，生成随机数是很常见的需求，Go 语言有两种方式来生成随机数，分别由 math/rand 和 crypo/rand 库来提供。">
   <link rel="shortcut icon" href="/img/icon.png">
   <title>
     
-    Go语言内置函数copy复制切片 | 肖邦Linux
+    Go语言生成随机数 | 肖邦Linux
     
   </title>
 
-  <link rel="canonical" href="https://tcpdump.cn/post/3661056862.html">
+  <link rel="canonical" href="https://tcpdump.cn/post/1955710861.html">
   
 <link rel="stylesheet" href="/css/geektutu.css">
 
@@ -157,14 +157,12 @@
 <div class="float-left post-container box-shadow">
     <div class="u-arrow-wrapper hidden-xs">
         
-        <a class="float-left" href="/post/55249683.html"><i class="u-arrow-left"></i></a>
+        <a class="float-left" href="/post/3661056862.html"><i class="u-arrow-left"></i></a>
         
-        
-        <a class="float-right" href="/post/1955710861.html"><i class="u-arrow-right"></i></a>
         
     </div>
     <article class="col-xs-12">
-        <h1> Go语言内置函数copy复制切片 </h1>
+        <h1> Go语言生成随机数 </h1>
         
         
         <div class="hidden-lg hidden-md series_links">
@@ -186,21 +184,26 @@
         
         
         <div class="gkt-article-start"></div>
-        <blockquote>
-<p>今天要聊的是 Go 语言内置的 <code>copy()</code> 函数，它的主要作用是把源切片的元素拷贝至目标切片中。</p>
-</blockquote>
-<p>起初只看函数的名称，本以为是一个通用的函数，可以拷贝常见的基本数据类型。实际上 <code>copy()</code> 函数只能用于切片的拷贝，有点小失望了。</p>
-<p>为什么会写这篇文章呢？今天在写 bug 时，要实现切片的拷贝，便查看官方文档发现 Go 本身就提供了拷贝函数。用法看似很简单，于是乎就用了起来，中间遇到了不少问题，跟自己臆想的不太一样，所以特来总结一下，希望看到文章的你少走一些弯路。</p>
-<p>我们从一些实验代码来边看边聊</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> s1 []<span class="type">string</span></span><br><span class="line">s2 := []<span class="type">string</span>&#123;<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>&#125;</span><br><span class="line"><span class="comment">// copy 函数很简单，第一个参数是目的切片，第二个参数是源切片</span></span><br><span class="line"><span class="comment">// s1是目的切片，s2是源切片，所以是要将s2拷贝s1</span></span><br><span class="line"><span class="built_in">copy</span>(s1, s2)</span><br><span class="line">fmt.Println(s1) <span class="comment">// 结果：[]</span></span><br></pre></td></tr></table></figure>
-<p>执行拷贝 <code>copy()</code> 函数后，s1 仍然为 <code>[]</code> 空切片。这是因为，切片 dst 需要先初始化长度，不是只定义类型就能将 s2 完全复制到 s1 中。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">s1 := <span class="built_in">make</span>([]<span class="type">string</span>, <span class="number">3</span>)</span><br><span class="line">s2 := []<span class="type">string</span>&#123;<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>&#125;</span><br><span class="line"><span class="built_in">copy</span>(s1, s2)</span><br><span class="line">fmt.Println(s1) <span class="comment">// 结果：[1 2 3]</span></span><br></pre></td></tr></table></figure>
+        <p>在日常开发中，生成随机数是很常见的需求，Go 语言有两种方式来生成随机数，分别由 <code>math/rand</code> 和 <code>crypo/rand</code> 库来提供。</p>
+<p>为什么会提供两种方式呢？其实两者是有区别的，<code>math</code> 提供的是伪随机数，生成的随机序列不是真正的随机；而 <code>crypo</code> 提供的随机数具有更好的随机性，可以满足密码对随机数的要求，但缺点是性能较差，据资料显示相差 10 倍左右。</p>
+<p><strong>（一）math/rand</strong></p>
+<p>伪随机数生成的随机数是确定的。相同的程序不管什么时间、在什么机器上执行，生成的随机数序列都是相同的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++ &#123;</span><br><span class="line">        fmt.Printf(<span class="string">&quot;%d &quot;</span>, rand.Intn(<span class="number">10</span>))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="number">1</span> <span class="number">7</span> <span class="number">7</span> <span class="number">9</span> <span class="number">1</span> <span class="number">8</span> <span class="number">5</span> <span class="number">0</span> <span class="number">6</span> <span class="number">0</span></span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="number">1</span> <span class="number">7</span> <span class="number">7</span> <span class="number">9</span> <span class="number">1</span> <span class="number">8</span> <span class="number">5</span> <span class="number">0</span> <span class="number">6</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
 
-<p>上边代码中，切片 s1 长度为 3，而源切片 s2 长度为 5，结果只拷贝到 s1 中 3 个元素。所以，如果目的切片长度小于源切片长度，<code>copy()</code> 只会拷贝部分元素。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">s2 := []<span class="type">string</span>&#123;<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>&#125;</span><br><span class="line">s1 := <span class="built_in">make</span>([]<span class="type">string</span>, <span class="built_in">len</span>(s2))</span><br><span class="line">ret := <span class="built_in">copy</span>(s1, s2)</span><br><span class="line">fmt.Printf(<span class="string">&quot;len = %d s1 = %+v\n&quot;</span>, ret, s1)</span><br><span class="line"><span class="comment">// 结果：len = 5 s1 = [1 2 3 4 5]</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，程序执行多次产生的随机数是一样的，不够随机。我们可以通过设置随机种子，也可以理解为随机函数增加参数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	rand.Seed(<span class="number">1009</span>)</span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++ &#123;</span><br><span class="line">        fmt.Printf(<span class="string">&quot;%d &quot;</span>, rand.Intn(<span class="number">10</span>))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="number">9</span> <span class="number">4</span> <span class="number">0</span> <span class="number">6</span> <span class="number">5</span> <span class="number">6</span> <span class="number">1</span> <span class="number">5</span> <span class="number">4</span> <span class="number">9</span></span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="number">9</span> <span class="number">4</span> <span class="number">0</span> <span class="number">6</span> <span class="number">5</span> <span class="number">6</span> <span class="number">1</span> <span class="number">5</span> <span class="number">4</span> <span class="number">9</span></span><br></pre></td></tr></table></figure>
 
-<p>如果希望将 s2 完全拷贝到 s1 中，上述代码才是正确的拷贝姿势，<code>copy()</code> 函数会返回成功拷贝的元素的个数。</p>
-<p>两个切片的拷贝，其实通过循环复制切片元素也很简单，所以总感觉 <code>copy</code> 函数有些蹩脚，但使用起来总比自己实现要方便多了。</p>
+<p>在生成随机数之前，调用 <code>Seed</code> 函数设置随机数种子，可以发现生成的随机数终于发生了变化。但重新执行程序时，生成的随机序列仍然是一样的。</p>
+<p>这里有个问题，只要 <code>Seed</code> 种子一样，每次程序启动都是按照一样的随机数去生成。为了更加随机，我们可以把种子设置为时间戳。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++ &#123;</span><br><span class="line">        fmt.Printf(<span class="string">&quot;%d &quot;</span>, rand.Intn(<span class="number">10</span>))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="number">2</span> <span class="number">4</span> <span class="number">2</span> <span class="number">8</span> <span class="number">5</span> <span class="number">7</span> <span class="number">0</span> <span class="number">0</span> <span class="number">4</span> <span class="number">0</span></span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span> </span><br><span class="line"><span class="number">2</span> <span class="number">1</span> <span class="number">9</span> <span class="number">2</span> <span class="number">7</span> <span class="number">3</span> <span class="number">0</span> <span class="number">1</span> <span class="number">4</span> <span class="number">8</span></span><br><span class="line">$ <span class="keyword">go</span> run main.<span class="keyword">go</span></span><br><span class="line"><span class="number">0</span> <span class="number">3</span> <span class="number">8</span> <span class="number">3</span> <span class="number">9</span> <span class="number">2</span> <span class="number">7</span> <span class="number">3</span> <span class="number">5</span> <span class="number">6</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到，基本上能够实现了随机数的生成，可以满足日常大多数工作需求。</p>
+<p><strong>（二）crypto/rand</strong></p>
+<p><code>crypto</code> 提供真正的随机数，能够实现更好的随机性，可以满足密码对随机数的要求，但缺点就是性能比较慢</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">   <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++  &#123;</span><br><span class="line">      n, _ := rand.Int(rand.Reader, big.NewInt(<span class="number">100</span>))</span><br><span class="line">      <span class="built_in">println</span>(n.Int64())</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上述代码，使用非常简单。据相关测试实验表明，跟 <code>math</code> 提供随机数性能相比，要差 10 倍左右。</p>
+<p>两者各有优缺点，需要根据实际需求来选择即可。对于涉及密码类的开发工作要选用 <code>crypto/rand</code>，对于不涉及密码类开发的工作，可以选择 <code>math/rand</code> 一般就能满足常规随机数的需求。</p>
 
         
 <script src="/js/qrious.min.js"></script>
@@ -219,13 +222,13 @@
             </p>
             
             <p>
-                <span>本文发表于 2022-04-22，最后修改于 2022-04-22。</span>
+                <span>本文发表于 2022-04-25，最后修改于 2022-04-25。</span>
             </p>
             <!-- 文章末尾的提示 start -->
             
             <p>
                 本站永久域名「 <a
-                        href="/post/3661056862.html">tcpdump.cn</a>
+                        href="/post/1955710861.html">tcpdump.cn</a>
                     」，也可搜索「 肖邦Linux 」找到我。
             </p>
             
@@ -236,10 +239,8 @@
         <hr />
         <p name="pagination" style="font-size: 1.2em">
     
-    <a class="float-left" href="/post/55249683.html">上一篇 « 让浏览器快如飞的插件 vimium</a>
+    <a class="float-left" href="/post/3661056862.html">上一篇 « Go语言内置函数copy复制切片</a>
     
-    
-    <a class="float-right" href="/post/1955710861.html">下一篇 » Go语言生成随机数</a>
     
 </p>
     </article>
@@ -422,14 +423,14 @@
                 
                 
             </div>
-            <a href="/post/3934410168.html" class="title">
-                使用 openssl 签发多级 CA 的证书
+            <a href="/post/261015374.html" class="title">
+                使用 openssl 签发带扩展项 v3 证书
             </a>
             <p class="text-gray">
                 <small>
                     <span>发表于2022-04-08，</span>
-                    <span class="hidden-xs">全文4725字，</span>
-                    <span>阅读约16分钟</span>
+                    <span class="hidden-xs">全文6440字，</span>
+                    <span>阅读约22分钟</span>
                 </small>
             </p>
         </div>
@@ -484,20 +485,24 @@
                 
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#友链"
-                    title="友链">友链</a>
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/link.html" class="title">
-                友情链接
+            <a href="/post/3360290171.html" class="title">
+                负载均衡 LVS 主流程代码分析
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2017-07-03，</span>
-                    <span class="hidden-xs">全文796字，</span>
-                    <span>阅读约3分钟</span>
+                    <span>发表于2021-07-14，</span>
+                    <span class="hidden-xs">全文14469字，</span>
+                    <span>阅读约49分钟</span>
                 </small>
             </p>
         </div>
@@ -768,7 +773,13 @@
                 
                 <li>
                     <a href="/post/3661056862.html"
-                        class="gkt-sidebar-active">Go语言内置函数copy复制切片</a>
+                        class="">Go语言内置函数copy复制切片</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1955710861.html"
+                        class="gkt-sidebar-active">Go语言生成随机数</a>
                     
                     <!-- Table of Contents -->
 <div id="sidebar-toc">
@@ -812,12 +823,6 @@
     })
   })();
 </script>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1955710861.html"
-                        class="">Go语言生成随机数</a>
                     
                 </li>
                 
