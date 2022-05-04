@@ -15,8 +15,77 @@
     <atom:link href="https://tcpdump.cn/feed.xml" rel="self" type="application/rss+xml"/>
     
     <description>肖邦Linux的博客，致力于分享一些技术教程和有趣的技术实践，包括但不限于 Go 语言/golang, Python, tensorflow, 分布式, 机器学习相关的内容。也可以通过搜索肖邦Linux,tcpdump 找到我。</description>
-    <pubDate>Mon, 25 Apr 2022 15:54:31 GMT</pubDate>
+    <pubDate>Wed, 04 May 2022 15:01:36 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>网络抓包工具tcpdump</title>
+      <link>https://tcpdump.cn/post/3661056863.html</link>
+      <guid>https://tcpdump.cn/post/3661056863.html</guid>
+      <pubDate>Wed, 04 May 2022 14:48:12 GMT</pubDate>
+      
+      <description>今天要分享的是 `tcpdump`，它是 Linux 系统中特别有用的网络工具，通常用于故障诊断、网络分析，功能非常的强大。</description>
+      
+      
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
+      
+      
+      
+      <category domain="https://tcpdump.cn/categories/%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/">网络管理</category>
+      
+      
+      <category domain="https://tcpdump.cn/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/">命令行</category>
+      
+      
+      <comments>https://tcpdump.cn/post/3661056863.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>Linux三剑客之grep</title>
+      <link>https://tcpdump.cn/post/570643816.html</link>
+      <guid>https://tcpdump.cn/post/570643816.html</guid>
+      <pubDate>Wed, 04 May 2022 14:46:12 GMT</pubDate>
+      
+      <description>我们在使用 Linux 系统中，grep 命令的使用尤为频繁，熟练掌握 grep 的常见用法，能够极大地提高你的工作效率。</description>
+      
+      
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
+      
+      
+      
+      <category domain="https://tcpdump.cn/categories/%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95/">文件目录</category>
+      
+      
+      <category domain="https://tcpdump.cn/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/">命令行</category>
+      
+      
+      <comments>https://tcpdump.cn/post/570643816.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>文件查找命令find</title>
+      <link>https://tcpdump.cn/post/968839864.html</link>
+      <guid>https://tcpdump.cn/post/968839864.html</guid>
+      <pubDate>Wed, 04 May 2022 14:44:12 GMT</pubDate>
+      
+      <description>在 Linux 系统使用中，作为一个管理员，我希望能查找系统中所有的大小超过 200M 文件，查看近 7 天系统中哪些文件被修改过，找出所有子目录中的可执行文件，这些任务需求 `find` 命令都可以轻松胜任。</description>
+      
+      
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
+      
+      
+      
+      <category domain="https://tcpdump.cn/categories/%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95/">文件目录</category>
+      
+      
+      <category domain="https://tcpdump.cn/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/">命令行</category>
+      
+      
+      <comments>https://tcpdump.cn/post/968839864.html#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>Go语言生成随机数</title>

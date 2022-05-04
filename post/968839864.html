@@ -15,17 +15,17 @@
   <!-- if page has tags, then add tags to keyword -->
   
   
-  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,TCP,网络协议,面试">
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,命令行,find,Linux">
   <!-- page.description has higher priority -->
-  <meta name="description" content="TCP 的三次握手和四次挥手，可以说是老生常谈的经典问题了，通常也作为各大公司常见的面试考题，具有一定的水平区分度。">
+  <meta name="description" content="在 Linux 系统使用中，作为一个管理员，我希望能查找系统中所有的大小超过 200M 文件，查看近 7 天系统中哪些文件被修改过，找出所有子目录中的可执行文件，这些任务需求 `find` 命令都可以轻松胜任。">
   <link rel="shortcut icon" href="/img/icon.png">
   <title>
     
-    经典的 TCP 三次握手问题 | 肖邦Linux
+    文件查找命令find | 肖邦Linux
     
   </title>
 
-  <link rel="canonical" href="https://tcpdump.cn/post/1335797944.html">
+  <link rel="canonical" href="https://tcpdump.cn/post/968839864.html">
   
 <link rel="stylesheet" href="/css/geektutu.css">
 
@@ -120,12 +120,12 @@
                     
                 </li>
                 
-                <li class="gkt-cate-name float-left ">
+                <li class="gkt-cate-name float-left active">
                     <a class="float-left" href="/post/968839864.html">Linux命令 ▾</a>
                     
                     <ul class="gkt-sub-cate">
                         
-                        <li class="gkt-sub-cate-name "><a class="float-left"
+                        <li class="gkt-sub-cate-name active"><a class="float-left"
                                 href="/post/968839864.html">文件目录</a></li>
                         
                         <li class="gkt-sub-cate-name "><a class="float-left"
@@ -172,23 +172,28 @@
 <div class="float-left post-container box-shadow">
     <div class="u-arrow-wrapper hidden-xs">
         
-        <a class="float-left" href="/post/1717622242.html"><i class="u-arrow-left"></i></a>
+        <a class="float-left" href="/post/1955710861.html"><i class="u-arrow-left"></i></a>
         
         
-        <a class="float-right" href="/post/55249683.html"><i class="u-arrow-right"></i></a>
+        <a class="float-right" href="/post/570643816.html"><i class="u-arrow-right"></i></a>
         
     </div>
     <article class="col-xs-12">
-        <h1> 经典的 TCP 三次握手问题 </h1>
+        <h1> 文件查找命令find </h1>
         
         
         <div class="hidden-lg hidden-md series_links">
-            <p> <strong> 网络协议系列文章链接：</strong></p>
+            <p> <strong> 文件目录系列文章链接：</strong></p>
             <ul>
                 
                 <li>
-                    <a href="/post/1335797944.html">经典的 TCP 三次握手问题</a>
-                    <span class="post-item-date">(Apr 9, 2022)</span>
+                    <a href="/post/968839864.html">文件查找命令find</a>
+                    <span class="post-item-date">(May 4, 2022)</span>
+                </li>
+                
+                <li>
+                    <a href="/post/570643816.html">Linux三剑客之grep</a>
+                    <span class="post-item-date">(May 4, 2022)</span>
                 </li>
                 
             </ul>
@@ -196,116 +201,176 @@
         
         
         <div class="gkt-article-start"></div>
-        <blockquote>
-<p>TCP 的三次握手和四次挥手，可以说是老生常谈的经典问题了，通常也作为各大公司常见的面试考题，具有一定的水平区分度。看似是简单的面试问题，如果你的回答不符合面试官期待的水准，有可能就直接凉凉了。</p>
-</blockquote>
-<p>本文会围绕，三次握手和四次挥手相关的一些列核心问题，分享如何更准确的回答和应对常见的面试问题，以后面对再刁钻的面试官，你都可以随意地跟他扯皮了。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/tcp-000.png"></p>
-<h2 id="面试TCP的意义"><a href="#面试TCP的意义" class="headerlink" title="面试TCP的意义"></a>面试TCP的意义</h2><p>我想要先说明一个重要问题，到底面试 TCP 的意义何在？</p>
-<p>经常会听到这样抱怨：我是做业务程序开发的，面试官竟然问我 TCP 三次握手、TCP 拥塞控制的问题，还问的这么细致？</p>
-<p>这些同学会觉着面试官是闲的淡疼，或是故意刁难候选人，更有同学认为面试官是为了防止自己技术退步拿来练手的，这种想法我也是醉了。</p>
-<p>当然，不同人对此可能会有不同的想法，但我们技术人应该以积极的心态来理解和面对这个问题，在我看来面试 TCP 有重要的意义：</p>
-<p><em>1.</em> 从面试官的角度，可以快速考察候选人对基础知识的掌握程度，以及候选人对待技术的那种知其所以然的态度。</p>
-<p><em>2.</em> 从求职者的角度，即使工作内容中没有直接用到 TCP 协议，但在遇到网络故障，调试和分析问题时，熟悉 TCP 显得十分重要，要不抓包都看不懂。</p>
-<p><em>3.</em> 从学习的角度，我们可以学习 TCP 的设计理念，比如 TCP 重传、拥塞控制，以及如何在性能和原理之间做权衡和取舍的，举一反三，将这些原理细节应用到我们平时的软件设计上，也是一种思维上的学习成长。</p>
-<p><em>4.</em> 如果想要调整 TCP 参数来提升传输速度，可服务器上相关的系统参数有几十个，究竟该怎么调整呢？</p>
-<p><em>5.</em> 在服务器本地的 TCP 连接状态出现了类似 <code>fin_wait</code>、<code>time_wait</code>，该怎么解决，是什么原因引起的？如果不懂 TCP，即使别人告诉你解决方案，你也不能够真正理解的。</p>
-<p>所以，我们非常有必要认真学习 TCP 协议，对 TCP 熟悉程度，在某种意义上也是你与别人拉开距离的重要标识。</p>
-<h2 id="TCP-基础"><a href="#TCP-基础" class="headerlink" title="TCP 基础"></a>TCP 基础</h2><p>这里先帮小伙伴们熟悉和回顾下 TCP 的基本概念，以至于能够更好的理解文章后边的内容。</p>
-<p>TCP 其实是非常复杂的协议，我们先聊一些基础的。我们知道 TCP 是一种可靠的协议，它主要通过解决这几个问题来实现可靠性的，分别是：乱序、丢包重传、流控、拥塞控制。通过从图中报文格式的字段，也能够简单了解到 TCP 的相关概念。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/tcp-001.jpg"></p>
+        <p>在 Linux 系统使用中，作为一个管理员，我希望能查找系统中所有的大小超过 200M 文件，查看近 7 天系统中哪些文件被修改过，找出所有子目录中的可执行文件，这些任务需求 <code>find</code> 命令都可以轻松胜任。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/find-002.jpg"></p>
+<p>在 Linux 系统文件中常用的属性可以分为以下内容：名称、大小、权限、属主、修改时间、访问时间等，find 命令可以按照指定的属性为条件进行查找。</p>
+<p>废话不多，直接开干，下边进入案例实战。</p>
+<h2 id="案例实战"><a href="#案例实战" class="headerlink" title="案例实战"></a>案例实战</h2><p><strong>（一）按文件名称查找</strong></p>
+<p>按照文件名称查找是 find 最常见的用法，需要注意的是，搜索的文件名必须完全匹配，才能找到对应的文件。</p>
+<p><em>1.</em> 查找当前目录下所有 go 文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -name <span class="string">&quot;*.go&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><em>2.</em> 在 etc 目录下，查找大写字母开头的 txt 文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find /etc -name <span class="string">&quot;[A-Z]*.txt&quot;</span> -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>3.</em> 在当前目录下查找不是 out 开头的 txt 文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -name <span class="string">&quot;out*&quot;</span> -prune -o -name <span class="string">&quot;*.txt&quot;</span> -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>4.</em> 在当前目录除 git 子目录外查找 txt 文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -path <span class="string">&quot;./git&quot;</span> -prune -o -name <span class="string">&quot;*.txt&quot;</span> -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>5.</em> 找出某个文件的所有硬链接，ls 命令 <code>-i</code> 选项可以查看文件的 inode 号</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> -i 1.txt</span><br><span class="line">138956 1.txt</span><br><span class="line">$ find . -num 138956</span><br></pre></td></tr></table></figure>
+
+<p>这里补充一个小技巧，搜索文件时使用 <code>-iname</code> 参数可以忽略文件名称大小写</p>
+<p><strong>（二）按文件类型查找</strong></p>
+<p><em>1.</em> 在当前目录下，查找软连接文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -<span class="built_in">type</span> l -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>2.</em> 在当前目录下，查找 log 结尾的普通文件，<code>f</code> 表示普通文件类型</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -<span class="built_in">type</span> f -name <span class="string">&quot;*.log&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（三）按文件大小查找</strong></p>
+<p><em>1.</em> 查找小于 64k 的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -size -64k -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>2.</em> 查找大小超过 200M 的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -size +200M -<span class="built_in">type</span> f -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（四）按时间查找</strong></p>
+<p><em>1.</em> 查找 2 天内被修改过的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -mtime -2 -<span class="built_in">type</span> f -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>2.</em> 查找 2 天前被更改过的文件，<code>-mtime</code> 表示内容修改时间</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -mtime +2 -<span class="built_in">type</span> f -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>3.</em> 查找一天内被访问的文件，<code>-atime</code> 表示访问时间</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -atime -1 -<span class="built_in">type</span> f -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>4.</em> 查找一天内状态被改变的文件，<code>-ctime</code> 表示元数据被变化时间</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -ctime -1 -<span class="built_in">type</span> f -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>5.</em> 查找比 chopin.txt 新的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ find . -newer <span class="string">&quot;chopin.txt&quot;</span> -<span class="built_in">type</span> f -<span class="built_in">print</span></span><br><span class="line">$ find . ! -newer <span class="string">&quot;chopin.txt&quot;</span> -<span class="built_in">type</span> f -<span class="built_in">print</span> <span class="comment"># 旧</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（五）根据权限查找</strong></p>
+<p><em>1.</em> 查找当前目录权限为 <code>644</code> 的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -<span class="built_in">type</span> f -perm 644</span><br></pre></td></tr></table></figure>
+
+<p><em>2.</em> 查找 etc 目录下至少有一个用户有写权限的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find /etc -<span class="built_in">type</span> f -perm /222</span><br></pre></td></tr></table></figure>
+
+<p><em>3.</em> 查找 etc 目录下所有用户都有执行权限的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find /etc -perm -111 -<span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>（六）组合条件</strong></p>
+<p><em>1.</em> 查找当前目录下属于 chopin 用户的普通文件，<code>-a</code> 可以省略</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -<span class="built_in">type</span> f -a -user chopin -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>2.</em> 查找当前目录下大于 2M 或 2 天前被修过的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -size +2M -o -mtime +2 -<span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+
+<p><em>3.</em> 查找当前目录下不是普通文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ find . -not -<span class="built_in">type</span> f</span><br><span class="line">$ find . ! -<span class="built_in">type</span> f</span><br></pre></td></tr></table></figure>
+
+<p><em>4.</em> 查找非空文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . ! -empty</span><br></pre></td></tr></table></figure>
+
+<p><strong>（七）处理动作</strong></p>
+<p>find 根据上述各种条件查找后，支持执行相关的处理动作，可以让我们的更方便和灵活，而不只是打印出来</p>
+<p><em>1.</em> <code>-print</code> 默认为打印，可省略</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ find . -name <span class="string">&quot;*.log&quot;</span> -<span class="built_in">print</span></span><br><span class="line">$ find . -name <span class="string">&quot;*.log&quot;</span> <span class="comment"># 等价</span></span><br></pre></td></tr></table></figure>
+
+<p><em>2.</em> <code>-ls</code> 以 ls 长文件的格式形式输出</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ find . -name <span class="string">&quot;*.txt&quot;</span> -<span class="built_in">ls</span></span><br><span class="line">138957      4 -rw-r--r--   1 root     root           16 Jan 24 23:20 ./a.txt</span><br><span class="line">138959      4 -rw-r--r--   1 root     root          172 Jan 24 13:06 ./T.txt</span><br><span class="line">138956      4 -rw-r--r--   1 root     root           27 Jan 24 23:28 ./1.txt</span><br></pre></td></tr></table></figure>
+
+<p><em>3.</em> <code>-delete</code> 删除查找到的文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ find . -size +100M -delete</span><br></pre></td></tr></table></figure>
+
+<p><em>4.</em> <code>-exec</code> 将查找到的文件传递给 command 命令。下边例子是将查找到的文件传递给了 ls 命令，同理我们可以传递给任何一个 Linux 命令，功能十分强大，也很灵活。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ find . -name <span class="string">&quot;*.txt&quot;</span> -<span class="built_in">exec</span> <span class="built_in">ls</span> -lh &#123;&#125; \;</span><br><span class="line">-rw-r--r-- 1 root root 16 Jan 24 23:20 ./a.txt</span><br><span class="line">-rw-r--r-- 1 root root 172 Jan 24 13:06 ./T.txt</span><br><span class="line">-rw-r--r-- 1 root root 27 Jan 24 23:28 ./1.txt</span><br></pre></td></tr></table></figure>
+
+<p><em>5.</em> <code>-ok</code> 与 <code>-exec</code> 功能一样，只是操作时会提示用户确认，仅此而已。当然，在生产环境上，我们还是推荐使用 <code>ok</code> </p>
+<p><strong>（八）经典案例</strong></p>
+<p>如果存在一个名称乱码的文件，想要删除它，该怎么办？即使我们复制乱码名称到命令行，很有可能终端不能正确识别。不用担心，下边来展示下 find 是如何优雅的解决问题的。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ls</span>  -i</span><br><span class="line">138957 a.txt  138959 T.txt  132395 ڹ��.txt</span><br><span class="line"></span><br><span class="line">$ find . -inum 132395 -<span class="built_in">exec</span> <span class="built_in">rm</span> &#123;&#125; \;</span><br></pre></td></tr></table></figure>
+
+<p>命令中，<code>-inum</code> 指定的是文件的 <code>inode</code> 号，它是系统中每个文件对应的唯一编号，find 通过编号找到后，执行删除操作。</p>
+<h2 id="总结归纳"><a href="#总结归纳" class="headerlink" title="总结归纳"></a>总结归纳</h2><p><code>find</code> 命令是 Linux 命令中最有用的命令之一，它的功能非常强大，且语法复杂。其实我们不一定需要了解它的所有细节，掌握上述实战案例中的常见用法，足够满足日常工作中的大部分需求。</p>
+<p>下边我们一起来总结下 find 命令常见用法，加深对 find 使用方法的理解。</p>
+<p><strong>命令格式</strong></p>
+<p><code>find path -option [-exec ...]</code></p>
+<p><strong>按文件名查找</strong></p>
 <ul>
-<li>TCP 在网络 OSI 七层模型中的第四层，TCP 包是没有 IP 地址的，但有源端口和目的端口，用来标识通信的进程。</li>
-<li><code>Sequence Number</code> 是记录包的序号，TCP 会按照报文字节进行编号，它是用来解决包在网络中乱序的问题。</li>
-<li><code>Acknowledgement Number</code> 确认序列号，是用于向发送方确认已经收到了哪些包，用来解决不丢包的问题。</li>
-<li><code>Windows</code> 也叫 <code>Advertised-Windows</code>，也就是著名的滑动窗口，主要是用来解决流控的。</li>
-<li><code>TCP Flag</code> 就是包的类型，主要是用于操控 TCP 状态机的。</li>
+<li><code>-name</code>：按照文件名称查找，准确匹配；</li>
+<li><code>-iname</code>：不区分文件名的大小写；</li>
+<li><code>-inode</code>：按照文件 inode 号查找；</li>
 </ul>
-<h2 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h2><p><strong>三次握手</strong>是各个公司常见的面试考点。以过来人经验来讲，虽然该问题看似简单，但你还真不一定能够回答的好。</p>
-<p>见过比较典型面试问答场景：</p>
-<blockquote>
-<p><em>面试官</em>：请描述一下三次握手的过程吧<br><em>求职者</em>：第一次客户端给服务端发送一个报文，第二次是服务器收到包之后，也给客户端应答一个报文，第三次是客户端再给服务器发送一个回复报文，TCP 三次握手成功。<br><em>面试官</em>：还有吗？<br><em>求职者</em>：说完了哈，这就是三次握手，很简单的<br><em>面试官</em>：嗯，我没什么问的了，你还有什么问题吗？</p>
-</blockquote>
-<p>这时求职者紧张的心终于平静了，因为面试官没有深入下去的意思，继续问下去可能也不懂，皆大欢喜！当然本次面试基本上也就 <code>game over</code>了。</p>
-<p>求职者回答的不正确么？正确，但是回答的过于简单，离面试官的期望的答案还有一定的距离，我们该怎么回答呢？</p>
-<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/tcp-002.png"></p>
-<p>TCP 三次握手，其实就是建立一个 TCP 连接，客户端与服务器交互需要 3 个数据包。握手的主要作用就是为了确认双方的接收和发送能力是否正常，初始序列号，交换窗口大小以及 MSS 等信息。</p>
+<p><strong>按照文件类型查找</strong></p>
+<p>按照文件类型查找，可以使用 <code>-type</code> 选项，具体支持的文件类型如下：</p>
 <ul>
-<li>第一次握手：客户端发送 <code>SYN</code> 报文，并进入 <code>SYN_SENT</code> 状态，等待服务器的确认；</li>
-<li>第二次握手：服务器收到 <code>SYN</code> 报文，需要给客户端发送 <code>ACK</code> 确认报文，同时服务器也要向客户端发送一个 <code>SYN</code> 报文，所以也就是向客户端发送 <code>SYN + ACK</code> 报文，此时服务器进入 <code>SYN_RCVD</code> 状态；</li>
-<li>第三次握手：客户端收到 <code>SYN + ACK</code> 报文，向服务器发送确认包，客户端进入 <code>ESTABLISHED</code> 状态。待服务器收到客户端发送的 <code>ACK</code> 包也会进入 <code>ESTABLISHED</code> 状态，完成三次握手。</li>
+<li><code>f</code>：普通文件</li>
+<li><code>d</code>：目录文件</li>
+<li><code>l</code>：链接文件</li>
+<li><code>s</code>：套接字文件</li>
+<li><code>p</code>：管道文件</li>
+<li><code>b</code>：块设备文件，比如：磁盘</li>
+<li><code>c</code>：字符设备文件，比如：键盘、鼠标、网卡</li>
 </ul>
-<p>我们回答时，可以先简单概述 TCP 过程，然后三次握手具体描述时，需要说明状态的基本转换。</p>
-<p>TCP 三次握手，其实就是 TCP 应用在发送数据前，通过 TCP 协议跟通信对方协商好连接信息，建立起TCP的连接关系。</p>
-<p>我们需要知道，TCP 连接并非是在通信设备两端之间建立信号隧道，而本质上就是双方各自维护所需的状态状态，以达到 TCP 连接的效果。所以 TCP 状态机是 TCP 的核心内容，学习 TCP 一定要搞懂这些状态机之间的转换。</p>
-<h2 id="二次握手可以吗"><a href="#二次握手可以吗" class="headerlink" title="二次握手可以吗"></a>二次握手可以吗</h2><blockquote>
-<p>问：为什么 TCP 采用三次握手，二次握手可以吗？</p>
-</blockquote>
-<p>我们可以从几个方面来解释：</p>
-<p><strong>（一）确认双方的收发能力</strong></p>
-<p>TCP 建立连接之前，需要确认客户端与服务器双方的收包和发包的能力。</p>
-<p><em>1.</em> 第一次握手：客户端发送网络包，服务端收到了。这样服务端就能得出结论：客户端的发送能力、服务端的接收能力是正常的。</p>
-<p><em>2.</em> 第二次握手：服务端发包，客户端收到了。这样客户端就能得出结论：服务端的接收、发送能力，客户端的接收、发送能力是正常的。不过此时服务器并不能确认客户端的接收能力是否正常。</p>
-<p><em>3.</em> 第三次握手：客户端发包，服务端收到了。这样服务端就能得出结论：客户端的接收、发送能力正常，服务器自己的发送、接收能力也正常。</p>
-<p>所以，只有三次握手才能确认双方的接收与发送能力是否正常。 </p>
-<p><strong>（二）序列号可靠同步</strong></p>
-<p>如果是两次握手，服务端无法确定客户端是否已经接收到了自己发送的初始序列号，如果第二次握手报文丢失，那么客户端就无法知道服务端的初始序列号，那 TCP 的可靠性就无从谈起。</p>
-<p><strong>（三）阻止重复历史连接的初始化</strong></p>
-<p>客户端由于某种原因发送了两个不同序号的 <code>SYN</code> 包，我们知道网络环境是复杂的，旧的数据包有可能先到达服务器。如果是两次握手，服务器收到旧的 <code>SYN</code> 就会立刻建立连接，那么会造成网络异常。</p>
-<p>如果是三次握手，服务器需要回复 <code>SYN+ACK</code> 包，客户端会对比应答的序号，如果发现是旧的报文，就会给服务器发 <code>RST</code> 报文，直到正常的 <code>SYN</code> 到达服务器后才正常建立连接。</p>
-<p>所以三次握手才有足够的上下文信息来判断当前连接是否是历史连接。</p>
-<p><strong>（四）安全问题</strong></p>
-<p>我们知道 TCP 新建连接时，内核会为连接分配一系列的内存资源，如果采用两次握手，就建立连接，那会放大 DDOS 攻击的。</p>
-<p>TCP 作为一种可靠传输控制协议，其核心思想：既要保证数据可靠传输，又要提高传输的效率，而三次握手恰好可以满足以上两方面的需求！</p>
-<h2 id="初始序列号（ISN）"><a href="#初始序列号（ISN）" class="headerlink" title="初始序列号（ISN）"></a>初始序列号（ISN）</h2><blockquote>
-<p>问：ISN 代表什么？意义何在？ISN 是固定不变的吗？ISN为何要动态随机？</p>
-</blockquote>
-<p><strong>ISN 是什么？</strong></p>
-<p>答：<code>ISN</code> 全称是 <code>Initial Sequence Number</code>，是 TCP 发送方的字节数据编号的原点，告诉对方我要开始发送数据的初始化序列号</p>
-<p><strong>ISN 是固定不变的吗？</strong></p>
-<p>答：ISN 如果是固定的，攻击者很容易猜出后续的确认序号，为了安全起见，避免被第三方猜到从而发送伪造的 <code>RST</code> 报文，因此 ISN 是动态生成的</p>
-<h2 id="半连接队列"><a href="#半连接队列" class="headerlink" title="半连接队列"></a>半连接队列</h2><blockquote>
-<p>什么是半连接队列？</p>
-</blockquote>
-<p>答：服务器第一次收到客户端的 <code>SYN</code> 之后，就会处于 <code>SYN_RCVD</code> 状态，此时双方还没有完全建立连接。服务器会把这种状态下请求连接放在一个队列里，我们把这种队列称之为半连接队列。</p>
-<p>当然还有一个<em>全连接队列</em>，就是已经完成三次握手，建立起连接的就会放在全连接队列中。如果队列满了就有可能会出现丢包现象。</p>
-<h2 id="三次握手可以携带数据吗？"><a href="#三次握手可以携带数据吗？" class="headerlink" title="三次握手可以携带数据吗？"></a>三次握手可以携带数据吗？</h2><blockquote>
-<p>问：三次握手过程中，可以携带数据吗？</p>
-</blockquote>
-<p>答：第一次、第二次握手不可以携带数据，而第三次握手是可以携带数据的。</p>
-<p>我们可以思考一个问题，假如第一次握手可以携带数据的话，如果有人要恶意攻击服务器，那他每次都在第一次握手中的 SYN 报文中放入大量的数据，疯狂着重复发 SYN 报文，这会让服务器花费大量的内存空间来缓存这些报文，这样服务器就更容易被攻击了。</p>
-<p>对于第三次握手，此时客户端已经处于连接状态，他已经知道服务器的接收、发送能力是正常的了，所以可以携带数据是情理之中。</p>
-<h2 id="TCP-四次挥手"><a href="#TCP-四次挥手" class="headerlink" title="TCP 四次挥手"></a>TCP 四次挥手</h2><p>当我们的应用程序不需要数据通信了，就会发起断开 TCP 连接。建立一个连接需要三次握手，而终止一个连接需要经过四次挥手。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/tcp-003.png"></p>
+<p><strong>按照文件从属关系查找</strong></p>
 <ul>
-<li>第一次挥手。客户端发起 <code>FIN</code> 包（FIN = 1）,客户端进入 <code>FIN_WAIT_1</code> 状态。TCP 规定，即使 <code>FIN</code> 包不携带数据，也要消耗一个序号。</li>
-<li>第二次挥手。服务器端收到 <code>FIN</code> 包，发出确认包 <code>ACK</code>（ack = u + 1），并带上自己的序号 seq=v，服务器端进入了 <code>CLOSE_WAIT</code> 状态。这个时候客户端已经没有数据要发送了，不过服务器端有数据发送的话，客户端依然需要接收。客户端接收到服务器端发送的 <code>ACK</code> 后，进入了 <code>FIN_WAIT_2</code> 状态。</li>
-<li>第三次挥手。服务器端数据发送完毕后，向客户端发送 <code>FIN</code> 包（seq=w ack=u+1），半连接状态下服务器可能又发送了一些数据，假设发送 seq 为 w。服务器此时进入了 <code>LAST_ACK</code> 状态。</li>
-<li>第四次挥手。客户端收到服务器的 <code>FIN</code> 包后，发出确认包（ACK=1，ack=w+1），此时客户端就进入了 <code>TIME_WAIT</code> 状态。注意此时 TCP 连接还没有释放，必须经过 <code>2*MSL</code> 后，才进入 <code>CLOSED</code> 状态。而服务器端收到客户端的确认包 <code>ACK</code> 后就进入了 <code>CLOSED</code> 状态，可以看出服务器端结束 TCP 连接的时间要比客户端早一些。</li>
+<li><code>-user</code>：以用户名查找</li>
+<li><code>-group</code>：以组名查找</li>
+<li><code>-uid</code>：以用户 ID 查找</li>
+<li><code>-gid</code>：以组 ID 查找</li>
+<li><code>-nouser</code>：查找没有属主的文件</li>
+<li><code>-nogroup</code>：查找没有属组的文件</li>
 </ul>
-<blockquote>
-<p>问：为什么建立连接握手三次，关闭连接时需要是四次呢？</p>
-</blockquote>
-<p>答：其实在 TCP 握手的时候，接收端发送 <code>SYN+ACK</code> 的包是将一个 <code>ACK</code> 和一个 <code>SYN</code> 合并到一个包中，所以减少了一次包的发送，三次完成握手。</p>
-<p>对于四次挥手，因为 TCP 是全双工通信，在主动关闭方发送 FIN 包后，接收端可能还要发送数据，不能立即关闭服务器端到客户端的数据通道，所以也就不能将服务器端的 <code>FIN</code> 包与对客户端的 <code>ACK</code> 包合并发送，只能先确认 <code>ACK</code>，然后服务器待无需发送数据时再发送 <code>FIN</code> 包，所以四次挥手时必须是四次数据包的交互。</p>
-<blockquote>
-<p>问：为什么TIME_WAIT 状态需要经过 2MSL 才能返回到 CLOSE 状态？</p>
-</blockquote>
-<p>答：<code>MSL</code> 指的是报文在网络中最大生存时间。在客户端发送对服务器端的 <code>FIN</code> 的确认包 <code>ACK</code> 后，这个 <code>ACK</code> 包是有可能不可达的，服务器端如果收不到 <code>ACK</code> 的话需要重新发送 <code>FIN</code> 包。</p>
-<p>所以客户端发送 <code>ACK</code> 后需要留出 <code>2MSL</code> 时间（ACK 到达服务器 + 服务器发送 FIN 重传包，一来一回）等待确认服务器端确实收到了 ACK 包。</p>
-<p>也就是说客户端如果等待 <code>2MSL</code> 时间也没有收到服务器端的重传包 <code>FIN</code>，说明可以确认服务器已经收到客户端发送的 <code>ACK</code>。</p>
-<p>还有第 <em>2</em> 个理由，避免新旧连接混淆。</p>
-<p>在客户端发送完最后一个 <code>ACK</code> 报文段后，在经过 <code>2MSL</code> 时间，就可以使本连接持续的时间内所产生的所有报文都从网络中消失，使下一个新的连接中不会出现这种旧的连接请求报文。</p>
-<p>你要知道，有些自作主张的路由器会缓存 IP 数据包，如果连接重用了，那么这些延迟收到的包就有可能会跟新连接混在一起。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇文章以 TCP 三次握手和四次挥手这个经典问题为主题，初步窥探了 TCP 协议的入门知识点，后边会有一系列的文章，来分享 TCP 协议相关的方方面面，如果感兴趣请关注我，我们一起把 TCP 协议彻底搞透彻了。</p>
-<p>最后，帮大家总结一下 TCP 的核心知识点。我们知道 TCP 协议是可靠的，它主要是通过解决如下几个问题来保证可靠性的：</p>
+<p><strong>按照文件大小查找</strong></p>
+<p>按照文件大小查找功能十分常用，用 <code>-size</code> 选项，选项后边指定大小 <code>1024M</code>，表示大小的格式有如下几种：</p>
 <ul>
-<li><em>乱序</em></li>
-<li><em>丢包</em></li>
-<li><em>流控</em></li>
-<li><em>拥塞控制</em></li>
+<li><code>-5M</code>：查找小于 5M 的文件</li>
+<li><code>+5M</code>：查找大于 5M 的文件</li>
+<li><code>5M</code>：查找大小为 5M 的文件</li>
 </ul>
-<p>TCP 是一个巨复杂的协议，基本上 TCP 涉及的所有内容都是围绕解决这几个问题的，请务必时刻认真牢记。</p>
+<p>单位支持的有 <code>c（字节）</code>、<code>k</code>、<code>M</code>、<code>G</code> 等，需要注意的是默认单位并不是字节，而是 <code>b</code>，大小为 512 字节。</p>
+<p><strong>按照时间查找</strong></p>
+<p>按照时间查找的功能对系统管理员来说，十分常用，find 支持如下几种时间类型：</p>
+<ul>
+<li><code>atime</code>：以访问时间查找</li>
+<li><code>mtime</code>：以数据修改时间查找</li>
+<li><code>ctime</code>：以元数据修改时间查找</li>
+<li><code>newer</code>：以文件为条件，判断比它新的文件</li>
+</ul>
+<p>按时间查找时，使用格式如下：</p>
+<ul>
+<li><code>-atime -5</code>：表示 5 天内访问过的文件；</li>
+<li><code>-atime +5</code>：表示 6 天前访问过的文件；</li>
+<li><code>-atime 5</code>：表示前 5-6 那一天访问的文件；</li>
+</ul>
+<p>这个 <code>+5</code> 含义总是被人理解错，误认为是 5 天后修改的文件，如果能知道未来 5 天的事情，小编早就去买彩票了！可能这么说还不是很清楚，直接看图吧！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/chopin11/image001/find-001.png"></p>
+<p>find 不仅可以按 <code>天</code> 为单位来查找文件，可以按照 <code>amin</code>、<code>mmin</code>、<code>cmin</code> 来查找，区别只是 min 选项单位为分钟。</p>
+<p><strong>按照权限查找</strong></p>
+<p>按权限查找是通过 <code>-perm</code> 选项，可以按照如下方式使用：</p>
+<ul>
+<li><code>-perm 644</code>：精确权限查找</li>
+<li><code>-perm /666</code>：任何一类用户中的任何一位符合条件即满足</li>
+<li><code>-perm -222</code>：每一类用户的每一位同时符合条件即满足</li>
+</ul>
+<p><strong>组合条件</strong></p>
+<p>find 可以使用多个条件的组合，支持 <code>-a</code>、<code>-o</code>、<code>-not</code> 或 <code>!</code>，比较简单，不再详细描述其含义。</p>
+<p><strong>处理动作</strong></p>
+<p>find 根据各种条件查找后，支持执行相关的处理动作，可以让我们的更方便和灵活，而不只是打印出来。</p>
+<ul>
+<li><code>-print</code>：打印，默认动作，可省略</li>
+<li><code>-ls</code>：以 ls 长文件格式输出</li>
+<li><code>-delete</code>：删除查找到的文件</li>
+<li><code>-exec</code>：查找到的文件传递给任何 Linux 命令</li>
+<li><code>-ok</code>：与 exec 功能相同，区别是需要用户确认每次的操作</li>
+</ul>
+<p>再啰嗦一下，find 命令支持的参数和选项比较多，文中只是总结出最常用、核心的参数选项。如果上述命令确实不满足需求，可以请教你的男人 <code>man find</code>。</p>
+<p>这里需要提一下，<code>find</code> 搜索文件时通过扫描磁盘来进行的，尽可能不要大范围的搜索文件，尤其是在 <code>/</code> 目录下搜索，会长时间消耗服务器的 cpu 资源。<strong>如果是生产环境的机器，执行前要考虑是否会对业务造成影响。</strong></p>
 
         
 <script src="/js/qrious.min.js"></script>
@@ -317,24 +382,20 @@
             <p>
                 <span>专题: </span>
                 
-                <a href="/series/#网络协议">
-                    <code key="网络协议" class="post-label">网络协议</code>
-                </a>
-                
-                <a href="/series/#面试">
-                    <code key="面试" class="post-label">面试</code>
+                <a href="/series/#文件目录">
+                    <code key="文件目录" class="post-label">文件目录</code>
                 </a>
                 
             </p>
             
             <p>
-                <span>本文发表于 2022-04-09，最后修改于 2022-04-22。</span>
+                <span>本文发表于 2022-05-04，最后修改于 2022-05-04。</span>
             </p>
             <!-- 文章末尾的提示 start -->
             
             <p>
                 本站永久域名「 <a
-                        href="/post/1335797944.html">tcpdump.cn</a>
+                        href="/post/968839864.html">tcpdump.cn</a>
                     」，也可搜索「 肖邦Linux 」找到我。
             </p>
             
@@ -345,10 +406,10 @@
         <hr />
         <p name="pagination" style="font-size: 1.2em">
     
-    <a class="float-left" href="/post/1717622242.html">上一篇 « 使用 openssl 操作证书的常见用法</a>
+    <a class="float-left" href="/post/1955710861.html">上一篇 « Go语言生成随机数</a>
     
     
-    <a class="float-right" href="/post/55249683.html">下一篇 » 让浏览器快如飞的插件 vimium</a>
+    <a class="float-right" href="/post/570643816.html">下一篇 » Linux三剑客之grep</a>
     
 </p>
     </article>
@@ -523,44 +584,14 @@
                 
                 
             </div>
-            <a href="/post/570643816.html" class="title">
-                Linux三剑客之grep
+            <a href="/post/3661056863.html" class="title">
+                网络抓包工具tcpdump
             </a>
             <p class="text-gray">
                 <small>
                     <span>发表于2022-05-04，</span>
-                    <span class="hidden-xs">全文3208字，</span>
-                    <span>阅读约11分钟</span>
-                </small>
-            </p>
-        </div>
-    </div>
-</div>
-        
-        <div class="post-preview">
-    <div class="post-img" style="background-image: url('https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg')"></div>
-    <!-- <div class="post-img" style="background-image: url('/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg')"></div> -->
-    <div class="post-info">
-        <div class="post-info-center">
-            <div class="hidden-xs">
-                
-                
-                <span>/</span>
-                
-                <a class="text-gray" href="/tags/#Go语言"
-                    title="Go语言">Go语言</a>
-                <span>/</span>
-                
-                
-            </div>
-            <a href="/post/3661056862.html" class="title">
-                Go语言内置函数copy复制切片
-            </a>
-            <p class="text-gray">
-                <small>
-                    <span>发表于2022-04-22，</span>
-                    <span class="hidden-xs">全文1290字，</span>
-                    <span>阅读约5分钟</span>
+                    <span class="hidden-xs">全文6207字，</span>
+                    <span>阅读约21分钟</span>
                 </small>
             </p>
         </div>
@@ -599,6 +630,40 @@
                     <span>发表于2022-04-08，</span>
                     <span class="hidden-xs">全文3103字，</span>
                     <span>阅读约11分钟</span>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+        
+        <div class="post-preview">
+    <div class="post-img" style="background-image: url('https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg')"></div>
+    <!-- <div class="post-img" style="background-image: url('/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg')"></div> -->
+    <div class="post-info">
+        <div class="post-info-center">
+            <div class="hidden-xs">
+                
+                
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
+                <span>/</span>
+                
+                
+            </div>
+            <a href="/post/1970613528.html" class="title">
+                负载均衡 LVS 基本原理
+            </a>
+            <p class="text-gray">
+                <small>
+                    <span>发表于2021-03-06，</span>
+                    <span class="hidden-xs">全文6866字，</span>
+                    <span>阅读约23分钟</span>
                 </small>
             </p>
         </div>
@@ -867,19 +932,19 @@
         
         
         <section class="gkt-sidebar-content box-shadow">
-            <strong>网络协议</strong>
+            <strong>文件目录</strong>
             <ul>
                 
                 <li>
-                    <a href="/post/1335797944.html"
-                        class="gkt-sidebar-active">经典的 TCP 三次握手问题</a>
+                    <a href="/post/968839864.html"
+                        class="gkt-sidebar-active">文件查找命令find</a>
                     
                     <!-- Table of Contents -->
 <div id="sidebar-toc">
   <!-- TOC  -->
   
   
-  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%9D%A2%E8%AF%95TCP%E7%9A%84%E6%84%8F%E4%B9%89"><span class="toc-nav-text">面试TCP的意义</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#TCP-%E5%9F%BA%E7%A1%80"><span class="toc-nav-text">TCP 基础</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B"><span class="toc-nav-text">三次握手</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%8C%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%8F%AF%E4%BB%A5%E5%90%97"><span class="toc-nav-text">二次握手可以吗</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%BA%8F%E5%88%97%E5%8F%B7%EF%BC%88ISN%EF%BC%89"><span class="toc-nav-text">初始序列号（ISN）</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8D%8A%E8%BF%9E%E6%8E%A5%E9%98%9F%E5%88%97"><span class="toc-nav-text">半连接队列</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%8F%AF%E4%BB%A5%E6%90%BA%E5%B8%A6%E6%95%B0%E6%8D%AE%E5%90%97%EF%BC%9F"><span class="toc-nav-text">三次握手可以携带数据吗？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#TCP-%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B"><span class="toc-nav-text">TCP 四次挥手</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-nav-text">总结</span></a></li></ol>
+  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%A1%88%E4%BE%8B%E5%AE%9E%E6%88%98"><span class="toc-nav-text">案例实战</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%80%BB%E7%BB%93%E5%BD%92%E7%BA%B3"><span class="toc-nav-text">总结归纳</span></a></li></ol>
   
 </div>
 
@@ -918,6 +983,12 @@
     })
   })();
 </script>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/570643816.html"
+                        class="">Linux三剑客之grep</a>
                     
                 </li>
                 
