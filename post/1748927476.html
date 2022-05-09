@@ -15,17 +15,17 @@
   <!-- if page has tags, then add tags to keyword -->
   
   
-  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,HTTPS,OPENSSL,签发证书,证书,openssl,https,签发证书,扩展,v3">
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,HTTPS,OPENSSL,证书,签发证书,证书吊销列表,CRL">
   <!-- page.description has higher priority -->
-  <meta name="description" content="之前我们创建的服务器证书，默认情况都是 v1 版本的证书。现在主流的证书版本是 v3，最重要的特性就是支持扩展。扩展的支持，除了能够灵活扩展新的功能外，最重要是可以严格控制证书的使用。">
+  <meta name="description" content="大家好，我是肖邦，今天要分享的是关于证书吊销列表CRL的内容。">
   <link rel="shortcut icon" href="/img/icon.png">
   <title>
     
-    使用openssl签发带扩展项v3证书 | 肖邦Linux
+    使用openssl生成证书吊销列表CRL | 肖邦Linux
     
   </title>
 
-  <link rel="canonical" href="https://tcpdump.cn/post/261015374.html">
+  <link rel="canonical" href="https://tcpdump.cn/post/1748927476.html">
   
 <link rel="stylesheet" href="/css/geektutu.css">
 
@@ -172,14 +172,12 @@
 <div class="float-left post-container box-shadow">
     <div class="u-arrow-wrapper hidden-xs">
         
-        <a class="float-left" href="/post/3934410168.html"><i class="u-arrow-left"></i></a>
+        <a class="float-left" href="/post/3661056863.html"><i class="u-arrow-left"></i></a>
         
-        
-        <a class="float-right" href="/post/1380760434.html"><i class="u-arrow-right"></i></a>
         
     </div>
     <article class="col-xs-12">
-        <h1> 使用openssl签发带扩展项v3证书 </h1>
+        <h1> 使用openssl生成证书吊销列表CRL </h1>
         
         
         <div class="hidden-lg hidden-md series_links">
@@ -236,67 +234,148 @@
         
         
         <div class="gkt-article-start"></div>
-        <blockquote>
-<p>之前我们创建的服务器证书，默认情况都是 v1 版本的证书。</p>
-<p>现在主流的证书版本是 v3，最重要的特性就是支持扩展。</p>
-<p>扩展的支持，除了能够灵活扩展新的功能外，最重要是可以严格控制证书的使用。</p>
+        <p>大家好，我是肖邦，今天要分享的是关于证书吊销列表 <code>CRL</code> 的内容，可能你还不清楚它是什么？没关系，慢慢听我说来。</p>
+<h2 id="CRL是什么"><a href="#CRL是什么" class="headerlink" title="CRL是什么"></a>CRL是什么</h2><p>我们知道，数字证书一般可用于服务器和客户端，在服务器端是作为站点证书，在客户端是作为用户证书。在使用证书的过程中，可能会遇到下边的情况：</p>
+<p><em>1.</em> 服务器证书的私钥被攻击者窃取，那攻击者就可以随意伪造对应网站的身份，我们该怎么办？</p>
+<p><em>2.</em> 作为用户证书，员工不慎将证书遗失，该怎么挂失证书？</p>
+<p><em>3.</em> 作为用户证书，如何来限制离职员工证书的正常使用？</p>
+<p><em>4.</em> 由于某些原因，CA 机构错误签发了一张证书，如何取消该证书？</p>
+<p>针对上述类似的情况，PKI 提供了一种机制 <em>证书吊销列表</em>，缩写为 <code>CRL</code> 。简单的说，<code>CRL</code> 其实就是一个文件，记录了所有已经被吊销的证书列表，由证书颁发机构 CA 来维护。</p>
+<p>当用户使用浏览器访问网站时，除了要验证服务器证书的身份，还要下载对应 <code>CRL</code> 文件进行校验，确认证书是否已被吊销，对于已吊销的证书视为无效；</p>
+<p>针对上述的 4 个场景问题，都可以通过证书吊销列表的方式进行解决，因为有了 <code>CRL</code>，浏览器就可以将异常的证书视为无效，从而最大程度的规避了安全隐患。</p>
+<h2 id="操作实践"><a href="#操作实践" class="headerlink" title="操作实践"></a>操作实践</h2><p>通过上述的简单介绍，我们知道了 <code>CRL</code> 是什么，它用来解决什么问题，适用什么样的场景。有了这些理论知识，我们先来进行一些实践操作，来加深对证书吊销列表的理解。</p>
+<p>接下来我们使用 <em>OPENSSL</em> 命令签发证书，然后再把其中一些证书进行吊销，生成对应 <code>CRL</code> 文件，最后再来带你分析 <code>CRL</code> 文件格式和字段含义。</p>
+<p><strong>（一）准备环境</strong></p>
+<p>我们先来准备好相关操作的依赖环境，其实就是创建相关的目录和文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /root/tls/&#123;certs,private,crl&#125; &amp;&amp; <span class="built_in">cd</span> /root/tls</span><br><span class="line"><span class="built_in">touch</span> index.txt serial crlnumber</span><br><span class="line"><span class="built_in">echo</span> 01 &gt; serial &amp;&amp; <span class="built_in">echo</span> 1000 &gt; crlnumber</span><br></pre></td></tr></table></figure>
+
+<p>在下边的操作中，会用到一些配置，我们把相关配置写在 <em>openssl.cnf</em> 配置文件中，配置文件内容较多，这里先不解释各配置项的含义</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[ ca ]</span></span><br><span class="line"><span class="attr">default_ca</span>      = CA_default</span><br><span class="line"><span class="section">[ CA_default ]</span></span><br><span class="line"><span class="attr">dir</span>             = /root/tls</span><br><span class="line"><span class="attr">certs</span>           = <span class="variable">$dir</span>/certs</span><br><span class="line"><span class="attr">crl_dir</span>         = <span class="variable">$dir</span>/crl</span><br><span class="line"><span class="attr">database</span>        = <span class="variable">$dir</span>/index.txt</span><br><span class="line"><span class="attr">new_certs_dir</span>   = <span class="variable">$dir</span>/certs</span><br><span class="line"><span class="attr">certificate</span>     = <span class="variable">$dir</span>/certs/cacert.pem</span><br><span class="line"><span class="attr">serial</span>          = <span class="variable">$dir</span>/serial</span><br><span class="line"><span class="attr">crlnumber</span>       = <span class="variable">$dir</span>/crlnumber</span><br><span class="line"><span class="attr">crl</span>             = <span class="variable">$dir</span>/crl.pem</span><br><span class="line"><span class="attr">private_key</span>     = <span class="variable">$dir</span>/private/cakey.pem</span><br><span class="line"><span class="attr">x509_extensions</span> = v3_ca</span><br><span class="line"><span class="attr">name_opt</span>        = ca_default</span><br><span class="line"><span class="attr">cert_opt</span>        = ca_default</span><br><span class="line"><span class="attr">crl_extensions</span> = crl_ext</span><br><span class="line"><span class="attr">default_days</span>    = <span class="number">365</span></span><br><span class="line"><span class="attr">default_crl_days</span>= <span class="number">30</span></span><br><span class="line"><span class="attr">default_md</span>      = sha256</span><br><span class="line"><span class="attr">preserve</span>        = <span class="literal">no</span></span><br><span class="line"><span class="attr">policy</span>          = policy_match</span><br><span class="line"><span class="section">[ policy_match ]</span></span><br><span class="line"><span class="attr">countryName</span>             = optional</span><br><span class="line"><span class="attr">stateOrProvinceName</span>     = optional</span><br><span class="line"><span class="attr">organizationName</span>        = optional</span><br><span class="line"><span class="attr">organizationalUnitName</span>  = optional</span><br><span class="line"><span class="attr">commonName</span>              = supplied</span><br><span class="line"><span class="attr">emailAddress</span>            = optional</span><br><span class="line"><span class="section">[ req ]</span></span><br><span class="line"><span class="attr">default_bits</span>            = <span class="number">2048</span></span><br><span class="line"><span class="attr">default_md</span>              = sha256</span><br><span class="line"><span class="attr">default_keyfile</span>         = privkey.pem</span><br><span class="line"><span class="attr">distinguished_name</span>      = req_distinguished_name</span><br><span class="line"><span class="attr">attributes</span>              = req_attributes</span><br><span class="line"><span class="attr">x509_extensions</span> = v3_ca</span><br><span class="line"><span class="section">[ req_distinguished_name ]</span></span><br><span class="line"><span class="attr">countryName</span>                     = Country Name (<span class="number">2</span> letter code)</span><br><span class="line"><span class="attr">countryName_default</span>             = CN</span><br><span class="line"><span class="attr">stateOrProvinceName</span>             = State or Province Name (full name)</span><br><span class="line"><span class="attr">stateOrProvinceName_default</span>     = SH</span><br><span class="line"><span class="attr">localityName</span>                    = Locality Name (eg, city)</span><br><span class="line"><span class="attr">localityName_default</span>            = SH</span><br><span class="line"><span class="attr">0.organizationName</span>              = Organization Name (eg, company)</span><br><span class="line"><span class="attr">0.organizationName_default</span>      = SELF</span><br><span class="line"><span class="attr">organizationalUnitName</span>          = Organizational Unit Name (eg, section)</span><br><span class="line"><span class="attr">organizationalUnitName_default</span>  = SELF</span><br><span class="line"><span class="attr">commonName</span>                      = Common Name (eg, your name or your server hostname)</span><br><span class="line"><span class="attr">commonName_max</span>                  = <span class="number">64</span></span><br><span class="line"><span class="attr">emailAddress</span>                    = Email Address</span><br><span class="line"><span class="attr">emailAddress_max</span>                = <span class="number">64</span></span><br><span class="line"><span class="section">[ req_attributes ]</span></span><br><span class="line"><span class="attr">challengePassword</span>               = A challenge password</span><br><span class="line"><span class="attr">challengePassword_min</span>           = <span class="number">4</span></span><br><span class="line"><span class="attr">challengePassword_max</span>           = <span class="number">20</span></span><br><span class="line"><span class="attr">unstructuredName</span>                = An optional company name</span><br><span class="line"><span class="section">[ v3_req ]</span></span><br><span class="line"><span class="attr">basicConstraints</span> = CA:<span class="literal">FALSE</span></span><br><span class="line"><span class="attr">keyUsage</span> = nonRepudiation, digitalSignature, keyEncipherment</span><br><span class="line"><span class="section">[ v3_ca ]</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span>=hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span>=keyid:always,issuer</span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">true</span></span><br><span class="line"><span class="section">[ crl_ext ]</span></span><br><span class="line"><span class="attr">authorityKeyIdentifier</span>=keyid:always</span><br></pre></td></tr></table></figure>
+
+<p>再准备一个扩展项配置文件 <em>ext.cnf</em>，内容如下</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">basicConstraints</span> = CA:<span class="literal">FALSE</span></span><br><span class="line"><span class="attr">nsCertType</span> = client, email</span><br><span class="line"><span class="attr">nsComment</span> = <span class="string">&quot;OpenSSL Generated Client Certificate&quot;</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid,issuer</span><br><span class="line"><span class="attr">keyUsage</span> = critical, nonRepudiation, digitalSignature, keyEncipherment</span><br><span class="line"><span class="attr">extendedKeyUsage</span> = clientAuth, serverAuth</span><br></pre></td></tr></table></figure>
+
+<p><strong>（二）签发证书</strong></p>
+<ul>
+<li>签发根证书</li>
+</ul>
+<p>按照正常流程，我们要先签发 CA 证书，为了简单只生成根 CA 证书即可</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /root/tls</span><br><span class="line">openssl genrsa -out private/cakey.pem 1024</span><br><span class="line">openssl req -new -x509 -days 365 -config openssl.cnf -key private/cakey.pem -out certs/cacert.pem</span><br></pre></td></tr></table></figure>
+
+<p>在执行 <code>req -new x509</code> 签发证书时，会进入交互界面，提示我们输入国家、省份、城市、名称等信息，<code>Common Name</code> 字段填写为 <em>ROOTCA</em>，其它字段默认回车即可，最终生成文件 <em>certs/cacert.pem</em> 证书文件</p>
+<ul>
+<li>签发服务器/客户端证书</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out private/server01.key.pem 1024</span><br><span class="line">openssl req -new -key private/server01.key.pem -out certs/server01.csr -config openssl.cnf</span><br><span class="line">openssl ca -config openssl.cnf -notext -batch -<span class="keyword">in</span> certs/server01.csr -out certs/server01.crt -extfile ext.cnf</span><br></pre></td></tr></table></figure>
+
+<p>在执行 <code>req -new</code> 生成证书请求时，进入交互界面，<code>Common Name</code> 字段填写为 <strong>Bob</strong>，其它字段直接回车，这样就成功为 <strong>Bob</strong> 签发一张证书 <em>certs/server01.crt</em>。</p>
+<p>按照上述同样的方式，我们也为 <strong>Alice</strong>、<strong>David</strong> 分别签发一张证书，现在已经有了三张证书</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bash-4.2$ <span class="built_in">ls</span> certs/server0*.crt</span><br><span class="line">certs/server01.crt  certs/server02.crt  certs/server03.crt</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看数据库文件</li>
+</ul>
+<p>使用 <code>openssl ca</code> 签发证书时，<code>openssl</code> 会维护一个数据库，用来记录每张证书的签发详情，其实就是 <em>index.txt</em> 文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bash-4.2$ <span class="built_in">cat</span> index.txt</span><br><span class="line">V	230508124930Z		01	unknown	/C=CN/ST=SH/O=SELF/OU=SELF/CN=bob</span><br><span class="line">V	230508125553Z		02	unknown	/C=CN/ST=SH/O=SELF/OU=SELF/CN=Alice</span><br><span class="line">V	230508125657Z		03	unknown	/C=CN/ST=SH/O=SELF/OU=SELF/CN=David</span><br></pre></td></tr></table></figure>
+
+<p>从 <em>index.txt</em> 文件中可以看到已经签发了 3 张证书，接下来将 <strong>David</strong> 证书吊销，并生成相应的 CRL 文件。</p>
+<p><strong>（三）吊销证书</strong></p>
+<p>基于某种原因，我们要将 <strong>David</strong> 证书进行吊销，通过如下命令即可吊销证书</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl ca -config openssl.cnf -revoke certs/server03.crt</span><br></pre></td></tr></table></figure>
+
+<p>需要说明，证书吊销的操作，不会直接对原来的证书进行任何的修改和改变，<code>openssl</code> 会更新数据库，把对应证书的状态设置为 <em>已吊销</em>。</p>
+<p>我们直接来看下数据库文件 <em>index.txt</em> 到底有什么变化吧。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bash-4.2$ <span class="built_in">cat</span> index.txt</span><br><span class="line">V	230508124930Z		01	unknown	/C=CN/ST=SH/O=SELF/OU=SELF/CN=bob</span><br><span class="line">V	230508125553Z		02	unknown	/C=CN/ST=SH/O=SELF/OU=SELF/CN=Alice</span><br><span class="line">R	230508125657Z	220508131518Z	03	unknown	/C=CN/ST=SH/O=SELF/OU=SELF/CN=David</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，最关键的变化就是，<strong>David</strong> 证书的状态由 <code>V</code> 变为 <code>R</code> ，Revoke 的缩写，表示证书已被吊销。</p>
+<p><strong>（四）生成证书吊销列表CRL</strong></p>
+<p>正常情况下，如果有证书被吊销，我们期望证书校验方能够获取此证书被吊销的信息。但在执行 <code>revoke</code> 操作后，仅仅只是更新了 CA 的数据库文件，需要生成 <code>CRL</code> 文件，供浏览器下载使用。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl ca -config openssl.cnf -gencrl -out crl/rootca.crl</span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>gencrl</code> 子命令，就可以生成证书吊销列表 <code>crl/rootca.crl</code> 文件。默认 <code>crl</code> 格式和证书非常类似，采用 <code>pem</code> 格式存储，可以使用 <code>crl</code> 子命令来进行查看</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">openssl crl -<span class="keyword">in</span> crl/rootca.crl -text -noout</span><br><span class="line">Certificate Revocation List (CRL):</span><br><span class="line">        Version 2 (0x1)</span><br><span class="line">    Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">        Issuer: /C=CN/ST=SH/L=SH/O=SELF/OU=SELF/CN=ROOTCA</span><br><span class="line">        Last Update: May  8 13:30:50 2022 GMT</span><br><span class="line">        Next Update: Jun  7 13:30:50 2022 GMT</span><br><span class="line">        CRL extensions:</span><br><span class="line">            X509v3 Authority Key Identifier:</span><br><span class="line">                keyid:E5:AA:8D:82:BD:57:BE:0F:ED:73:C3:89:E2:E3:9D:8A:7A:26:6D:2D</span><br><span class="line">            X509v3 CRL Number:</span><br><span class="line">                4096</span><br><span class="line">Revoked Certificates:</span><br><span class="line">    Serial Number: 03</span><br><span class="line">        Revocation Date: May  8 13:15:18 2022 GMT</span><br><span class="line">    Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">        ......</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 <code>Revoked Certificates</code> 字段中记录了序列号为 <code>03</code> 证书被吊销，也就是 <strong>David</strong> 的证书了。</p>
+<p>为了更清楚的说明 <strong>David</strong> 证书已经被吊销，可以使用 <code>varify</code> 命令进行验证</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> certs/cacert.pem crl/rootca.crl &gt; /tmp/test.pem</span><br><span class="line"><span class="comment"># David 证书被吊销</span></span><br><span class="line">openssl verify -extended_crl -verbose -CAfile /tmp/test.pem -crl_check certs/server03.crt</span><br><span class="line">certs/server03.crt: C = CN, ST = SH, O = SELF, OU = SELF, CN = David</span><br><span class="line">error 23 at 0 depth lookup:certificate revoked</span><br><span class="line"><span class="comment"># Alice 证书 OK</span></span><br><span class="line">openssl verify -extended_crl -verbose -CAfile /tmp/test.pem -crl_check certs/server02.crt</span><br><span class="line">certs/server02.crt: OK</span><br></pre></td></tr></table></figure>
+
+<p>验证命令输出 <code>certificate revoked</code> 表示此证书已经被吊销。</p>
+<h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p><code>CRL</code> 本质是一个文件，与证书类似，是一个结构化的文件，CA 机构将所有吊销的证书集成在一个文件中。其实它相当于一个黑名单，包含了所有被吊销证书的序列号和吊销原因。</p>
+<p>接下来，我们先了解一下 <code>CRL</code> 工作原理，本质上就是要弄清楚证书校验方（浏览器）是如何使用它进行证书校验的。现在我们要换个角度，站在浏览器的角度来思考如何校验</p>
+<p><em>1.</em> 浏览器接收到服务器证书后，首先通过证书链校验证书是否可信，如果校验成功，接着执行证书吊销的校验；</p>
+<p><em>2.</em> 浏览器从服务器证书中找到 <code>CRL</code> 分发点，其实就是证书吊销列表的下载链接；</p>
+<p><em>3.</em> 浏览器将 <code>CRL</code> 文件下载并缓存，由于 <code>CRL</code> 有数字签名进行保护，浏览器需要找到对应公钥进行验签。首先在 <code>CRL</code> 文件中找出签发者，从而找到完整的证书链，最终完成签名验签；</p>
+<p><em>4.</em> 签名验签成功后，根据 <code>x509</code> 标准解析 <code>CRL</code> 文件，生成结构化的数据；</p>
+<p><em>5.</em> 从解析数据中查找，如果证书的序列号存在于 <code>CRL</code> 中，则说明证书已被吊销；</p>
+<p>还有一些其它需要注意和了解的内容，总结如下</p>
+<ul>
+<li>为了加快握手速度，某些浏览器不校验签名，直接查询从而完成 CRL 校验；</li>
+<li>由于 CRL 文件可能非常大，浏览器下载时非常耗时，为避免频繁下载，浏览器一般会定期缓存，减少对 CRL 请求；</li>
+<li>在 CRL 校验完成之前，TLS 握手过程是阻塞的，会延长握手时间；</li>
+<li>如果 CRL 下载超时，浏览器一般会忽略检查证书吊销状态；</li>
+<li>理论上服务器证书和中间 CA 证书都需要进行 CRL 校验，但大部分浏览器从效率考虑，一般只校验服务器证书的吊销状态；</li>
+</ul>
+<h2 id="问题思考"><a href="#问题思考" class="headerlink" title="问题思考"></a>问题思考</h2><p>在理解上述原理时，为了简化过程便于理解，有的步骤描述得有点抽象，为了更详细和深入的理解，扩展了一些值得深入思考的点</p>
+<blockquote>
+<p>问：证书吊销列表 CRL 为什么需要数字签名？</p>
 </blockquote>
-<p>这篇文章会分享，如何使用 openssl 签发 v3 版本支持扩展项的证书。</p>
+<p>答：为了避免 CRL 被篡改，CA 对 CRL 进行数字签名。需要注意的是，CA 机构签发服务器证书的私钥和签发 CRL 私钥可以是不同的，甚至可以委托另一家 CA 机构签发 CRL。</p>
+<blockquote>
+<p>如何校验 CRL 签名？</p>
+</blockquote>
+<p>答：与服务器证书校验一样，浏览器需要通过完整证书链来对 CRL 验签。CRL 文件一般提供签发者的信息，浏览器就可以从 CRL 文件中依次迭代找出证书链，构建完整证书链，验证 CRL 的合法性。</p>
+<blockquote>
+<p>问：浏览器如何找到 CRL 文件的？</p>
+</blockquote>
+<p>答：CRL 由 CA 机构发布，该文件在互联网上有一个 URL 地址，该地址称为 CRL 分发点，以 HTTP 形式提供。浏览器是如何知道 CRL 分发点呢？如果 CA 支持 CRL 功能，就会在服务器证书扩展中添加 CRL 分发点。</p>
+<blockquote>
+<p>问：证书过期和证书吊销的区别？</p>
+</blockquote>
+<p>答：这是两个不同的概念，证书过期并不代表证书吊销，所有过期的证书肯定是无效的，但没有过期的证书可能已经被吊销，同样是无效的。证书吊销，可以理解为颁发者提供一种撤销证书的能力。</p>
+<h2 id="CRL格式"><a href="#CRL格式" class="headerlink" title="CRL格式"></a>CRL格式</h2><p>理解了 <code>CRL</code> 原理之后，再来学习 <code>CRL</code> 格式就会更容易些。接下来从协议的角度了解 CRL 的内容结构</p>
+<p><strong>（一）CertificateList 结构</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CertificateList ::= SEQUENCE &#123;</span><br><span class="line">    tbsCertList TBSCertList,</span><br><span class="line">    signatureAlgorithm Algorithmidentifier,</span><br><span class="line">    signatureValue STRING,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类似于证书形式的发布，发布者会对其进行签名。</p>
 <ul>
-<li><code>x509</code> 是目前使用最广泛的证书格式，<code>v3</code> 版本允许证书中扩展除了标准以外的字段。</li>
-<li>扩展字段可以是标准字段，也可以是自定义的私有字段。</li>
-<li><code>x509</code> 标准定义了 <em>14</em> 个扩展字段，但其中只有 <em>4</em> 个被广泛支持和使用</li>
-<li>其中只有 <em>1</em> 个扩展字段是必须要设置的，其它 <em>3</em> 个是可选的，可以不设置</li>
+<li><code>signatureAlgorithm</code> 指明签名算法</li>
+<li><code>signatureValue</code> 表示签名</li>
+<li><code>tbsCertList</code> 主要包含签发者、签发日期、吊销证书列表等信息</li>
 </ul>
-<h2 id="常见扩展项"><a href="#常见扩展项" class="headerlink" title="常见扩展项"></a>常见扩展项</h2><p>先介绍几种平时常见的扩展项</p>
+<p><strong>（二）tbsCertList 结构</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">version Version,</span><br><span class="line">signature AlgorithmIdentifier,</span><br><span class="line">issuer Name,</span><br><span class="line">thisUpdate Time,</span><br><span class="line">nextUpdate Time,</span><br><span class="line">revokedCertificates &#123;</span><br><span class="line"> 	userCertificate CertificateSerialNumber,</span><br><span class="line">    revocationDate Time,</span><br><span class="line">    crlEntryExtensions Extensions,</span><br><span class="line">&#125;,</span><br><span class="line">crlExtensions</span><br></pre></td></tr></table></figure>
+
 <ul>
-<li><code>basicConstraints</code>：基础约束，该字段表示证书是否可以签发其它证书。如果是二级 CA 或其它中间 CA 证书，该字段应该设置为 <em>true</em>，如果是普通服务器或客户端证书，该字段必须设置为 <em>false</em>。这样可以控制签发证书的权限，不会出现任意证书都能够签发证书的情况。</li>
-<li><code>authorityKeyIdentifier</code>：CA 密钥标识符，证书校验方可以通过该标识符找到是哪个 CA 机构签发的服务器证书。</li>
-<li><code>subjectKeyIdentifier</code>：使用者密钥标识符，该值可以代表服务器实体，中间证书的使用者密钥标识符就是服务器证书的 CA 密钥标识符；</li>
-<li><code>keyUsage</code>：密钥用法，定义了该证书的用途，比如身份验证、数字签名、签发证书等；</li>
-<li><code>extKeyUsage</code>：密钥扩展用法，表示证书的具体用途，该扩展可能的取值包括 <em>serverAuth</em>、<em>clientAuth</em>、<em>emailProtection</em>、<em>OCSPSigning</em> 等。</li>
+<li><code>issuer</code> 指定 CRL 签发者；</li>
+<li><code>thisUpdate</code> 和 <code>nextUpdate</code> CA 用来告知浏览器 CRL 本次更新时间和下次更新时间，浏览器可以根据这两个时间点缓存，从而减少对 CRL 请求；</li>
+<li><code>revokedCertificates</code> 所有被吊销的证书的序列号都包含在该字段中，也包含吊销时间和吊销原因；</li>
+<li><code>crlExtensions</code> 常见的扩展包括 <em>Authority Key Identifier</em>、<em>CRL Number</em>、<em>Authority Informationn Access</em>，一般是从这三个字段来获取签发者证书的。</li>
 </ul>
-<p>先简单理解上述字段的含义即可，下边实践操作会根据不同种类的证书，通过 openssl 配置不同扩展项签发对应证书，实践过之后应该会有深刻的理解。</p>
-<h2 id="为根-CA-证书添加扩展"><a href="#为根-CA-证书添加扩展" class="headerlink" title="为根 CA 证书添加扩展"></a>为根 CA 证书添加扩展</h2><p>创建根 CA 证书，并为根 CA 证书添加对应的扩展项</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rootca.cnf</span></span><br><span class="line"><span class="section">[ req ]</span></span><br><span class="line"><span class="attr">distinguished_name</span> = req_distinguished_name</span><br><span class="line"><span class="attr">prompt</span> = <span class="literal">no</span></span><br><span class="line"><span class="section">[ req_distinguished_name ]</span></span><br><span class="line"><span class="attr">C</span> = CN</span><br><span class="line"><span class="attr">ST</span> = BJ</span><br><span class="line"><span class="attr">L</span> = BJ</span><br><span class="line"><span class="attr">O</span> = DZ</span><br><span class="line"><span class="attr">OU</span> = C</span><br><span class="line"><span class="attr">CN</span> = rootca</span><br><span class="line"><span class="section">[ v3_ca ]</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">true</span></span><br></pre></td></tr></table></figure>
-
-<p>创建 <code>rootca.cnf</code> 配置文件，上述配置文件中 <code>v3_ca</code> 设置了三个字段，其含义可以参考上边的解释就容易理解。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ openssl genrsa -out rootca.key 2048</span><br><span class="line">$ openssl req -new -x509 -days 365 -config rootca.cnf -extensions v3_ca -key rootca.key -out rootca.pem</span><br></pre></td></tr></table></figure>
-
-<p>生成根 CA 证书后，可以通过 <code>x509</code> 验证查看证书扩展信息，和配置 <code>v3_ca</code> 指定完全一致</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -noout -text -<span class="keyword">in</span> rootca.pem | grep -A10 extensions</span><br><span class="line">X509v3 extensions:</span><br><span class="line">	X509v3 Subject Key Identifier:</span><br><span class="line">		84:F9:7C:83:3A:D2:D4:5E:15:7E:05:0C:E6:4A:26:9E:89:31:A0:28</span><br><span class="line">	X509v3 Authority Key Identifier:</span><br><span class="line">		keyid:84:F9:7C:83:3A:D2:D4:5E:15:7E:05:0C:E6:4A:26:9E:89:31:A0:28</span><br><span class="line">	X509v3 Basic Constraints: critical</span><br><span class="line">		CA:TRUE</span><br></pre></td></tr></table></figure>
-
-<h2 id="为二级-CA-证书添加扩展"><a href="#为二级-CA-证书添加扩展" class="headerlink" title="为二级 CA 证书添加扩展"></a>为二级 CA 证书添加扩展</h2><p>创建二级 CA 证书，并为二级 CA 证书添加对应的扩展项，先创建配置 <code>interca.cnf</code></p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># interca.cnf</span></span><br><span class="line"><span class="section">[ req ]</span></span><br><span class="line"><span class="attr">distinguished_name</span> = req_distinguished_name</span><br><span class="line"><span class="attr">prompt</span> = <span class="literal">no</span></span><br><span class="line"><span class="section">[ req_distinguished_name ]</span></span><br><span class="line"><span class="attr">C</span> = CN</span><br><span class="line"><span class="attr">ST</span> = BJ</span><br><span class="line"><span class="attr">L</span> = BJ</span><br><span class="line"><span class="attr">O</span> = DZ</span><br><span class="line"><span class="attr">OU</span> = C</span><br><span class="line"><span class="attr">CN</span> = interca</span><br><span class="line"><span class="section">[ v3_ica ]</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">true</span>,pathlen:<span class="number">0</span></span><br><span class="line"><span class="attr">keyUsage</span> = critical,digitalSignature,cRLSign,keyCertSign</span><br></pre></td></tr></table></figure>
-
-<p>对比 <code>v3_ca</code> 配置，<code>v3_ica</code> 增加了 <code>keyUsage</code> 扩展项，是由于二级 CA 可以直接签发服务器实体证书的。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ openssl genrsa -out interca.key 2048</span><br><span class="line">$ openssl req -new -sha256 -config interca.cnf -key interca.key -out interca.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> interca.csr -CA rootca.pem -CAkey rootca.key -out interca.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile interca.cnf -extensions v3_ica</span><br></pre></td></tr></table></figure>
-
-<p>在签发证书时，指定使用 <code>v3_ica</code> 扩展配置项，生成证书后，通过下边命令验证证书内容</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -noout -text -<span class="keyword">in</span> interca.pem  | grep -A10 extensions</span><br><span class="line">X509v3 extensions:</span><br><span class="line">	X509v3 Subject Key Identifier:</span><br><span class="line">		E9:F6:63:38:CB:B4:F6:EE:93:66:C6:55:F3:DE:A8:A6:BE:75:0C:73</span><br><span class="line">	X509v3 Authority Key Identifier:</span><br><span class="line">		keyid:84:F9:7C:83:3A:D2:D4:5E:15:7E:05:0C:E6:4A:26:9E:89:31:A0:28</span><br><span class="line">	X509v3 Basic Constraints: critical</span><br><span class="line">		CA:TRUE, pathlen:0</span><br><span class="line">	X509v3 Key Usage: critical</span><br><span class="line">		Digital Signature, Certificate Sign, CRL Sign</span><br></pre></td></tr></table></figure>
-
-<h2 id="为服务器证书添加扩展"><a href="#为服务器证书添加扩展" class="headerlink" title="为服务器证书添加扩展"></a>为服务器证书添加扩展</h2><p>创建服务器证书，并为服务器证书添加对应的扩展项，先创建配置 <code>server.cnf</code></p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># server.cnf</span></span><br><span class="line"><span class="section">[ req ]</span></span><br><span class="line"><span class="attr">distinguished_name</span> = req_distinguished_name</span><br><span class="line"><span class="attr">prompt</span> = <span class="literal">no</span></span><br><span class="line"><span class="section">[ req_distinguished_name ]</span></span><br><span class="line"><span class="attr">C</span> = CN</span><br><span class="line"><span class="attr">ST</span> = BJ</span><br><span class="line"><span class="attr">L</span> = BJ</span><br><span class="line"><span class="attr">O</span> = DZ</span><br><span class="line"><span class="attr">OU</span> = C</span><br><span class="line"><span class="attr">CN</span> = tcpdump.cn</span><br><span class="line"><span class="section">[ v3_server ]</span></span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">false</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">keyUsage</span> = digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment</span><br><span class="line"><span class="attr">extendedKeyUsage</span> = serverAuth</span><br></pre></td></tr></table></figure>
-
-<p>服务器证书，区别于 CA 证书，大概有如下几个扩展项设置的不一样</p>
-<p><em>1.</em> <code>basicConstraints</code> 扩展字段的 <em>CA</em> 属性设置为了 <em>false</em>，因为它是服务器证书，是不能扮演签发角色；</p>
-<p><em>2.</em> <code>keyUsage</code>：密钥用法有所不同，服务器证书需要设置数字签名、数据加密、不可抵赖等用途</p>
-<p><em>3.</em> <code>extKeyUsage</code>：设置了 <em>serverAuth</em> 表示只能用于服务器端身份校验；</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ openssl genrsa -out server.key 2048</span><br><span class="line">$ openssl req -new -sha256 -config server.cnf -key server.key -out server.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> server.csr -CA interca.pem -CAkey interca.key -out server.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile server.cnf -extensions v3_server</span><br></pre></td></tr></table></figure>
-
-<p>在签发证书时，指定使用 <code>v3_server</code> 扩展配置项，生成证书后，通过下边命令验证证书内容，跟配置文件中指定的扩展项完全一致</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -noout -text -<span class="keyword">in</span> server.pem | grep -A15 extension</span><br><span class="line">	X509v3 extensions:</span><br><span class="line">	X509v3 Basic Constraints: critical</span><br><span class="line">		CA:FALSE</span><br><span class="line">	X509v3 Subject Key Identifier:</span><br><span class="line">		10:B9:67:CE:55:9A:C6:4A:44:3D:F8:80:4E:45:C6:B5:37:AF:66:8F</span><br><span class="line">	X509v3 Authority Key Identifier:</span><br><span class="line">		keyid:E9:F6:63:38:CB:B4:F6:EE:93:66:C6:55:F3:DE:A8:A6:BE:75:0C:73</span><br><span class="line">	X509v3 Key Usage:</span><br><span class="line">		Digital Signature, Non Repudiation, Key Encipherment, Data Encipherment</span><br><span class="line">	X509v3 Extended Key Usage:</span><br><span class="line">		TLS Web Server Authentication</span><br></pre></td></tr></table></figure>
-
-<h2 id="为客户端证书添加扩展"><a href="#为客户端证书添加扩展" class="headerlink" title="为客户端证书添加扩展"></a>为客户端证书添加扩展</h2><p>创建客户端证书，并为客户端证书添加对应的扩展项，先创建配置 <code>client.cnf</code></p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># client.cnf</span></span><br><span class="line"><span class="section">[ req ]</span></span><br><span class="line"><span class="attr">distinguished_name</span> = req_distinguished_name</span><br><span class="line"><span class="attr">prompt</span> = <span class="literal">no</span></span><br><span class="line"><span class="section">[ req_distinguished_name ]</span></span><br><span class="line"><span class="attr">C</span> = CN</span><br><span class="line"><span class="attr">ST</span> = BJ</span><br><span class="line"><span class="attr">L</span> = BJ</span><br><span class="line"><span class="attr">O</span> = DZ</span><br><span class="line"><span class="attr">OU</span> = C</span><br><span class="line"><span class="attr">CN</span> = client</span><br><span class="line"><span class="section">[ v3_client ]</span></span><br><span class="line"><span class="attr">basicConstraints</span> = critical,CA:<span class="literal">false</span></span><br><span class="line"><span class="attr">subjectKeyIdentifier</span> = hash</span><br><span class="line"><span class="attr">authorityKeyIdentifier</span> = keyid:always,issuer</span><br><span class="line"><span class="attr">keyUsage</span> = digitalSignature,nonRepudiation,keyEncipherment,dataEncipherment</span><br><span class="line"><span class="attr">extendedKeyUsage</span> = clientAuth</span><br></pre></td></tr></table></figure>
-
-<p>客户端证书，与服务器证书配置唯一的区别就是 <code>extendedKeyUsage</code> 为 <em>clientAuth</em>，用来表示只能用于客户端身份校验</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ openssl genrsa -out client.key 2048</span><br><span class="line">$ openssl req -new -sha256 -config client.cnf -key client.key -out client.csr</span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> client.csr -CA interca.pem -CAkey interca.key -out client.pem -CAcreateserial -CAserial serial -days 365 -sha256 -extfile client.cnf -extensions v3_client</span><br></pre></td></tr></table></figure>
-
-<p>在签发证书时，指定使用 <code>v3_client</code> 扩展配置项，生成证书后，通过下边命令验证证书内容，跟配置文件中指定的扩展项完全一致</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ openssl x509 -noout -text -<span class="keyword">in</span> client.pem | grep -A15 extension</span><br><span class="line">	X509v3 extensions:</span><br><span class="line">	X509v3 Basic Constraints: critical</span><br><span class="line">		CA:FALSE</span><br><span class="line">	X509v3 Subject Key Identifier:</span><br><span class="line">		8B:CA:A7:DD:07:75:C4:92:77:58:58:38:43:67:1A:06:04:16:4C:2F</span><br><span class="line">	X509v3 Authority Key Identifier:</span><br><span class="line">		keyid:E9:F6:63:38:CB:B4:F6:EE:93:66:C6:55:F3:DE:A8:A6:BE:75:0C:73</span><br><span class="line">	X509v3 Key Usage:</span><br><span class="line">		Digital Signature, Non Repudiation, Key Encipherment, Data Encipherment</span><br><span class="line">	X509v3 Extended Key Usage:</span><br><span class="line">		TLS Web Client Authentication</span><br></pre></td></tr></table></figure>
-
-<p>到此为止，已经分别为根 CA 证书、二级 CA 证书、服务器证书、客户端证书添加了扩展项，并进行了简单验证。</p>
+<p><strong>（三）revokedCertificates结构</strong></p>
+<p>包含了被吊销服务器证书的信息，主要包括三部分</p>
+<ul>
+<li><code>userCertificate</code> 证书的序列号</li>
+<li><code>revocationDate</code> 证书被吊销的时间</li>
+<li><code>crlEntryExtensions</code> 扩展选项，主要包括 <em>Reason Code</em> 吊销原因、<em>Invalidity Date</em> 吊销时间、<em>Certificate Issuer</em>签发者。</li>
+</ul>
+<p>关于 <code>CRL</code> 格式先了解这么多就可以了。</p>
+<h2 id="存在问题"><a href="#存在问题" class="headerlink" title="存在问题"></a>存在问题</h2><p>到此，我们可以理解 CRL 功能是非常重要的，但是它确实也存在着很多问题，我们来一起梳理一下</p>
+<p><strong>1. CRL 维护的复杂性</strong></p>
+<p>对于 CA 机构来说，随着签发证书越多，被吊销的证书就会越来越多，CRL 文件就会变得很大，浏览器下载速度就会很慢，影响整体握手速度。</p>
+<p><strong>2. CRL 更新的实时性</strong></p>
+<p>一般情况下，CA 结构收到证书吊销请求后，并不会立即更新 CRL，即便立即更新，由于浏览器对 CRL 是周期更新缓存的，被吊销的证书不能够实时地被浏览器校验识别出来，存在安全风险。</p>
+<p><strong>3. CRL 校验的复杂度</strong></p>
+<p>校验时，必须下载完整的 CRL 文件，即使只为了校验一张证书，也需要进行复杂的解析操作；另外，除了服务器证书，中间 CA 证书也需要进行校验，极大增加了浏览器校验的复杂度。</p>
+<p>如果一个 CRL 文件没有完成下载，该如何确认该证书的吊销状态呢？终止握手过程，会影响用户体验，一般浏览器选择跳过 CRL 验证，同样存在安全风险。</p>
+<p><strong>4. 影响通信效率</strong></p>
+<p>对于浏览器来说，检查证书的吊销状态是个耗时的操作，只有校验完毕才能进行后续的握手，是一个阻塞操作，严重影响通信的效率。</p>
+<p>由于存在这么多问题，目前浏览器厂商和 CA 机构都逐渐弱化 CRL 的使用：</p>
+<ul>
+<li>Let’s Encrypt 签发的证书已经不包含 <code>CRL</code> 分发点，也就是不提供 <code>CRL</code> 服务；</li>
+<li>Firefox 28 以后的版本，将不会校验 <code>CRL</code>，使用 <code>OCSP</code> 机制代替；</li>
+<li>Chrome 19 以后的版本也不会校验 <code>CRL</code>，但也不使用 <code>OCSP</code> 机制；</li>
+</ul>
+<p>由于历史原因和当时互联网环境，设计的 <code>CRL</code> 功能存在一系列的问题，目前已经逐渐被 <code>OCSP</code> 淘汰。但这并不代表学习 <code>CRL</code> 毫无意义，对于某些应用还是有使用场景的，同时也可以进一步加深对于密码学的理解。</p>
 
         
 <script src="/js/qrious.min.js"></script>
@@ -315,13 +394,13 @@
             </p>
             
             <p>
-                <span>本文发表于 2022-04-08，最后修改于 2022-05-09。</span>
+                <span>本文发表于 2022-05-09，最后修改于 2022-05-09。</span>
             </p>
             <!-- 文章末尾的提示 start -->
             
             <p>
                 本站永久域名「 <a
-                        href="/post/261015374.html">tcpdump.cn</a>
+                        href="/post/1748927476.html">tcpdump.cn</a>
                     」，也可搜索「 肖邦Linux 」找到我。
             </p>
             
@@ -332,10 +411,8 @@
         <hr />
         <p name="pagination" style="font-size: 1.2em">
     
-    <a class="float-left" href="/post/3934410168.html">上一篇 « 使用openssl签发多级CA的证书</a>
+    <a class="float-left" href="/post/3661056863.html">上一篇 « 网络抓包工具tcpdump</a>
     
-    
-    <a class="float-right" href="/post/1380760434.html">下一篇 » 使用openssl签发支持SAN证书</a>
     
 </p>
     </article>
@@ -504,28 +581,20 @@
                 
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#HTTPS"
-                    title="HTTPS">HTTPS</a>
-                <span>/</span>
-                
-                <a class="text-gray" href="/tags/#OPENSSL"
-                    title="OPENSSL">OPENSSL</a>
-                <span>/</span>
-                
-                <a class="text-gray" href="/tags/#签发证书"
-                    title="签发证书">签发证书</a>
+                <a class="text-gray" href="/tags/#命令行"
+                    title="命令行">命令行</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/3142807446.html" class="title">
-                使用openssl签发证书最佳实践
+            <a href="/post/570643816.html" class="title">
+                Linux三剑客之grep
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2022-04-08，</span>
-                    <span class="hidden-xs">全文5261字，</span>
-                    <span>阅读约18分钟</span>
+                    <span>发表于2022-05-04，</span>
+                    <span class="hidden-xs">全文3208字，</span>
+                    <span>阅读约11分钟</span>
                 </small>
             </p>
         </div>
@@ -540,30 +609,26 @@
             <div class="hidden-xs">
                 
                 
-                <span>/</span>
-                
-                <a class="text-gray" href="/tags/#keepalived"
-                    title="keepalived">keepalived</a>
                 <span>/</span>
                 
                 <a class="text-gray" href="/tags/#负载均衡"
                     title="负载均衡">负载均衡</a>
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#高可用"
-                    title="高可用">高可用</a>
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/325553977.html" class="title">
-                keepalived 快速入门介绍
+            <a href="/post/3671532823.html" class="title">
+                负载均衡 LVS 操作实践
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2021-01-02，</span>
-                    <span class="hidden-xs">全文8176字，</span>
-                    <span>阅读约28分钟</span>
+                    <span>发表于2021-04-08，</span>
+                    <span class="hidden-xs">全文10035字，</span>
+                    <span>阅读约34分钟</span>
                 </small>
             </p>
         </div>
@@ -580,20 +645,20 @@
                 
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#收藏"
-                    title="收藏">收藏</a>
+                <a class="text-gray" href="/tags/#友链"
+                    title="友链">友链</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/fav.html" class="title">
-                收藏优质资源
+            <a href="/post/link.html" class="title">
+                友情链接
             </a>
             <p class="text-gray">
                 <small>
                     <span>发表于2017-07-03，</span>
-                    <span class="hidden-xs">全文909字，</span>
-                    <span>阅读约4分钟</span>
+                    <span class="hidden-xs">全文796字，</span>
+                    <span>阅读约3分钟</span>
                 </small>
             </p>
         </div>
@@ -891,14 +956,38 @@
                 
                 <li>
                     <a href="/post/261015374.html"
-                        class="gkt-sidebar-active">使用openssl签发带扩展项v3证书</a>
+                        class="">使用openssl签发带扩展项v3证书</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1380760434.html"
+                        class="">使用openssl签发支持SAN证书</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/3142807446.html"
+                        class="">使用openssl签发证书最佳实践</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1717622242.html"
+                        class="">使用openssl操作证书的常见用法</a>
+                    
+                </li>
+                
+                <li>
+                    <a href="/post/1748927476.html"
+                        class="gkt-sidebar-active">使用openssl生成证书吊销列表CRL</a>
                     
                     <!-- Table of Contents -->
 <div id="sidebar-toc">
   <!-- TOC  -->
   
   
-  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%B8%B8%E8%A7%81%E6%89%A9%E5%B1%95%E9%A1%B9"><span class="toc-nav-text">常见扩展项</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%BA%E6%A0%B9-CA-%E8%AF%81%E4%B9%A6%E6%B7%BB%E5%8A%A0%E6%89%A9%E5%B1%95"><span class="toc-nav-text">为根 CA 证书添加扩展</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%BA%E4%BA%8C%E7%BA%A7-CA-%E8%AF%81%E4%B9%A6%E6%B7%BB%E5%8A%A0%E6%89%A9%E5%B1%95"><span class="toc-nav-text">为二级 CA 证书添加扩展</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%BA%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%81%E4%B9%A6%E6%B7%BB%E5%8A%A0%E6%89%A9%E5%B1%95"><span class="toc-nav-text">为服务器证书添加扩展</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%BA%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%81%E4%B9%A6%E6%B7%BB%E5%8A%A0%E6%89%A9%E5%B1%95"><span class="toc-nav-text">为客户端证书添加扩展</span></a></li></ol>
+  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#CRL%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-nav-text">CRL是什么</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%93%8D%E4%BD%9C%E5%AE%9E%E8%B7%B5"><span class="toc-nav-text">操作实践</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-nav-text">工作原理</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98%E6%80%9D%E8%80%83"><span class="toc-nav-text">问题思考</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#CRL%E6%A0%BC%E5%BC%8F"><span class="toc-nav-text">CRL格式</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%AD%98%E5%9C%A8%E9%97%AE%E9%A2%98"><span class="toc-nav-text">存在问题</span></a></li></ol>
   
 </div>
 
@@ -937,30 +1026,6 @@
     })
   })();
 </script>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1380760434.html"
-                        class="">使用openssl签发支持SAN证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/3142807446.html"
-                        class="">使用openssl签发证书最佳实践</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1717622242.html"
-                        class="">使用openssl操作证书的常见用法</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1748927476.html"
-                        class="">使用openssl生成证书吊销列表CRL</a>
                     
                 </li>
                 

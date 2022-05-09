@@ -15,8 +15,33 @@
     <atom:link href="https://tcpdump.cn/feed.xml" rel="self" type="application/rss+xml"/>
     
     <description>肖邦Linux的博客，致力于分享一些技术教程和有趣的技术实践，包括但不限于 Go 语言/golang, Python, tensorflow, 分布式, 机器学习相关的内容。也可以通过搜索肖邦Linux,tcpdump 找到我。</description>
-    <pubDate>Wed, 04 May 2022 15:12:25 GMT</pubDate>
+    <pubDate>Mon, 09 May 2022 07:30:30 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>使用openssl生成证书吊销列表CRL</title>
+      <link>https://tcpdump.cn/post/1748927476.html</link>
+      <guid>https://tcpdump.cn/post/1748927476.html</guid>
+      <pubDate>Mon, 09 May 2022 05:35:12 GMT</pubDate>
+      
+      <description>大家好，我是肖邦，今天要分享的是关于证书吊销列表CRL的内容。</description>
+      
+      
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
+      
+      
+      
+      <category domain="https://tcpdump.cn/categories/HTTPS/">HTTPS</category>
+      
+      
+      <category domain="https://tcpdump.cn/tags/HTTPS/">HTTPS</category>
+      
+      <category domain="https://tcpdump.cn/tags/OPENSSL/">OPENSSL</category>
+      
+      
+      <comments>https://tcpdump.cn/post/1748927476.html#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>网络抓包工具tcpdump</title>
@@ -24,7 +49,7 @@
       <guid>https://tcpdump.cn/post/3661056863.html</guid>
       <pubDate>Wed, 04 May 2022 14:48:12 GMT</pubDate>
       
-      <description>今天要分享的是 `tcpdump`，它是 Linux 系统中特别有用的网络工具，通常用于故障诊断、网络分析，功能非常的强大。</description>
+      <description>今天要分享的是 tcpdump，它是 Linux 系统中特别有用的网络工具，通常用于故障诊断、网络分析，功能非常的强大。</description>
       
       
       <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/chopin11.github.io/img/golang.jpg" type="image"/>
@@ -134,7 +159,7 @@
     </item>
     
     <item>
-      <title>让浏览器快如飞的插件 vimium</title>
+      <title>让浏览器快如飞的插件vimium</title>
       <link>https://tcpdump.cn/post/55249683.html</link>
       <guid>https://tcpdump.cn/post/55249683.html</guid>
       <pubDate>Sun, 10 Apr 2022 12:12:12 GMT</pubDate>
@@ -157,7 +182,7 @@
     </item>
     
     <item>
-      <title>经典的 TCP 三次握手问题</title>
+      <title>经典的TCP三次握手问题</title>
       <link>https://tcpdump.cn/post/1335797944.html</link>
       <guid>https://tcpdump.cn/post/1335797944.html</guid>
       <pubDate>Sat, 09 Apr 2022 11:38:34 GMT</pubDate>
@@ -184,7 +209,7 @@
     </item>
     
     <item>
-      <title>使用 openssl 操作证书的常见用法</title>
+      <title>使用openssl操作证书的常见用法</title>
       <link>https://tcpdump.cn/post/1717622242.html</link>
       <guid>https://tcpdump.cn/post/1717622242.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:28:23 GMT</pubDate>
@@ -211,7 +236,7 @@
     </item>
     
     <item>
-      <title>使用 openssl 签发证书最佳实践</title>
+      <title>使用openssl签发证书最佳实践</title>
       <link>https://tcpdump.cn/post/3142807446.html</link>
       <guid>https://tcpdump.cn/post/3142807446.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:26:39 GMT</pubDate>
@@ -238,7 +263,7 @@
     </item>
     
     <item>
-      <title>使用 openssl 签发支持 SAN 证书</title>
+      <title>使用openssl签发支持SAN证书</title>
       <link>https://tcpdump.cn/post/1380760434.html</link>
       <guid>https://tcpdump.cn/post/1380760434.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:23:40 GMT</pubDate>
@@ -265,7 +290,7 @@
     </item>
     
     <item>
-      <title>使用 openssl 签发带扩展项 v3 证书</title>
+      <title>使用openssl签发带扩展项v3证书</title>
       <link>https://tcpdump.cn/post/261015374.html</link>
       <guid>https://tcpdump.cn/post/261015374.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:20:37 GMT</pubDate>
@@ -292,7 +317,7 @@
     </item>
     
     <item>
-      <title>使用 openssl 签发多级 CA 的证书</title>
+      <title>使用openssl签发多级CA的证书</title>
       <link>https://tcpdump.cn/post/3934410168.html</link>
       <guid>https://tcpdump.cn/post/3934410168.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:18:40 GMT</pubDate>
@@ -319,7 +344,7 @@
     </item>
     
     <item>
-      <title>使用 openssl 签发 ECC 证书</title>
+      <title>使用openssl签发ECC证书</title>
       <link>https://tcpdump.cn/post/2813878042.html</link>
       <guid>https://tcpdump.cn/post/2813878042.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:16:25 GMT</pubDate>
@@ -346,7 +371,7 @@
     </item>
     
     <item>
-      <title>使用 openssl 签发 RSA 证书</title>
+      <title>使用openssl签发 RSA 证书</title>
       <link>https://tcpdump.cn/post/3965235630.html</link>
       <guid>https://tcpdump.cn/post/3965235630.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:13:38 GMT</pubDate>
@@ -373,7 +398,7 @@
     </item>
     
     <item>
-      <title>使用 openssl 创建自签名证书</title>
+      <title>使用openssl创建自签名证书</title>
       <link>https://tcpdump.cn/post/78358564.html</link>
       <guid>https://tcpdump.cn/post/78358564.html</guid>
       <pubDate>Fri, 08 Apr 2022 13:05:21 GMT</pubDate>
@@ -488,9 +513,9 @@
       <category domain="https://tcpdump.cn/categories/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       
-      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
-      
       <category domain="https://tcpdump.cn/tags/dpvs/">dpvs</category>
+      
+      <category domain="https://tcpdump.cn/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</category>
       
       <category domain="https://tcpdump.cn/tags/snat/">snat</category>
       
