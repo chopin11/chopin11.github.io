@@ -15,17 +15,17 @@
   <!-- if page has tags, then add tags to keyword -->
   
   
-  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,HTTPS,OPENSSL,签发证书,证书,openssl,https,签发证书,扩展,常见用法">
+  <meta name="keywords" content="肖邦,肖邦Linux,tcpdump,Go语言,golang,python,Linux,centos,centos7,网络配置">
   <!-- page.description has higher priority -->
-  <meta name="description" content="通过这几篇 openssl 签发证书的学习和实践，相信你一定能感受到 openssl 命令行的强大。它还有很多其它强大的功能，待我们取学习和发掘。本文的目标是总结 openssl 关于证书的常见操作和使用方法。">
+  <meta name="description" content="本文简单介绍在安装 CentOS 系统之后，如何来设置网络相关的配置">
   <link rel="shortcut icon" href="/img/icon.png">
   <title>
     
-    使用openssl操作证书的常见用法 | 肖邦Linux
+    如何给CentOS系统配置网络 | 肖邦Linux
     
   </title>
 
-  <link rel="canonical" href="https://tcpdump.cn/post/1717622242.html">
+  <link rel="canonical" href="https://tcpdump.cn/post/860403602.html">
   
 <link rel="stylesheet" href="/css/geektutu.css">
 
@@ -90,12 +90,12 @@
                     
                 </li>
                 
-                <li class="gkt-cate-name float-left ">
+                <li class="gkt-cate-name float-left active">
                     <a class="float-left" href="/post/1111606992.html">Linux基础</a>
                     
                 </li>
                 
-                <li class="gkt-cate-name float-left active">
+                <li class="gkt-cate-name float-left ">
                     <a class="float-left" href="/post/78358564.html">HTTPS</a>
                     
                 </li>
@@ -172,63 +172,26 @@
 <div class="float-left post-container box-shadow">
     <div class="u-arrow-wrapper hidden-xs">
         
-        <a class="float-left" href="/post/3142807446.html"><i class="u-arrow-left"></i></a>
+        <a class="float-left" href="/post/1748927476.html"><i class="u-arrow-left"></i></a>
         
-        
-        <a class="float-right" href="/post/1335797944.html"><i class="u-arrow-right"></i></a>
         
     </div>
     <article class="col-xs-12">
-        <h1> 使用openssl操作证书的常见用法 </h1>
+        <h1> 如何给CentOS系统配置网络 </h1>
         
         
         <div class="hidden-lg hidden-md series_links">
-            <p> <strong> HTTPS系列文章链接：</strong></p>
+            <p> <strong> Linux基础系列文章链接：</strong></p>
             <ul>
                 
                 <li>
-                    <a href="/post/78358564.html">使用openssl创建自签名证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
+                    <a href="/post/1111606992.html">写给 Linux 初学者的一封信</a>
+                    <span class="post-item-date">(Jan 3, 2022)</span>
                 </li>
                 
                 <li>
-                    <a href="/post/3965235630.html">使用openssl签发 RSA 证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/2813878042.html">使用openssl签发ECC证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/3934410168.html">使用openssl签发多级CA的证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/261015374.html">使用openssl签发带扩展项v3证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/1380760434.html">使用openssl签发支持SAN证书</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/3142807446.html">使用openssl签发证书最佳实践</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/1717622242.html">使用openssl操作证书的常见用法</a>
-                    <span class="post-item-date">(Apr 8, 2022)</span>
-                </li>
-                
-                <li>
-                    <a href="/post/1748927476.html">使用openssl生成证书吊销列表</a>
-                    <span class="post-item-date">(May 9, 2022)</span>
+                    <a href="/post/860403602.html">如何给CentOS系统配置网络</a>
+                    <span class="post-item-date">(May 14, 2022)</span>
                 </li>
                 
             </ul>
@@ -236,75 +199,26 @@
         
         
         <div class="gkt-article-start"></div>
-        <blockquote>
-<p>通过这几篇 <code>openssl</code> 签发证书的学习和实践，相信你一定能感受到 <code>openssl</code> 命令行的强大。它还有很多其它强大的功能，待我们取学习和发掘。本文的目标是总结 <code>openssl</code> 关于证书的常见操作和使用方法。</p>
-</blockquote>
-<h2 id="证书格式转换"><a href="#证书格式转换" class="headerlink" title="证书格式转换"></a>证书格式转换</h2><ul>
-<li>pem 格式转换为 pfx</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl pkcs12 -<span class="built_in">export</span> -<span class="keyword">in</span> client.pem -inkey client.key -out client.pfx</span><br></pre></td></tr></table></figure>
+        <p>本文简单介绍在安装 CentOS 系统之后，如何来设置网络相关的配置。</p>
+<h2 id="网络地址设置"><a href="#网络地址设置" class="headerlink" title="网络地址设置"></a>网络地址设置</h2><p>在 CentOS 上配置网络很简单，只需要按照如下文件配置即可</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost]$ vim /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br><span class="line"><span class="comment"># 注意 enp0s3 是网卡名称，需要修改为你的网卡名称，配置内容如下</span></span><br><span class="line">TYPE=Ethernet</span><br><span class="line">BOOTPROTO=static</span><br><span class="line">NAME=enp0s3</span><br><span class="line">DEVICE=enp0s3</span><br><span class="line">ONBOOT=<span class="built_in">yes</span></span><br><span class="line">IPADDR=192.168.0.200</span><br><span class="line">GATEWAY=192.168.0.1</span><br><span class="line">NETMASK=255.255.255.0</span><br><span class="line">DNS1=114.114.114.114</span><br><span class="line">DNS2=223.5.5.5</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>pfx 格式转换为 pem</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 仅导出pem证书</span></span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> cert.pfx -nokeys -out cert.pem  <span class="comment"># 不带密码</span></span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> cert.pfx -nokeys -passin pass:123456 -out cert.pem</span><br><span class="line"><span class="comment"># 导出私钥key</span></span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> cert.pfx -nocerts -nodes -out cert.key</span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> cert.pfx -nocerts -passout pass:123123 -out cert.key</span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> cert.pfx -nocerts -passin pass:123 -passout pass:123 -out cert.key</span><br><span class="line"><span class="comment"># 导出证书和私钥key</span></span><br><span class="line">openssl pkcs12 -<span class="keyword">in</span> cert.pfx -out all.pem -nodes</span><br></pre></td></tr></table></figure>
+<p>简单说明下，上述配置中各字段的含义</p>
+<p><em>1.</em> <code>BOOTPROTO</code> 表示启动协议，配置 <code>static</code> 表示要配置静态地址，也可以配置为 <code>dhcp</code> 表示自动获取地址</p>
+<p><em>2.</em> <code>ONBOOT</code> 表示开机启动时，自动启动该网卡，相当于 <code>ifconfig enp0s3 up</code></p>
+<p><em>3.</em> <code>IPADDR</code> 就是你要配置的 IP 地址</p>
+<p><em>4.</em> <code>GATEWAY</code> 网关地址，和你的 IP 地址是同网段，一般是 <code>.1</code></p>
+<p><em>5.</em> <code>NETMASK</code> 网络掩码</p>
+<p><em>6.</em> <code>DNS</code> 配置 DNS，用来解析域名的服务器地址，可以配置多个</p>
+<p>配置完成后，需要重启网络才能生效</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart network</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>der 格式转换为 pem</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -inform der -<span class="keyword">in</span> server.der -out server.pem</span><br><span class="line"><span class="comment"># cat server.cer | base64 -d &gt; server.der</span></span><br><span class="line"><span class="comment"># 有时候拿到的是 cer 格式，需要解码 base64 即可</span></span><br></pre></td></tr></table></figure>
+<h2 id="设置免密登录"><a href="#设置免密登录" class="headerlink" title="设置免密登录"></a>设置免密登录</h2><p>网络设置完毕后，可以通过 <code>ssh</code> 密码登录了。每次登录都输入密码，略微有些烦人。其实通过简单设置，可以做到免密码登录。只需要执行一个命令即可</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.0.200</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>pkcs8 私钥格式转换为ECDSA PKCS1 格式</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl ec -<span class="keyword">in</span> p8.key -out p1.key</span><br></pre></td></tr></table></figure>
-
-<h2 id="证书内容查看"><a href="#证书内容查看" class="headerlink" title="证书内容查看"></a>证书内容查看</h2><ul>
-<li>查看证书内容</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -noout -text -<span class="keyword">in</span> server.pem</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>查看证书签名请求</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -noout -text -<span class="keyword">in</span> server.csr</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>查看私钥文件内容</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl pkey -noout -text -<span class="keyword">in</span> server.key</span><br><span class="line">openssl rsa -noout -text -<span class="keyword">in</span> server.key</span><br><span class="line">openssl ec -noout -text -<span class="keyword">in</span> server.key</span><br></pre></td></tr></table></figure>
-
-<h2 id="证书验证"><a href="#证书验证" class="headerlink" title="证书验证"></a>证书验证</h2><ul>
-<li>验证证书与证书链是否匹配</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1.将根证书和中间证书转换为pem格式</span></span><br><span class="line"><span class="comment"># 2.根证书和中间证书合并到一个文件</span></span><br><span class="line"><span class="comment"># 3.注意顺序：根证书在最下边</span></span><br><span class="line">openssl verify -CAfile caChain.pem server.pem</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>验证证书和私钥文件是否匹配</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从证书中读取公钥内容</span></span><br><span class="line">openssl x509 -noout -pubkey -<span class="keyword">in</span> server.pem</span><br><span class="line"><span class="comment"># 从私钥中读取公钥内容</span></span><br><span class="line">openssl pkey -pubout -<span class="keyword">in</span> server.key</span><br></pre></td></tr></table></figure>
-
-<h2 id="模拟-HTTPS"><a href="#模拟-HTTPS" class="headerlink" title="模拟 HTTPS"></a>模拟 HTTPS</h2><ul>
-<li>模拟客户端</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl s_client -connect 127.0.0.1:4433</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>模拟服务器</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">openssl s_server -accept 4433 -key server.key -cert server.pem -www -debug -msg -CAfile certChain.pem -Verify 3</span><br><span class="line"><span class="comment"># 1. -CAfile 指定证书链，配合 -Verify 选项，可以用于验证客户端证书</span></span><br><span class="line"><span class="comment"># 2. -www 选项，模拟 https 服务器，返回 tls 连接相关的内容</span></span><br><span class="line"><span class="comment"># 3. -key、-cert 指定服务器站点证书</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>查看线上某网站的证书链</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl s_client -quiet -connect tcpdump.cn:443</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>查看线上某网站的证书内容</li>
-</ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl s_client -showcerts -connect tcpdump.cn:443</span><br></pre></td></tr></table></figure>
-
-<p>持续更新中，欢迎关注。。。</p>
+<p>只需要执行上述命令，即可设置免密码登录，下次登录就不需要输入密码了~~</p>
+<p>当然，如果你执行报错，提示没有 <code>id_rsa.pub</code> 文件，可以执行下边命令来生成</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br><span class="line"><span class="comment"># 执行命令，一直回车即可</span></span><br></pre></td></tr></table></figure>
 
         
 <script src="/js/qrious.min.js"></script>
@@ -316,20 +230,20 @@
             <p>
                 <span>专题: </span>
                 
-                <a href="/series/#HTTPS">
-                    <code key="HTTPS" class="post-label">HTTPS</code>
+                <a href="/series/#Linux基础">
+                    <code key="Linux基础" class="post-label">Linux基础</code>
                 </a>
                 
             </p>
             
             <p>
-                <span>本文发表于 2022-04-08，最后修改于 2022-05-14。</span>
+                <span>本文发表于 2022-05-14，最后修改于 2022-05-14。</span>
             </p>
             <!-- 文章末尾的提示 start -->
             
             <p>
                 本站永久域名「 <a
-                        href="/post/1717622242.html">tcpdump.cn</a>
+                        href="/post/860403602.html">tcpdump.cn</a>
                     」，也可搜索「 肖邦Linux 」找到我。
             </p>
             
@@ -340,10 +254,8 @@
         <hr />
         <p name="pagination" style="font-size: 1.2em">
     
-    <a class="float-left" href="/post/3142807446.html">上一篇 « 使用openssl签发证书最佳实践</a>
+    <a class="float-left" href="/post/1748927476.html">上一篇 « 使用openssl生成证书吊销列表</a>
     
-    
-    <a class="float-right" href="/post/1335797944.html">下一篇 » 经典的TCP三次握手问题</a>
     
 </p>
     </article>
@@ -385,16 +297,20 @@
                     title="OPENSSL">OPENSSL</a>
                 <span>/</span>
                 
+                <a class="text-gray" href="/tags/#签发证书"
+                    title="签发证书">签发证书</a>
+                <span>/</span>
+                
                 
             </div>
-            <a href="/post/1748927476.html" class="title">
-                使用openssl生成证书吊销列表
+            <a href="/post/3934410168.html" class="title">
+                使用openssl签发多级CA的证书
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2022-05-09，</span>
-                    <span class="hidden-xs">全文10465字，</span>
-                    <span>阅读约35分钟</span>
+                    <span>发表于2022-04-08，</span>
+                    <span class="hidden-xs">全文4715字，</span>
+                    <span>阅读约16分钟</span>
                 </small>
             </p>
         </div>
@@ -402,8 +318,8 @@
 </div>
         
         <div class="post-preview">
-    <div class="post-img" style="background-image: url('https://cdn.jsdelivr.net/gh/chopin11/image001/cover-golang.jpeg')"></div>
-    <!-- <div class="post-img" style="background-image: url('/https://cdn.jsdelivr.net/gh/chopin11/image001/cover-golang.jpeg')"></div> -->
+    <div class="post-img" style="background-image: url('https://cdn.jsdelivr.net/gh/chopin11/image001/cover-lb.jpeg')"></div>
+    <!-- <div class="post-img" style="background-image: url('/https://cdn.jsdelivr.net/gh/chopin11/image001/cover-lb.jpeg')"></div> -->
     <div class="post-info">
         <div class="post-info-center">
             <div class="hidden-xs">
@@ -411,20 +327,24 @@
                 
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#Go语言"
-                    title="Go语言">Go语言</a>
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#lvs"
+                    title="lvs">lvs</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/1955710861.html" class="title">
-                Go语言生成随机数
+            <a href="/post/3360290171.html" class="title">
+                负载均衡 LVS 主流程代码分析
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2022-04-25，</span>
-                    <span class="hidden-xs">全文1758字，</span>
-                    <span>阅读约6分钟</span>
+                    <span>发表于2021-07-14，</span>
+                    <span class="hidden-xs">全文14458字，</span>
+                    <span>阅读约49分钟</span>
                 </small>
             </p>
         </div>
@@ -432,8 +352,8 @@
 </div>
         
         <div class="post-preview">
-    <div class="post-img" style="background-image: url('https://cdn.jsdelivr.net/gh/chopin11/image001/cover-linux.jpeg')"></div>
-    <!-- <div class="post-img" style="background-image: url('/https://cdn.jsdelivr.net/gh/chopin11/image001/cover-linux.jpeg')"></div> -->
+    <div class="post-img" style="background-image: url('https://cdn.jsdelivr.net/gh/chopin11/image001/cover-lb.jpeg')"></div>
+    <!-- <div class="post-img" style="background-image: url('/https://cdn.jsdelivr.net/gh/chopin11/image001/cover-lb.jpeg')"></div> -->
     <div class="post-info">
         <div class="post-info-center">
             <div class="hidden-xs">
@@ -441,20 +361,28 @@
                 
                 <span>/</span>
                 
-                <a class="text-gray" href="/tags/#关于我"
-                    title="关于我">关于我</a>
+                <a class="text-gray" href="/tags/#keepalived"
+                    title="keepalived">keepalived</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#负载均衡"
+                    title="负载均衡">负载均衡</a>
+                <span>/</span>
+                
+                <a class="text-gray" href="/tags/#高可用"
+                    title="高可用">高可用</a>
                 <span>/</span>
                 
                 
             </div>
-            <a href="/post/about.html" class="title">
-                留言板
+            <a href="/post/325553977.html" class="title">
+                keepalived 快速入门介绍
             </a>
             <p class="text-gray">
                 <small>
-                    <span>发表于2017-07-03，</span>
-                    <span class="hidden-xs">全文980字，</span>
-                    <span>阅读约4分钟</span>
+                    <span>发表于2021-01-02，</span>
+                    <span class="hidden-xs">全文8078字，</span>
+                    <span>阅读约27分钟</span>
                 </small>
             </p>
         </div>
@@ -726,61 +654,25 @@
         
         
         <section class="gkt-sidebar-content box-shadow">
-            <strong>HTTPS</strong>
+            <strong>Linux基础</strong>
             <ul>
                 
                 <li>
-                    <a href="/post/78358564.html"
-                        class="">使用openssl创建自签名证书</a>
+                    <a href="/post/1111606992.html"
+                        class="">写给 Linux 初学者的一封信</a>
                     
                 </li>
                 
                 <li>
-                    <a href="/post/3965235630.html"
-                        class="">使用openssl签发 RSA 证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/2813878042.html"
-                        class="">使用openssl签发ECC证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/3934410168.html"
-                        class="">使用openssl签发多级CA的证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/261015374.html"
-                        class="">使用openssl签发带扩展项v3证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1380760434.html"
-                        class="">使用openssl签发支持SAN证书</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/3142807446.html"
-                        class="">使用openssl签发证书最佳实践</a>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1717622242.html"
-                        class="gkt-sidebar-active">使用openssl操作证书的常见用法</a>
+                    <a href="/post/860403602.html"
+                        class="gkt-sidebar-active">如何给CentOS系统配置网络</a>
                     
                     <!-- Table of Contents -->
 <div id="sidebar-toc">
   <!-- TOC  -->
   
   
-  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%AF%81%E4%B9%A6%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="toc-nav-text">证书格式转换</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%AF%81%E4%B9%A6%E5%86%85%E5%AE%B9%E6%9F%A5%E7%9C%8B"><span class="toc-nav-text">证书内容查看</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%AF%81%E4%B9%A6%E9%AA%8C%E8%AF%81"><span class="toc-nav-text">证书验证</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%A8%A1%E6%8B%9F-HTTPS"><span class="toc-nav-text">模拟 HTTPS</span></a></li></ol>
+  <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%E8%AE%BE%E7%BD%AE"><span class="toc-nav-text">网络地址设置</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%85%8D%E5%AF%86%E7%99%BB%E5%BD%95"><span class="toc-nav-text">设置免密登录</span></a></li></ol>
   
 </div>
 
@@ -819,12 +711,6 @@
     })
   })();
 </script>
-                    
-                </li>
-                
-                <li>
-                    <a href="/post/1748927476.html"
-                        class="">使用openssl生成证书吊销列表</a>
                     
                 </li>
                 
