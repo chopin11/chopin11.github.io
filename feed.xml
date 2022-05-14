@@ -84,6 +84,8 @@
       
       <category domain="https://tcpdump.cn/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/">命令行</category>
       
+      <category domain="https://tcpdump.cn/tags/Linux/">Linux</category>
+      
       
       <comments>https://tcpdump.cn/post/3661056863.html#disqus_thread</comments>
       
@@ -107,6 +109,8 @@
       
       <category domain="https://tcpdump.cn/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/">命令行</category>
       
+      <category domain="https://tcpdump.cn/tags/Linux/">Linux</category>
+      
       
       <comments>https://tcpdump.cn/post/570643816.html#disqus_thread</comments>
       
@@ -129,6 +133,8 @@
       
       
       <category domain="https://tcpdump.cn/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/">命令行</category>
+      
+      <category domain="https://tcpdump.cn/tags/Linux/">Linux</category>
       
       
       <comments>https://tcpdump.cn/post/968839864.html#disqus_thread</comments>
@@ -775,27 +781,6 @@
     </item>
     
     <item>
-      <title>友情链接</title>
-      <link>https://tcpdump.cn/post/link.html</link>
-      <guid>https://tcpdump.cn/post/link.html</guid>
-      <pubDate>Mon, 03 Jul 2017 03:51:24 GMT</pubDate>
-      
-      <description>肖邦Linux的友情链接</description>
-      
-      
-      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/image001/cover-linux.jpeg" type="image"/>
-      
-      
-      
-      
-      <category domain="https://tcpdump.cn/tags/%E5%8F%8B%E9%93%BE/">友链</category>
-      
-      
-      <comments>https://tcpdump.cn/post/link.html#disqus_thread</comments>
-      
-    </item>
-    
-    <item>
       <title>收藏优质资源</title>
       <link>https://tcpdump.cn/post/fav.html</link>
       <guid>https://tcpdump.cn/post/fav.html</guid>
@@ -813,6 +798,27 @@
       
       
       <comments>https://tcpdump.cn/post/fav.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>友情链接</title>
+      <link>https://tcpdump.cn/post/link.html</link>
+      <guid>https://tcpdump.cn/post/link.html</guid>
+      <pubDate>Mon, 03 Jul 2017 03:51:24 GMT</pubDate>
+      
+      <description>肖邦Linux的友情链接</description>
+      
+      
+      <enclosure url="https://tcpdump.cn/https://cdn.jsdelivr.net/gh/chopin11/image001/cover-linux.jpeg" type="image"/>
+      
+      
+      
+      
+      <category domain="https://tcpdump.cn/tags/%E5%8F%8B%E9%93%BE/">友链</category>
+      
+      
+      <comments>https://tcpdump.cn/post/link.html#disqus_thread</comments>
       
     </item>
     
